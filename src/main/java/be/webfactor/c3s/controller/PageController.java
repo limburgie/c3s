@@ -34,7 +34,7 @@ public class PageController {
 	public String index(HttpServletRequest request) {
 		MasterService masterService = getMasterService(request);
 
-		return friendlyUrl(masterService.getSite().getIndexPage().getFriendlyUrl(), masterService);
+		return friendlyUrl(masterService.getSite().getIndexPage().getFriendlyUrl(), new String[0], masterService);
 	}
 
 	@RequestMapping("/assets/**")
@@ -49,9 +49,20 @@ public class PageController {
 		}
 	}
 
-	@RequestMapping("/{friendlyUrl}")
-	public String friendlyUrl(@PathVariable("friendlyUrl") final String friendlyUrl, HttpServletRequest request) {
-		return friendlyUrl(friendlyUrl, getMasterService(request));
+	@RequestMapping("/**")
+	public String friendlyUrl(HttpServletRequest request) {
+		String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+		String friendlyUrl = path.substring(1);
+		String[] params = new String[0];
+
+		if (friendlyUrl.contains("/")) {
+			String[] pathParts = friendlyUrl.split("/", 2);
+
+			friendlyUrl = pathParts[0];
+			params = pathParts[1].split("/");
+		}
+
+		return friendlyUrl(friendlyUrl, params, getMasterService(request));
 	}
 
 	private MasterService getMasterService(HttpServletRequest request) {
@@ -60,7 +71,7 @@ public class PageController {
 		return masterServiceFactory.forRepositoryConnection(repository.getConnection());
 	}
 
-	private String friendlyUrl(String friendlyUrl, MasterService masterService) {
-		return pageRendererFactory.forMasterService(masterService).render(masterService.getPage(friendlyUrl));
+	private String friendlyUrl(String friendlyUrl, String[] params, MasterService masterService) {
+		return pageRendererFactory.forMasterService(masterService).render(masterService.getPage(friendlyUrl), params);
 	}
 }

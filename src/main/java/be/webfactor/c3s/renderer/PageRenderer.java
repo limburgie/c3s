@@ -20,21 +20,25 @@ public class PageRenderer {
 		this.templateParser = templateParser;
 	}
 
-	public String render(Page page) {
-		String pageContent = renderPageContent(page);
+	public String render(Page page, String[] params) {
+		String pageContent = renderPageContent(page, params);
 
 		return renderPage(new RenderContext(pageContent, page));
 	}
 
-	private String renderPageContent(Page page) {
+	private String renderPageContent(Page page, String[] params) {
 		Map<String, Object> pageContext = new HashMap<>();
+
+		pageContext.put("params", params);
 		pageContext.put("master", masterService);
 		pageContext.put("api", contentService.getApi());
+
 		return templateParser.parse(page.getTemplate(), pageContext);
 	}
 
 	private String renderPage(RenderContext renderContext) {
 		Map<String, Object> siteContext = new HashMap<>();
+
 		siteContext.put("master", masterService);
 		siteContext.put("context", renderContext);
 		siteContext.put("api", contentService.getApi());
