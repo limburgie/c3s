@@ -1,5 +1,7 @@
 package be.webfactor.c3s.master.domain;
 
+import java.util.Objects;
+
 public class Page {
 
 	private String friendlyUrl;
@@ -22,5 +24,19 @@ public class Page {
 
 	public String getTemplate() {
 		return template;
+	}
+
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		Page page = (Page) o;
+		return Objects.equals(friendlyUrl, page.friendlyUrl) && Objects.equals(name, page.name) && Objects.equals(template, page.template);
+	}
+
+	public int hashCode() {
+
+		return Objects.hash(friendlyUrl, name, template);
 	}
 }
