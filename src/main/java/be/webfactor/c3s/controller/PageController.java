@@ -2,7 +2,10 @@ package be.webfactor.c3s.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,13 +41,16 @@ public class PageController {
 	}
 
 	@RequestMapping("/assets/**")
-	public void asset(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void asset(HttpServletRequest request, HttpServletResponse response) throws IOException, URISyntaxException {
 		String requestUri = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 		String assetPath = StringUtils.removeStart(requestUri, ASSETS_PREFIX);
 		String assetUrl = getMasterService(request).getAssetUrl(assetPath);
 
-		try(InputStream is = new URL(assetUrl).openStream()) {
+		URL url = new URL(assetUrl);
+
+		try(InputStream is = url.openStream()) {
 			IOUtils.copy(is, response.getOutputStream());
+			response.setContentType(Files.probeContentType(Paths.get(url.toURI())));
 			response.flushBuffer();
 		}
 	}
