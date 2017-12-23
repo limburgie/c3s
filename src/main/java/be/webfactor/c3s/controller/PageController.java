@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
+import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +81,7 @@ public class PageController {
 		Metadata metadata = new Metadata();
 		metadata.set(Metadata.RESOURCE_NAME_KEY, assetPath);
 
-		return new TikaConfig().getDetector().detect(is, metadata).toString();
+		return new TikaConfig().getDetector().detect(TikaInputStream.get(is), metadata).toString();
 	}
 
 	private MasterService getMasterService(HttpServletRequest request) {
