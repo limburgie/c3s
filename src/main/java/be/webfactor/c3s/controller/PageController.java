@@ -12,6 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.config.TikaConfig;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.mime.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,16 +45,14 @@ public class PageController {
 	}
 
 	@RequestMapping("/assets/**")
-	public void asset(HttpServletRequest request, HttpServletResponse response) throws IOException, URISyntaxException {
+	public void asset(HttpServletRequest request, HttpServletResponse response) throws IOException, TikaException {
 		String requestUri = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 		String assetPath = StringUtils.removeStart(requestUri, ASSETS_PREFIX);
 		String assetUrl = getMasterService(request).getAssetUrl(assetPath);
 
-		URL url = new URL(assetUrl);
-
-		try(InputStream is = url.openStream()) {
+		try(InputStream is = new URL(assetUrl).openStream()) {
 			IOUtils.copy(is, response.getOutputStream());
-			response.setContentType(Files.probeContentType(Paths.get(url.toURI())));
+			response.setContentType(getContentType(is, assetPath));
 			response.flushBuffer();
 		}
 	}
@@ -69,6 +71,13 @@ public class PageController {
 		}
 
 		return friendlyUrl(friendlyUrl, params, getMasterService(request));
+	}
+
+	private String getContentType(InputStream is, String assetPath) throws TikaException, IOException {
+		Metadata metadata = new Metadata();
+		metadata.set(Metadata.RESOURCE_NAME_KEY, assetPath);
+
+		return new TikaConfig().getDetector().detect(is, metadata).toString();
 	}
 
 	private MasterService getMasterService(HttpServletRequest request) {
