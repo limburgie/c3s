@@ -32,13 +32,14 @@ public class PrismicMasterService implements MasterService {
 
 		String name = siteDocument.getText("site.name");
 		String indexPageFriendlyUrl = pageLink.getUid();
+		String errorTemplate = siteDocument.getText("site.error_template_file");
 		TemplateEngine templateEngine = TemplateEngine.valueOf(siteDocument.getText("site.template_engine"));
 		String template = siteDocument.getText("site.template");
 		RepositoryType repositoryType = RepositoryType.valueOf(siteDocument.getText("site.content_repository_type"));
 		String repositoryId = siteDocument.getText("site.content_repository_id");
 		String accessToken = siteDocument.getText("site.content_repository_access_token");
 
-		return new Site(name, getPage(indexPageFriendlyUrl), templateEngine, template, new RepositoryConnection(repositoryType, repositoryId, accessToken));
+		return new Site(name, getPage(indexPageFriendlyUrl), errorTemplate, templateEngine, template, new RepositoryConnection(repositoryType, repositoryId, accessToken));
 	}
 
 	public List<Page> getPages() {

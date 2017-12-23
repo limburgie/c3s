@@ -6,6 +6,7 @@ public class WebserverSiteConfiguration {
 
 	private String name;
 	private String indexPage;
+	private String errorTemplateFile;
 	private String templateEngine;
 	private String templateFile;
 	private WebserverSiteContentRepositoryConnection contentRepositoryConnection;
@@ -26,6 +27,14 @@ public class WebserverSiteConfiguration {
 
 	public void setIndexPage(String indexPage) {
 		this.indexPage = indexPage;
+	}
+
+	public String getErrorTemplateFile() {
+		return errorTemplateFile;
+	}
+
+	public void setErrorTemplateFile(String errorTemplateFile) {
+		this.errorTemplateFile = errorTemplateFile;
 	}
 
 	public String getTemplateEngine() {

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -22,7 +23,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
 
+import be.webfactor.c3s.master.domain.Page;
 import be.webfactor.c3s.registry.domain.MasterRepository;
+import be.webfactor.c3s.renderer.PageRenderer;
 import be.webfactor.c3s.renderer.PageRendererFactory;
 import be.webfactor.c3s.master.service.MasterService;
 import be.webfactor.c3s.master.service.MasterServiceFactory;
@@ -87,6 +90,12 @@ public class PageController {
 	}
 
 	private String friendlyUrl(String friendlyUrl, String[] params, MasterService masterService) {
-		return pageRendererFactory.forMasterService(masterService).render(masterService.getPage(friendlyUrl), params);
+		PageRenderer pageRenderer = pageRendererFactory.forMasterService(masterService);
+
+		try {
+			return pageRenderer.render(masterService.getPage(friendlyUrl), params);
+		} catch (Throwable t) {
+			return pageRenderer.render(masterService.getSite().getErrorPage(), new String[] { ExceptionUtils.getStackTrace(t) });
+		}
 	}
 }

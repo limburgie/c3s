@@ -41,6 +41,7 @@ public class WebserverMasterService implements MasterService {
 	public Site getSite() {
 		String name = config.getName();
 		Page indexPage = getPage(config.getIndexPage());
+		String errorTemplate = readFile(config.getErrorTemplateFile());
 		TemplateEngine templateEngine = TemplateEngine.valueOf(config.getTemplateEngine());
 		String template = readFile(config.getTemplateFile());
 
@@ -49,7 +50,7 @@ public class WebserverMasterService implements MasterService {
 		String contentRepositoryId = repositoryConnection.getRepositoryId();
 		String contentRepositoryAccessToken = repositoryConnection.getAccessToken();
 
-		return new Site(name, indexPage, templateEngine, template, new RepositoryConnection(contentRepositoryType, contentRepositoryId, contentRepositoryAccessToken));
+		return new Site(name, indexPage, errorTemplate, templateEngine, template, new RepositoryConnection(contentRepositoryType, contentRepositoryId, contentRepositoryAccessToken));
 	}
 
 	public List<Page> getPages() {
