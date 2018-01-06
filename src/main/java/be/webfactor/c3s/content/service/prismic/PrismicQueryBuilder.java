@@ -1,6 +1,7 @@
 package be.webfactor.c3s.content.service.prismic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,7 @@ public class PrismicQueryBuilder implements QueryBuilder {
 	private List<Predicate> predicates = new ArrayList<>();
 	private List<String> orderings = new ArrayList<>();
 	private String type;
-	private boolean randomizeOrder;
+	private boolean shuffled;
 
 	PrismicQueryBuilder(Api api) {
 		this.api = api;
@@ -57,8 +58,8 @@ public class PrismicQueryBuilder implements QueryBuilder {
 		return addOrdering(fieldName + " desc");
 	}
 
-	public QueryBuilder orderRandomly() {
-		randomizeOrder = true;
+	public QueryBuilder shuffle() {
+		shuffled = true;
 
 		return this;
 	}
@@ -78,21 +79,30 @@ public class PrismicQueryBuilder implements QueryBuilder {
 	}
 
 	public List<PrismicContentItem> findAll(int limit) {
-		return doFindAll(buildQuery().pageSize(limit));
+		return findAll(1, limit);
 	}
 
 	public List<PrismicContentItem> findAll(int page, int size) {
-		return doFindAll(buildQuery().pageSize(size).page(page));
-	}
+		Form.SearchForm searchForm = buildQuery();
 
-	private List<PrismicContentItem> doFindAll(Form.SearchForm searchForm) {
-		return searchForm.submit().getResults().stream().map(PrismicContentItem::new).collect(Collectors.toList());
+		if (!shuffled) {
+			searchForm.page(page).pageSize(size);
+		}
+
+		List<PrismicContentItem> results = searchForm.submit().getResults().stream().map(PrismicContentItem::new).collect(Collectors.toList());
+
+		if (shuffled) {
+			Collections.shuffle(results);
+			results = results.subList((page-1) * size, Math.min(results.size(), page * size));
+		}
+
+		return results;
 	}
 
 	public ContentItem findFirst() {
-		List<Document> documents = buildQuery().pageSize(1).submit().getResults();
+		List<PrismicContentItem> items = findAll(1);
 
-		return documents.stream().map(PrismicContentItem::new).findFirst().orElse(null);
+		return items.isEmpty() ? null : items.get(0);
 	}
 
 	private Form.SearchForm buildQuery() {

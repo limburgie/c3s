@@ -1,5 +1,6 @@
 package be.webfactor.c3s.content.service.contentful;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,13 +8,12 @@ import com.contentful.java.cda.CDAClient;
 import com.contentful.java.cda.CDAEntry;
 import com.contentful.java.cda.FetchQuery;
 
-import be.webfactor.c3s.content.service.domain.ContentItem;
 import be.webfactor.c3s.content.service.domain.QueryBuilder;
 
 public class ContentfulQueryBuilder implements QueryBuilder {
 
 	private FetchQuery<CDAEntry> fetchQuery;
-	private boolean randomizeOrder;
+	private boolean shuffled;
 
 	ContentfulQueryBuilder(CDAClient cdaClient) {
 		fetchQuery = cdaClient.fetch(CDAEntry.class);
@@ -51,8 +51,8 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
-	public QueryBuilder orderRandomly() {
-		randomizeOrder = true;
+	public QueryBuilder shuffle() {
+		shuffled = true;
 
 		return this;
 	}
@@ -66,22 +66,27 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 	}
 
 	public List<ContentfulContentItem> findAll(int limit) {
-		fetchQuery.limit(limit);
-
-		return doFindAll();
+		return findAll(1, limit);
 	}
 
 	public List<ContentfulContentItem> findAll(int page, int size) {
-		fetchQuery.limit(size).skip((page-1)*size);
+		if (!shuffled) {
+			fetchQuery.limit(size).skip((page-1)*size);
+		}
 
-		return doFindAll();
+		List<ContentfulContentItem> results = fetchQuery.all().items().stream().map(cdaResource -> new ContentfulContentItem((CDAEntry) cdaResource)).collect(Collectors.toList());
+
+		if (shuffled) {
+			Collections.shuffle(results);
+			results = results.subList((page-1) * size, Math.min(results.size(), page * size));
+		}
+
+		return results;
 	}
 
-	private List<ContentfulContentItem> doFindAll() {
-		return fetchQuery.all().items().stream().map(cdaResource -> new ContentfulContentItem((CDAEntry) cdaResource)).collect(Collectors.toList());
-	}
+	public ContentfulContentItem findFirst() {
+		List<ContentfulContentItem> items = findAll(1);
 
-	public ContentItem findFirst() {
-		return fetchQuery.limit(1).all().items().stream().map(cdaResource -> new ContentfulContentItem((CDAEntry) cdaResource)).findFirst().orElse(null);
+		return items.isEmpty() ? null : items.get(0);
 	}
 }

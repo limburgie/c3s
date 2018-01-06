@@ -37,7 +37,7 @@ public interface QueryBuilder {
 	/**
 	 * Order results randomly.
 	 */
-	QueryBuilder orderRandomly();
+	QueryBuilder shuffle();
 
 	/**
 	 * Find all items matching the query. List is empty if no items were found.
