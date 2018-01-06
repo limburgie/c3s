@@ -4,21 +4,23 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import be.webfactor.c3s.content.service.ContentService;
+import be.webfactor.c3s.content.service.domain.ContentApi;
 import be.webfactor.c3s.repository.RepositoryConnection;
 import be.webfactor.c3s.repository.RepositoryType;
 import io.prismic.Api;
+import io.prismic.Predicates;
 
 @Service
 @Scope("request")
 public class PrismicContentService implements ContentService {
 
-	private Api api;
+	private ContentApi api;
 
 	public void initialize(RepositoryConnection connection) {
-		api = Api.get(connection.getRepositoryId(), connection.getAccessToken());
+		api = new PrismicContentApi(Api.get(connection.getRepositoryId(), connection.getAccessToken()));
 	}
 
-	public Api getApi() {
+	public ContentApi getApi() {
 		return api;
 	}
 

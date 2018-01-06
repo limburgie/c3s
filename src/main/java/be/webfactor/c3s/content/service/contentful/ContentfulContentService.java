@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.contentful.java.cda.CDAClient;
 
 import be.webfactor.c3s.content.service.ContentService;
+import be.webfactor.c3s.content.service.domain.ContentApi;
 import be.webfactor.c3s.repository.RepositoryConnection;
 import be.webfactor.c3s.repository.RepositoryType;
 
@@ -13,13 +14,13 @@ import be.webfactor.c3s.repository.RepositoryType;
 @Scope("request")
 public class ContentfulContentService implements ContentService {
 
-	private CDAClient api;
+	private ContentApi api;
 
 	public void initialize(RepositoryConnection connection) {
-		api = CDAClient.builder().setSpace(connection.getRepositoryId()).setToken(connection.getAccessToken()).build();
+		api = new ContentfulContentApi(CDAClient.builder().setSpace(connection.getRepositoryId()).setToken(connection.getAccessToken()).build());
 	}
 
-	public Object getApi() {
+	public ContentApi getApi() {
 		return api;
 	}
 
