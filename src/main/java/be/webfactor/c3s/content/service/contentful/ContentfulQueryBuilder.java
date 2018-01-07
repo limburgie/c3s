@@ -46,6 +46,13 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
+	public QueryBuilder withDateToday(String field) {
+		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsLaterOrAt, DateTime.now().withTimeAtStartOfDay().toString());
+		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsEarlierOrAt, DateTime.now().plusDays(1).withTimeAtStartOfDay().toString());
+
+		return this;
+	}
+
 	public QueryBuilder orderByAsc(String fieldName) {
 		fetchQuery.orderBy(fieldsPrefix(fieldName));
 

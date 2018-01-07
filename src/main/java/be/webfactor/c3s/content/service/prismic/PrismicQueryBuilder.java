@@ -50,6 +50,14 @@ public class PrismicQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
+	public QueryBuilder withDateToday(String field) {
+		predicates.add(Predicates.dayOfMonth(docPrefix(field), DateTime.now().getDayOfMonth()));
+		predicates.add(Predicates.month(docPrefix(field), Predicates.Month.valueOf(DateTime.now().toString("MMMMM").toUpperCase())));
+		predicates.add(Predicates.year(docPrefix(field), DateTime.now().getYear()));
+
+		return this;
+	}
+
 	public QueryBuilder orderByAsc(String fieldName) {
 		return addOrdering(fieldName);
 	}

@@ -25,6 +25,11 @@ public interface QueryBuilder {
 	QueryBuilder withDateInFuture(String field);
 
 	/**
+	 * Only return content items with today's date (day, month and year).
+	 */
+	QueryBuilder withDateToday(String field);
+
+	/**
 	 * Order results by the given field name.
 	 */
 	QueryBuilder orderByAsc(String fieldName);
