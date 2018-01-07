@@ -74,6 +74,10 @@ public class PrismicQueryBuilder implements QueryBuilder {
 		return "my." + type + "." + field;
 	}
 
+	public int count() {
+		return buildQuery().submit().getTotalResultsSize();
+	}
+
 	public List<PrismicContentItem> findAll() {
 		return findAll(100);
 	}
@@ -83,7 +87,7 @@ public class PrismicQueryBuilder implements QueryBuilder {
 	}
 
 	public List<PrismicContentItem> findAll(int page, int size) {
-		Form.SearchForm searchForm = buildQuery();
+		Form.SearchForm searchForm = buildQueryWithOrderings();
 
 		if (!shuffled) {
 			searchForm.page(page).pageSize(size);
@@ -105,8 +109,12 @@ public class PrismicQueryBuilder implements QueryBuilder {
 		return items.isEmpty() ? null : items.get(0);
 	}
 
+	private Form.SearchForm buildQueryWithOrderings() {
+		return buildQuery().orderings(buildOrderings());
+	}
+
 	private Form.SearchForm buildQuery() {
-		return api.query(predicates.toArray(new Predicate[predicates.size()])).orderings(buildOrderings());
+		return api.query(predicates.toArray(new Predicate[predicates.size()]));
 	}
 
 	private String buildOrderings() {

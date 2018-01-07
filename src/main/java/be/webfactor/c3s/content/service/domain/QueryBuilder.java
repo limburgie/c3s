@@ -40,6 +40,11 @@ public interface QueryBuilder {
 	QueryBuilder shuffle();
 
 	/**
+	 * Count the number of items matching the query.
+	 */
+	int count();
+
+	/**
 	 * Find all items matching the query. List is empty if no items were found.
 	 */
 	List<? extends ContentItem> findAll();

@@ -61,6 +61,10 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 		return "fields." + fieldName;
 	}
 
+	public int count() {
+		return fetchQuery.all().total();
+	}
+
 	public List<ContentfulContentItem> findAll() {
 		return findAll(1000);
 	}
