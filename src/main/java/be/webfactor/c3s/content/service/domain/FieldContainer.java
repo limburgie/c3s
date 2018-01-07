@@ -23,6 +23,11 @@ public interface FieldContainer {
 	NumberField getNumber(String fieldName);
 
 	/**
+	 * Returns the web link in this content item with the given field name.
+	 */
+	WebLink getWebLink(String fieldName);
+
+	/**
 	 * Returns the content item referenced by the given field name in this content item.
 	 */
 	ContentItem getReference(String fieldName);

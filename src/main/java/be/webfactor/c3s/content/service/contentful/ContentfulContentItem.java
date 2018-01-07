@@ -32,6 +32,10 @@ public class ContentfulContentItem implements ContentItem {
 		return new ContentfulNumberField(cdaEntry.getField(fieldName));
 	}
 
+	public WebLink getWebLink(String fieldName) {
+		throw new UnsupportedOperationException();
+	}
+
 	public ContentItem getReference(String fieldName) {
 		CDAEntry referencedEntry = cdaEntry.getField(fieldName);
 
