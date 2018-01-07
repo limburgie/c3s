@@ -31,7 +31,7 @@ public class ContentfulContentItem implements ContentItem {
 	}
 
 	public ReferenceField getReference(String fieldName) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	public GroupField getGroup(String fieldName) {

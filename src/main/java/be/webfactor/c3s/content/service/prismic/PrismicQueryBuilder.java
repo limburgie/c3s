@@ -101,7 +101,7 @@ public class PrismicQueryBuilder implements QueryBuilder {
 			searchForm.page(page).pageSize(size);
 		}
 
-		List<PrismicContentItem> results = searchForm.submit().getResults().stream().map(PrismicContentItem::new).collect(Collectors.toList());
+		List<PrismicContentItem> results = searchForm.submit().getResults().stream().map(document -> new PrismicContentItem(document, api)).collect(Collectors.toList());
 
 		if (shuffled) {
 			Collections.shuffle(results);
