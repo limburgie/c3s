@@ -33,7 +33,9 @@ public class ContentfulContentItem implements ContentItem {
 	}
 
 	public ContentItem getReference(String fieldName) {
-		throw new UnsupportedOperationException();
+		CDAEntry referencedEntry = cdaEntry.getField(fieldName);
+
+		return referencedEntry == null ? null : new ContentfulContentItem(referencedEntry);
 	}
 
 	public List<FieldContainer> getGroup(String fieldName) {
