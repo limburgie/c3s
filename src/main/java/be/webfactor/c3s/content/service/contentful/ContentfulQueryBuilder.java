@@ -4,9 +4,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.joda.time.DateTime;
+
 import com.contentful.java.cda.CDAClient;
 import com.contentful.java.cda.CDAEntry;
 import com.contentful.java.cda.FetchQuery;
+import com.contentful.java.cda.QueryOperation;
 
 import be.webfactor.c3s.content.service.domain.QueryBuilder;
 
@@ -32,11 +35,15 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 	}
 
 	public QueryBuilder withDateInPast(String field) {
-		throw new UnsupportedOperationException();
+		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsEarlierThan, DateTime.now().toString());
+
+		return this;
 	}
 
 	public QueryBuilder withDateInFuture(String field) {
-		throw new UnsupportedOperationException();
+		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsLaterThan, DateTime.now().toString());
+
+		return this;
 	}
 
 	public QueryBuilder orderByAsc(String fieldName) {
