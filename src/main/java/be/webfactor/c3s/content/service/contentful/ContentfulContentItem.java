@@ -1,5 +1,7 @@
 package be.webfactor.c3s.content.service.contentful;
 
+import java.util.List;
+
 import com.contentful.java.cda.CDAEntry;
 
 import be.webfactor.c3s.content.service.domain.*;
@@ -34,7 +36,7 @@ public class ContentfulContentItem implements ContentItem {
 		throw new UnsupportedOperationException();
 	}
 
-	public GroupField getGroup(String fieldName) {
+	public List<FieldContainer> getGroup(String fieldName) {
 		throw new UnsupportedOperationException();
 	}
 }
