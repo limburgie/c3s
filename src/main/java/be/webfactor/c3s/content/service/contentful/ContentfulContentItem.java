@@ -32,7 +32,7 @@ public class ContentfulContentItem implements ContentItem {
 		return new ContentfulNumberField(cdaEntry.getField(fieldName));
 	}
 
-	public ReferenceField getReference(String fieldName) {
+	public ContentItem getReference(String fieldName) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -35,7 +35,7 @@ public class PrismicContentItem extends PrismicFieldContainer implements Content
 		return super.getNumber(docPrefix(fieldName));
 	}
 
-	public ReferenceField getReference(String fieldName) {
+	public ContentItem getReference(String fieldName) {
 		return super.getReference(docPrefix(fieldName));
 	}
 

@@ -23,7 +23,7 @@ public interface FieldContainer {
 	NumberField getNumber(String fieldName);
 
 	/**
-	 * Returns the reference field in this content item with the given field name.
+	 * Returns the content item referenced by the given field name in this content item.
 	 */
-	ReferenceField getReference(String fieldName);
+	ContentItem getReference(String fieldName);
 }

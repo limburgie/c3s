@@ -2,6 +2,7 @@ package be.webfactor.c3s.content.service.prismic;
 
 import be.webfactor.c3s.content.service.domain.*;
 import io.prismic.Api;
+import io.prismic.Fragment;
 import io.prismic.WithFragments;
 
 public class PrismicFieldContainer implements FieldContainer {
@@ -30,7 +31,9 @@ public class PrismicFieldContainer implements FieldContainer {
 		return new PrismicNumberField(withFragments.getNumber(fieldName));
 	}
 
-	public ReferenceField getReference(String fieldName) {
-		return new PrismicReferenceField(withFragments.getLink(fieldName), api);
+	public ContentItem getReference(String fieldName) {
+		Fragment.DocumentLink link = (Fragment.DocumentLink) withFragments.getLink(fieldName);
+
+		return link == null ? null : new PrismicContentItem(api.getByID(link.getId()), api);
 	}
 }
