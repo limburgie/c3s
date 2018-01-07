@@ -39,6 +39,10 @@ public class PrismicContentItem extends PrismicFieldContainer implements Content
 		return super.getWebLink(docPrefix(fieldName));
 	}
 
+	public AssetLink getAsset(String fieldName) {
+		return super.getAsset(docPrefix(fieldName));
+	}
+
 	public ContentItem getReference(String fieldName) {
 		return super.getReference(docPrefix(fieldName));
 	}

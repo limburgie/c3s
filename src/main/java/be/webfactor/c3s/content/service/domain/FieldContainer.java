@@ -28,6 +28,11 @@ public interface FieldContainer {
 	WebLink getWebLink(String fieldName);
 
 	/**
+	 * Returns the asset referenced by the give field name in this content item.
+	 */
+	AssetLink getAsset(String fieldName);
+
+	/**
 	 * Returns the content item referenced by the given field name in this content item.
 	 */
 	ContentItem getReference(String fieldName);

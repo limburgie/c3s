@@ -35,6 +35,10 @@ public class PrismicFieldContainer implements FieldContainer {
 		return new PrismicWebLink((Fragment.WebLink) withFragments.getLink(fieldName));
 	}
 
+	public AssetLink getAsset(String fieldName) {
+		return new PrismicAssetLink(withFragments.getLink(fieldName));
+	}
+
 	public ContentItem getReference(String fieldName) {
 		Fragment.DocumentLink link = (Fragment.DocumentLink) withFragments.getLink(fieldName);
 

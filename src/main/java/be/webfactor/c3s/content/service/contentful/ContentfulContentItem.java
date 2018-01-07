@@ -36,6 +36,10 @@ public class ContentfulContentItem implements ContentItem {
 		throw new UnsupportedOperationException();
 	}
 
+	public AssetLink getAsset(String fieldName) {
+		return new ContentfulAssetLink(cdaEntry.getField(fieldName));
+	}
+
 	public ContentItem getReference(String fieldName) {
 		CDAEntry referencedEntry = cdaEntry.getField(fieldName);
 
