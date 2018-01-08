@@ -43,6 +43,10 @@ public class PrismicContentItem extends PrismicFieldContainer implements Content
 		return super.getWebLink(docPrefix(fieldName));
 	}
 
+	public GeolocationField getGeolocation(String fieldName) {
+		return super.getGeolocation(docPrefix(fieldName));
+	}
+
 	public AssetLink getAsset(String fieldName) {
 		return super.getAsset(docPrefix(fieldName));
 	}

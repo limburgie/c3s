@@ -40,6 +40,10 @@ public class ContentfulContentItem implements ContentItem {
 		throw new UnsupportedOperationException();
 	}
 
+	public GeolocationField getGeolocation(String fieldName) {
+		return new ContentfulGeolocationField(cdaEntry.getField(fieldName));
+	}
+
 	public AssetLink getAsset(String fieldName) {
 		return new ContentfulAssetLink(cdaEntry.getField(fieldName));
 	}

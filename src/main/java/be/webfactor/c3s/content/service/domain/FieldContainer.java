@@ -33,6 +33,11 @@ public interface FieldContainer {
 	WebLink getWebLink(String fieldName);
 
 	/**
+	 * Returns the geolocation field in this content item with the given field name.
+	 */
+	GeolocationField getGeolocation(String fieldName);
+
+	/**
 	 * Returns the asset referenced by the give field name in this content item.
 	 */
 	AssetLink getAsset(String fieldName);

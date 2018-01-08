@@ -39,6 +39,10 @@ public class PrismicFieldContainer implements FieldContainer {
 		return new PrismicWebLink((Fragment.WebLink) withFragments.getLink(fieldName));
 	}
 
+	public GeolocationField getGeolocation(String fieldName) {
+		return new PrismicGeolocationField(withFragments.getGeoPoint(fieldName));
+	}
+
 	public AssetLink getAsset(String fieldName) {
 		return new PrismicAssetLink(withFragments.getLink(fieldName));
 	}
