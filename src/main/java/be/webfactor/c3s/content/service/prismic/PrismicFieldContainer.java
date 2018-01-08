@@ -19,6 +19,10 @@ public class PrismicFieldContainer implements FieldContainer {
 		return withFragments.getText(fieldName);
 	}
 
+	public RichTextField getRichText(String fieldName) {
+		return new PrismicRichTextField(withFragments.getStructuredText(fieldName));
+	}
+
 	public ImageField getImage(String fieldName) {
 		return new PrismicImageField(withFragments.getImage(fieldName));
 	}

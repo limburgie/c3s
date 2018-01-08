@@ -8,6 +8,11 @@ public interface FieldContainer {
 	String getText(String fieldName);
 
 	/**
+	 * Returns the rich text field in this content item with the given field name.
+	 */
+	RichTextField getRichText(String fieldName);
+
+	/**
 	 * Returns the image field in this content item with the given field name.
 	 */
 	ImageField getImage(String fieldName);

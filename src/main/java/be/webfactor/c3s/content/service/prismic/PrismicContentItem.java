@@ -23,6 +23,10 @@ public class PrismicContentItem extends PrismicFieldContainer implements Content
 		return super.getText(docPrefix(fieldName));
 	}
 
+	public RichTextField getRichText(String fieldName) {
+		return super.getRichText(docPrefix(fieldName));
+	}
+
 	public ImageField getImage(String fieldName) {
 		return super.getImage(docPrefix(fieldName));
 	}

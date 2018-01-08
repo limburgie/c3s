@@ -20,6 +20,10 @@ public class ContentfulContentItem implements ContentItem {
 		return text == null ? "" : text;
 	}
 
+	public RichTextField getRichText(String fieldName) {
+		return new ContentfulRichTextField(cdaEntry.getField(fieldName));
+	}
+
 	public ImageField getImage(String fieldName) {
 		return new ContentfulImageField(cdaEntry.getField(fieldName));
 	}
