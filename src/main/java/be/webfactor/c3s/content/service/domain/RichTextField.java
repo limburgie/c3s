@@ -1,6 +1,6 @@
 package be.webfactor.c3s.content.service.domain;
 
-public interface RichTextField {
+public interface RichTextField extends ValueWrapper {
 
 	/**
 	 * Outputs the rich text as HTML.

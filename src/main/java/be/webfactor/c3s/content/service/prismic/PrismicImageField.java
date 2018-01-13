@@ -20,4 +20,8 @@ public class PrismicImageField implements ImageField {
 
 		return alt == null || "null".equals(alt) ? "" : alt;
 	}
+
+	public boolean isEmpty() {
+		return imageFragment == null;
+	}
 }

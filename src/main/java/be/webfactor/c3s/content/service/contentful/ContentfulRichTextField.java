@@ -24,4 +24,8 @@ public class ContentfulRichTextField implements RichTextField {
 	public String abbreviate(int length) {
 		return WordUtils.abbreviate(Jsoup.parse(getHtml()).text(), length, -1, "...");
 	}
+
+	public boolean isEmpty() {
+		return markdownContent == null;
+	}
 }

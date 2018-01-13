@@ -1,6 +1,6 @@
 package be.webfactor.c3s.content.service.domain;
 
-public interface DateField {
+public interface DateField extends ValueWrapper {
 
 	String format(String pattern);
 

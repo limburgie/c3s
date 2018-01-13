@@ -27,4 +27,8 @@ public class PrismicNumberField implements NumberField {
 	private String format(DecimalFormat df) {
 		return number == null ? "" : df.format(number.getValue());
 	}
+
+	public boolean isEmpty() {
+		return number == null;
+	}
 }

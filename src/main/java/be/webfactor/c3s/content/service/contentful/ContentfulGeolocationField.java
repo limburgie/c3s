@@ -19,4 +19,8 @@ public class ContentfulGeolocationField implements GeolocationField {
 	public Double getLongitude() {
 		return coordinates == null ? null : coordinates.get("lon");
 	}
+
+	public boolean isEmpty() {
+		return coordinates == null;
+	}
 }

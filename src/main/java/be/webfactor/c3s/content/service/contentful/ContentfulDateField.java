@@ -43,4 +43,8 @@ public class ContentfulDateField implements DateField {
 	public String format(String pattern, String locale) {
 		return temporalAccessor == null ? "" : DateTimeFormatter.ofPattern(pattern, LocaleUtils.toLocale(locale)).format(temporalAccessor);
 	}
+
+	public boolean isEmpty() {
+		return temporalAccessor == null;
+	}
 }

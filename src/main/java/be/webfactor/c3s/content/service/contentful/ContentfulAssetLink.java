@@ -33,4 +33,8 @@ public class ContentfulAssetLink implements AssetLink {
 	public Long getSize() {
 		return cdaAsset == null ? null : ((Double) ((Map) ((Map) ((Map) cdaAsset.rawFields().get("file")).values().iterator().next()).get("details")).get("size")).longValue();
 	}
+
+	public boolean isEmpty() {
+		return cdaAsset == null;
+	}
 }

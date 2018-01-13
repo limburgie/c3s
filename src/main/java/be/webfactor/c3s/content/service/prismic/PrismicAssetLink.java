@@ -57,4 +57,8 @@ public class PrismicAssetLink implements AssetLink {
 
 		return ((Fragment.FileLink) link).getSize();
 	}
+
+	public boolean isEmpty() {
+		return link == null;
+	}
 }

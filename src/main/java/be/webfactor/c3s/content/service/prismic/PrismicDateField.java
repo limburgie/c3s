@@ -49,4 +49,8 @@ public class PrismicDateField implements DateField {
 	private String format(TemporalAccessor javaDate, String pattern, String locale) {
 		return DateTimeFormatter.ofPattern(pattern).withLocale(LocaleUtils.toLocale(locale)).format(javaDate);
 	}
+
+	public boolean isEmpty() {
+		return fragment == null;
+	}
 }

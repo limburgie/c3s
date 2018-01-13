@@ -1,6 +1,6 @@
 package be.webfactor.c3s.content.service.domain;
 
-public interface AssetLink {
+public interface AssetLink extends ValueWrapper {
 
 	/**
 	 * Returns the URL of the asset.

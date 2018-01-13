@@ -26,4 +26,8 @@ public class ContentfulNumberField implements NumberField {
 	private String format(DecimalFormat df) {
 		return value == null ? "" : df.format(value);
 	}
+
+	public boolean isEmpty() {
+		return value == null;
+	}
 }

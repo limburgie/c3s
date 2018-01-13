@@ -19,4 +19,8 @@ public class ContentfulImageField implements ImageField {
 	public String getAlt() {
 		return cdaAsset == null ? "" : cdaAsset.title();
 	}
+
+	public boolean isEmpty() {
+		return cdaAsset == null;
+	}
 }
