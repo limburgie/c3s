@@ -25,7 +25,7 @@ public interface QueryBuilder {
 	QueryBuilder withDateInFuture(String field);
 
 	/**
-	 * Only return content items with today's date (day, month and year).
+	 * Only return content items with today's date (day, month and year) inside the specified field.
 	 */
 	QueryBuilder withDateToday(String field);
 
