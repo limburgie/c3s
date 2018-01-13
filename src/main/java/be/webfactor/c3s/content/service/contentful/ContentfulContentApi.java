@@ -13,8 +13,8 @@ public class ContentfulContentApi implements ContentApi {
 		this.cdaClient = cdaClient;
 	}
 
-	public QueryBuilder query() {
-		return new ContentfulQueryBuilder(cdaClient);
+	public QueryBuilder query(String type) {
+		return new ContentfulQueryBuilder(cdaClient, type);
 	}
 
 	public Object nativeApi() {

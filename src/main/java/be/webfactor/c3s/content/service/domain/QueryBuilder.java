@@ -5,11 +5,6 @@ import java.util.List;
 public interface QueryBuilder {
 
 	/**
-	 * Only return content items of the given type.
-	 */
-	QueryBuilder byType(String type);
-
-	/**
 	 * Only return content items which have the given value for the given field name.
 	 */
 	QueryBuilder with(String field, String value);

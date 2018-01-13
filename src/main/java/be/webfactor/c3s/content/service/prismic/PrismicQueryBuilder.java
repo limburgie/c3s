@@ -20,16 +20,11 @@ public class PrismicQueryBuilder implements QueryBuilder {
 	private String type;
 	private boolean shuffled;
 
-	PrismicQueryBuilder(Api api) {
+	PrismicQueryBuilder(Api api, String type) {
 		this.api = api;
-	}
-
-	public QueryBuilder byType(String type) {
 		this.type = type;
 
 		predicates.add(Predicates.at("document.type", type));
-
-		return this;
 	}
 
 	public QueryBuilder with(String field, String value) {

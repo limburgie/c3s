@@ -18,14 +18,8 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 	private FetchQuery<CDAEntry> fetchQuery;
 	private boolean shuffled;
 
-	ContentfulQueryBuilder(CDAClient cdaClient) {
-		fetchQuery = cdaClient.fetch(CDAEntry.class);
-	}
-
-	public QueryBuilder byType(String type) {
-		fetchQuery.withContentType(type);
-
-		return this;
+	ContentfulQueryBuilder(CDAClient cdaClient, String type) {
+		fetchQuery = cdaClient.fetch(CDAEntry.class).withContentType(type);
 	}
 
 	public QueryBuilder with(String field, String value) {

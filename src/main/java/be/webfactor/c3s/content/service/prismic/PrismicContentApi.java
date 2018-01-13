@@ -12,8 +12,8 @@ public class PrismicContentApi implements ContentApi {
 		this.api = api;
 	}
 
-	public QueryBuilder query() {
-		return new PrismicQueryBuilder(api);
+	public QueryBuilder query(String type) {
+		return new PrismicQueryBuilder(api, type);
 	}
 
 	public Object nativeApi() {
