@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 import be.webfactor.c3s.content.service.ContentService;
 import be.webfactor.c3s.content.service.ContentServiceFactory;
-import be.webfactor.c3s.master.domain.Site;
 import be.webfactor.c3s.master.service.MasterService;
 import be.webfactor.c3s.master.templateparser.TemplateParser;
 import be.webfactor.c3s.master.templateparser.TemplateParserFactory;
@@ -17,10 +16,8 @@ public class PageRendererFactory {
 	@Autowired private ContentServiceFactory contentServiceFactory;
 
 	public PageRenderer forMasterService(MasterService masterService) {
-		Site site = masterService.getSite();
-
-		TemplateParser templateParser = templateParserFactory.forTemplateEngine(site.getTemplateEngine());
-		ContentService contentService = contentServiceFactory.forRepositoryConnection(site.getRepositoryConnection());
+		TemplateParser templateParser = templateParserFactory.forTemplateEngine(masterService.getTemplateEngine());
+		ContentService contentService = contentServiceFactory.forRepositoryConnection(masterService.getRepositoryConnection());
 
 		return new PageRenderer(masterService, contentService, templateParser);
 	}

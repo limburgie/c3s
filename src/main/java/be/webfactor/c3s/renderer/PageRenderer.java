@@ -29,10 +29,8 @@ public class PageRenderer {
 	private String renderPageContent(Page page, String[] params) {
 		Map<String, Object> pageContext = new HashMap<>();
 
+		setGeneralContext(page, pageContext);
 		pageContext.put("params", params);
-		pageContext.put("master", masterService);
-		pageContext.put("page", page);
-		pageContext.put("api", contentService.getApi());
 
 		return templateParser.parse(page.getTemplate(), pageContext);
 	}
@@ -40,11 +38,15 @@ public class PageRenderer {
 	private String renderPage(String body, Page page) {
 		Map<String, Object> siteContext = new HashMap<>();
 
-		siteContext.put("master", masterService);
+		setGeneralContext(page, siteContext);
 		siteContext.put("body", body);
-		siteContext.put("page", page);
-		siteContext.put("api", contentService.getApi());
 
-		return templateParser.parse(masterService.getSite().getTemplate(), siteContext);
+		return templateParser.parse(masterService.getSiteTemplate(), siteContext);
+	}
+
+	private void setGeneralContext(Page page, Map<String, Object> context) {
+		context.put("pages", masterService.getPages());
+		context.put("page", page);
+		context.put("api", contentService.getApi());
 	}
 }

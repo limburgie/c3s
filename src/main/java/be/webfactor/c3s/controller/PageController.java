@@ -45,7 +45,7 @@ public class PageController {
 	public String index(HttpServletRequest request) {
 		MasterService masterService = getMasterService(request);
 
-		return friendlyUrl(masterService.getSite().getIndexPage().getFriendlyUrl(), new String[0], masterService);
+		return friendlyUrl(masterService.getIndexPage().getFriendlyUrl(), new String[0], masterService);
 	}
 
 	@RequestMapping("/assets/**")
@@ -96,7 +96,7 @@ public class PageController {
 		try {
 			return pageRenderer.render(masterService.getPage(friendlyUrl), params);
 		} catch (Throwable t) {
-			return pageRenderer.render(masterService.getSite().getErrorPage(), new String[] { ExceptionUtils.getStackTrace(t) });
+			return pageRenderer.render(masterService.getErrorPage(), new String[] { ExceptionUtils.getStackTrace(t) });
 		}
 	}
 }

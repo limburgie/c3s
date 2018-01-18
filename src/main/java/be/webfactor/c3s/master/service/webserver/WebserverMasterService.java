@@ -3,6 +3,7 @@ package be.webfactor.c3s.master.service.webserver;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -15,7 +16,6 @@ import com.google.gson.Gson;
 
 import be.webfactor.c3s.controller.PageController;
 import be.webfactor.c3s.master.domain.Page;
-import be.webfactor.c3s.master.domain.Site;
 import be.webfactor.c3s.master.domain.TemplateEngine;
 import be.webfactor.c3s.master.service.MasterService;
 import be.webfactor.c3s.master.service.webserver.domain.WebserverSiteConfiguration;
@@ -29,6 +29,8 @@ import be.webfactor.c3s.repository.RepositoryType;
 public class WebserverMasterService implements MasterService {
 
 	private static final String CONFIG_FILE = "c3s.json";
+	private static final String ERROR_PAGE_FRIENDLY_URL = "error";
+	private static final String ERROR_PAGE_NAME = "Error";
 
 	private String basePath;
 	private WebserverSiteConfiguration config;
@@ -38,38 +40,45 @@ public class WebserverMasterService implements MasterService {
 		config = new Gson().fromJson(readFile(CONFIG_FILE), WebserverSiteConfiguration.class);
 	}
 
-	public Site getSite() {
-		String name = config.getName();
-		Page indexPage = getPage(config.getIndexPage());
-		String errorTemplate = readFile(config.getErrorTemplateFile());
-		TemplateEngine templateEngine = TemplateEngine.valueOf(config.getTemplateEngine());
-		String template = readFile(config.getTemplateFile());
-
-		WebserverSiteContentRepositoryConnection repositoryConnection = config.getContentRepositoryConnection();
-		RepositoryType contentRepositoryType = RepositoryType.valueOf(repositoryConnection.getType());
-		String contentRepositoryId = repositoryConnection.getRepositoryId();
-		String contentRepositoryAccessToken = repositoryConnection.getAccessToken();
-
-		return new Site(name, indexPage, errorTemplate, templateEngine, template, new RepositoryConnection(contentRepositoryType, contentRepositoryId, contentRepositoryAccessToken));
+	public List<Page> getPages() {
+		return config.getPages().stream().map(pageMapper(false)).collect(Collectors.toList());
 	}
 
-	public List<Page> getPages() {
-		return config.getPages().stream().map(pageMapper()).collect(Collectors.toList());
+	public TemplateEngine getTemplateEngine() {
+		return TemplateEngine.valueOf(config.getTemplateEngine());
+	}
+
+	public RepositoryConnection getRepositoryConnection() {
+		WebserverSiteContentRepositoryConnection repositoryConnection = config.getContentRepositoryConnection();
+
+		RepositoryType type = RepositoryType.valueOf(repositoryConnection.getType());
+		String id = repositoryConnection.getRepositoryId();
+		String accessToken = repositoryConnection.getAccessToken();
+
+		return new RepositoryConnection(type, id, accessToken);
 	}
 
 	public Page getPage(String friendlyUrl) {
 		return friendlyUrl == null ? null : config.getAllPages().stream()
 				.filter(webserverSitePage -> friendlyUrl.equals(webserverSitePage.getFriendlyUrl()))
-				.map(pageMapper()).collect(Collectors.toList()).get(0);
+				.map(pageMapper(true)).collect(Collectors.toList()).get(0);
 	}
 
-	private Function<WebserverSitePage, Page> pageMapper() {
+	public Page getIndexPage() {
+		return getPage(config.getIndexPage());
+	}
+
+	public Page getErrorPage() {
+		;return new Page(ERROR_PAGE_FRIENDLY_URL, ERROR_PAGE_NAME, readFile(config.getErrorTemplateFile()));
+	}
+
+	private Function<WebserverSitePage, Page> pageMapper(boolean withContents) {
 		return webserverSitePage -> {
 			String friendlyUrl = webserverSitePage.getFriendlyUrl();
 			String name = webserverSitePage.getName();
-			String template = readFile(webserverSitePage.getTemplateFile());
+			String template = withContents ? readFile(webserverSitePage.getTemplateFile()) : null;
 
-			List<Page> children = webserverSitePage.getChildren().stream().map(pageMapper()).collect(Collectors.toList());
+			List<Page> children = webserverSitePage.getChildren().stream().map(pageMapper(false)).collect(Collectors.toList());
 
 			return new Page(friendlyUrl, name, template, children);
 		};
@@ -89,5 +98,9 @@ public class WebserverMasterService implements MasterService {
 
 	public RepositoryType getType() {
 		return RepositoryType.WEB_SERVER;
+	}
+
+	public String getSiteTemplate() {
+		return readFile(config.getTemplateFile());
 	}
 }
