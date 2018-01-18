@@ -1,5 +1,6 @@
 package be.webfactor.c3s.master.service.webserver.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WebserverSiteConfiguration {
@@ -10,8 +11,22 @@ public class WebserverSiteConfiguration {
 	private String templateEngine;
 	private String templateFile;
 	private WebserverSiteContentRepositoryConnection contentRepositoryConnection;
-
 	private List<WebserverSitePage> pages;
+
+	public List<WebserverSitePage> getAllPages() {
+		return getDescendantsOf(pages);
+	}
+
+	private List<WebserverSitePage> getDescendantsOf(List<WebserverSitePage> pages) {
+		List<WebserverSitePage> results = new ArrayList<>();
+
+		for (WebserverSitePage page : pages) {
+			results.add(page);
+			results.addAll(getDescendantsOf(page.getChildren()));
+		}
+
+		return results;
+	}
 
 	public String getName() {
 		return name;

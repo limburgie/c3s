@@ -58,7 +58,7 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	public Page getPage(String friendlyUrl) {
-		return friendlyUrl == null ? null : config.getPages().stream()
+		return friendlyUrl == null ? null : config.getAllPages().stream()
 				.filter(webserverSitePage -> friendlyUrl.equals(webserverSitePage.getFriendlyUrl()))
 				.map(pageMapper()).collect(Collectors.toList()).get(0);
 	}
@@ -69,7 +69,9 @@ public class WebserverMasterService implements MasterService {
 			String name = webserverSitePage.getName();
 			String template = readFile(webserverSitePage.getTemplateFile());
 
-			return new Page(friendlyUrl, name, template);
+			List<Page> children = webserverSitePage.getChildren().stream().map(pageMapper()).collect(Collectors.toList());
+
+			return new Page(friendlyUrl, name, template, children);
 		};
 	}
 

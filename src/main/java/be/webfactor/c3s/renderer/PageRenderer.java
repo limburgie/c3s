@@ -21,9 +21,9 @@ public class PageRenderer {
 	}
 
 	public String render(Page page, String[] params) {
-		String pageContent = renderPageContent(page, params);
+		String body = renderPageContent(page, params);
 
-		return renderPage(new RenderContext(pageContent, page));
+		return renderPage(body, page);
 	}
 
 	private String renderPageContent(Page page, String[] params) {
@@ -31,16 +31,18 @@ public class PageRenderer {
 
 		pageContext.put("params", params);
 		pageContext.put("master", masterService);
+		pageContext.put("page", page);
 		pageContext.put("api", contentService.getApi());
 
 		return templateParser.parse(page.getTemplate(), pageContext);
 	}
 
-	private String renderPage(RenderContext renderContext) {
+	private String renderPage(String body, Page page) {
 		Map<String, Object> siteContext = new HashMap<>();
 
 		siteContext.put("master", masterService);
-		siteContext.put("context", renderContext);
+		siteContext.put("body", body);
+		siteContext.put("page", page);
 		siteContext.put("api", contentService.getApi());
 
 		return templateParser.parse(masterService.getSite().getTemplate(), siteContext);
