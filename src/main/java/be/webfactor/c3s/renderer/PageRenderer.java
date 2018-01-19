@@ -46,7 +46,7 @@ public class PageRenderer {
 
 	private void setGeneralContext(Page page, Map<String, Object> context) {
 		context.put("pages", masterService.getPages());
-		context.put("page", page);
+		context.put("currentPage", page);
 		context.put("api", contentService.getApi());
 	}
 }
