@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import be.webfactor.c3s.master.domain.TemplateEngine;
 import be.webfactor.c3s.master.templateparser.TemplateParser;
 import be.webfactor.c3s.master.templateparser.TemplateParserException;
 import freemarker.ext.beans.BeansWrapper;
@@ -39,5 +40,9 @@ public class FreemarkerTemplateParser implements TemplateParser {
 		} catch (TemplateException | IOException e) {
 			throw new TemplateParserException(e);
 		}
+	}
+
+	public TemplateEngine getTemplateEngine() {
+		return TemplateEngine.FREEMARKER;
 	}
 }
