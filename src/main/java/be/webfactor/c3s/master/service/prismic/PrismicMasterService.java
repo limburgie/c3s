@@ -19,7 +19,6 @@ public class PrismicMasterService implements MasterService {
 
 	private Api prismic;
 	private Document document;
-	private static final String ERROR_PAGE_FRIENDLY_URL = "error";
 	private static final String ERROR_PAGE_NAME = "Error";
 
 	public void initialize(RepositoryConnection connection) {
@@ -58,7 +57,7 @@ public class PrismicMasterService implements MasterService {
 	}
 
 	public Page getErrorPage() {
-		return new Page(ERROR_PAGE_FRIENDLY_URL, ERROR_PAGE_NAME, document.getText("site.error_template"));
+		return new Page(ERROR_PAGE_NAME, document.getText("site.error_template"));
 	}
 
 	public String getAssetUrl(String assetPath) {

@@ -11,6 +11,10 @@ public class Page {
 	private String template;
 	private List<Page> children;
 
+	public Page(String name, String template) {
+		this(null, name, template);
+	}
+
 	public Page(String friendlyUrl, String name, String template) {
 		this(friendlyUrl, name, template, Collections.emptyList());
 	}

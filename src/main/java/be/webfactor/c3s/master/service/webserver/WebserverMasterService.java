@@ -29,7 +29,6 @@ import be.webfactor.c3s.repository.RepositoryType;
 public class WebserverMasterService implements MasterService {
 
 	private static final String CONFIG_FILE = "c3s.json";
-	private static final String ERROR_PAGE_FRIENDLY_URL = "error";
 	private static final String ERROR_PAGE_NAME = "Error";
 
 	private String basePath;
@@ -69,7 +68,7 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	public Page getErrorPage() {
-		;return new Page(ERROR_PAGE_FRIENDLY_URL, ERROR_PAGE_NAME, readFile(config.getErrorTemplateFile()));
+		;return new Page(ERROR_PAGE_NAME, readFile(config.getErrorTemplateFile()));
 	}
 
 	private Function<WebserverSitePage, Page> pageMapper(boolean withContents) {
