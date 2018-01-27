@@ -51,10 +51,10 @@ public class Page {
 		if (o == null || getClass() != o.getClass())
 			return false;
 		Page page = (Page) o;
-		return Objects.equals(friendlyUrl, page.friendlyUrl) && Objects.equals(name, page.name) && Objects.equals(template, page.template);
+		return Objects.equals(friendlyUrl, page.friendlyUrl);
 	}
 
 	public int hashCode() {
-		return Objects.hash(friendlyUrl, name, template);
+		return Objects.hash(friendlyUrl);
 	}
 }
