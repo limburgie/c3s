@@ -20,6 +20,11 @@ public interface MasterService {
 	void initialize(RepositoryConnection connection);
 
 	/**
+	 * Returns the site name for this master service.
+	 */
+	String getSiteName();
+
+	/**
 	 * Retrieves all root pages that are stored inside this master service.
 	 * Each root page contains information about its children but the content inside the page is not retrieved (use getPage(String) for that purpose).
 	 */

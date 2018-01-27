@@ -11,7 +11,10 @@ import be.webfactor.c3s.master.templateparser.TemplateParser;
 
 public class PageRenderer {
 
-	private static final String DEFINES_VAR = "defines";
+	private static final String API_TEMPLATE_VAR = "api";
+	private static final String SITE_TEMPLATE_VAR = "site";
+	private static final String REQUEST_TEMPLATE_VAR = "request";
+	private static final String DEFINES_TEMPLATE_VAR = "defines";
 
 	private MasterService masterService;
 	private TemplateParser templateParser;
@@ -26,9 +29,9 @@ public class PageRenderer {
 	public String render(Page page, String[] params) {
 		Map<String, Object> context = new HashMap<>();
 
-		context.put("pages", masterService.getPages());
-		context.put("api", contentService.getApi());
-		context.put("request", new RequestContext(page, params));
+		context.put(API_TEMPLATE_VAR, contentService.getApi());
+		context.put(SITE_TEMPLATE_VAR, new SiteContext(masterService.getSiteName(), masterService.getPages()));
+		context.put(REQUEST_TEMPLATE_VAR, new RequestContext(page, params));
 
 		addParsedDefinesToContext(page.getDefines(), context);
 
@@ -50,10 +53,10 @@ public class PageRenderer {
 
 		defines.forEach((key, value) -> parsedDefines.put(key, templateParser.parse(value, context)));
 
-		if (!context.containsKey(DEFINES_VAR)) {
-			context.put(DEFINES_VAR, new HashMap<String, String>());
+		if (!context.containsKey(DEFINES_TEMPLATE_VAR)) {
+			context.put(DEFINES_TEMPLATE_VAR, new HashMap<String, String>());
 		}
 
-		((Map<String, Object>) context.get(DEFINES_VAR)).putAll(parsedDefines);
+		((Map<String, Object>) context.get(DEFINES_TEMPLATE_VAR)).putAll(parsedDefines);
 	}
 }

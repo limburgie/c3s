@@ -31,6 +31,10 @@ public class PrismicMasterService implements MasterService {
 		document = prismic.query(Predicates.at("document.type", "site")).submit().getResults().get(0);
 	}
 
+	public String getSiteName() {
+		return document.getText("site.name");
+	}
+
 	public List<Page> getPages() {
 		Response response = prismic.query(Predicates.at("document.type", "page")).orderings("my.page.priority").submit();
 		return response.getResults().stream().map(pageDocument -> getPage(pageDocument.getUid())).collect(Collectors.toList());

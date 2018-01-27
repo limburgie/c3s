@@ -39,6 +39,10 @@ public class WebserverMasterService implements MasterService {
 		config = new Gson().fromJson(readFile(CONFIG_FILE), WebserverSiteConfiguration.class);
 	}
 
+	public String getSiteName() {
+		return config.getName();
+	}
+
 	public List<Page> getPages() {
 		return config.getPages().stream().map(pageMapper(false)).collect(Collectors.toList());
 	}
