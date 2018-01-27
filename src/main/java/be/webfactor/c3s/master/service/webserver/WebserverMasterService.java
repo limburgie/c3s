@@ -74,7 +74,7 @@ public class WebserverMasterService implements MasterService {
 	public Page getErrorPage() {
 		WebserverSitePage errorPage = config.getErrorPage();
 
-		return new Page(errorPage.getName(), getTemplate(errorPage.getTemplate()), readDefines(errorPage.getDefines()));
+		return new Page(errorPage.getName(), getTemplate(errorPage.getTemplate()), readInserts(errorPage.getInserts()));
 	}
 
 	private Function<WebserverSitePage, Page> pageMapper(boolean withContents) {
@@ -82,11 +82,11 @@ public class WebserverMasterService implements MasterService {
 			String friendlyUrl = webserverSitePage.getFriendlyUrl();
 			String name = webserverSitePage.getName();
 			Template template = withContents ? getTemplate(webserverSitePage.getTemplate()) : null;
-			Map<String, String> defines = readDefines(webserverSitePage.getDefines());
+			Map<String, String> inserts = readInserts(webserverSitePage.getInserts());
 
 			List<Page> children = withContents ? Collections.emptyList() : webserverSitePage.getChildren().stream().map(pageMapper(false)).collect(Collectors.toList());
 
-			return new Page(friendlyUrl, name, template, defines, children);
+			return new Page(friendlyUrl, name, template, inserts, children);
 		};
 	}
 
@@ -103,21 +103,21 @@ public class WebserverMasterService implements MasterService {
 
 				return new Template(name, readFile(templateFile));
 			} else {
-				return new Template(name, getTemplate(extendsFrom), readDefines(webserverSiteTemplate.getDefines()));
+				return new Template(name, getTemplate(extendsFrom), readInserts(webserverSiteTemplate.getInserts()));
 			}
 		}
 
 		return null;
 	}
 
-	private Map<String, String> readDefines(Map<String, String> defines) {
-		Map<String, String> readDefines = new HashMap<>();
+	private Map<String, String> readInserts(Map<String, String> inserts) {
+		Map<String, String> readInserts = new HashMap<>();
 
-		for (Map.Entry<String, String> entry : defines.entrySet()) {
-			readDefines.put(entry.getKey(), readFile(entry.getValue()));
+		for (Map.Entry<String, String> entry : inserts.entrySet()) {
+			readInserts.put(entry.getKey(), readFile(entry.getValue()));
 		}
 
-		return readDefines;
+		return readInserts;
 	}
 
 	public String getAssetUrl(String assetPath) {

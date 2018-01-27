@@ -10,18 +10,18 @@ public class Page {
 	private String friendlyUrl;
 	private String name;
 	private Template template;
-	private Map<String, String> defines;
+	private Map<String, String> inserts;
 	private List<Page> children;
 
-	public Page(String name, Template template, Map<String, String> defines) {
-		this(null, name, template, defines, Collections.emptyList());
+	public Page(String name, Template template, Map<String, String> inserts) {
+		this(null, name, template, inserts, Collections.emptyList());
 	}
 
-	public Page(String friendlyUrl, String name, Template template, Map<String, String> defines, List<Page> children) {
+	public Page(String friendlyUrl, String name, Template template, Map<String, String> inserts, List<Page> children) {
 		this.friendlyUrl = friendlyUrl;
 		this.name = name;
 		this.template = template;
-		this.defines = defines;
+		this.inserts = inserts;
 		this.children = children;
 	}
 
@@ -37,8 +37,8 @@ public class Page {
 		return template;
 	}
 
-	public Map<String, String> getDefines() {
-		return defines;
+	public Map<String, String> getInserts() {
+		return inserts;
 	}
 
 	public List<Page> getChildren() {

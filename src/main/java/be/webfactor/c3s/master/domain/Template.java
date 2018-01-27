@@ -8,17 +8,17 @@ public class Template {
 	private String name;
 	private String contents;
 	private Template extendedTemplate;
-	private Map<String, String> defines = new HashMap<>();
+	private Map<String, String> inserts = new HashMap<>();
 
 	public Template(String name, String contents) {
 		this.name = name;
 		this.contents = contents;
 	}
 
-	public Template(String name, Template extendedTemplate, Map<String, String> defines) {
+	public Template(String name, Template extendedTemplate, Map<String, String> inserts) {
 		this.name = name;
 		this.extendedTemplate = extendedTemplate;
-		this.defines = defines;
+		this.inserts = inserts;
 	}
 
 	public String getName() {
@@ -33,7 +33,7 @@ public class Template {
 		return extendedTemplate;
 	}
 
-	public Map<String, String> getDefines() {
-		return defines;
+	public Map<String, String> getInserts() {
+		return inserts;
 	}
 }

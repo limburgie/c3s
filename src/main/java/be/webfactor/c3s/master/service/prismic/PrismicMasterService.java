@@ -57,9 +57,9 @@ public class PrismicMasterService implements MasterService {
 
 		String name = document.getText("page.name");
 		Fragment.DocumentLink templateLink = (Fragment.DocumentLink) document.getLink("page.template");
-		Map<String, String> defines = getDefines(document.getGroup("page.defines"));
+		Map<String, String> inserts = getInserts(document.getGroup("page.inserts"));
 
-		return new Page(friendlyUrl, name, getTemplate(templateLink), defines, Collections.emptyList());
+		return new Page(friendlyUrl, name, getTemplate(templateLink), inserts, Collections.emptyList());
 	}
 
 	public Page getIndexPage() {
@@ -69,9 +69,9 @@ public class PrismicMasterService implements MasterService {
 	public Page getErrorPage() {
 		String name = document.getText("site.error_page_name");
 		Fragment.DocumentLink templateLink = (Fragment.DocumentLink) document.getLink("site.error_page_template");
-		Map<String, String> defines = getDefines(document.getGroup("site_error_page_defines"));
+		Map<String, String> inserts = getInserts(document.getGroup("site_error_page_inserts"));
 
-		return new Page(name, getTemplate(templateLink), defines);
+		return new Page(name, getTemplate(templateLink), inserts);
 	}
 
 	private Template getTemplate(Fragment.DocumentLink documentLink) {
@@ -86,13 +86,13 @@ public class PrismicMasterService implements MasterService {
 			return new Template(name, contents);
 		} else {
 			Template extendedTemplate = getTemplate(extendedTemplateDoc);
-			Map<String, String> defines = getDefines(document.getGroup("template.defines"));
+			Map<String, String> inserts = getInserts(document.getGroup("template.inserts"));
 
-			return new Template(name, extendedTemplate, defines);
+			return new Template(name, extendedTemplate, inserts);
 		}
 	}
 
-	private Map<String, String> getDefines(Fragment.Group documentGroup) {
+	private Map<String, String> getInserts(Fragment.Group documentGroup) {
 		List<GroupDoc> contextParams = documentGroup.getDocs();
 		Map<String, String> result = new HashMap<>();
 

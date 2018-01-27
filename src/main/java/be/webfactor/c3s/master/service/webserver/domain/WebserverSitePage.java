@@ -10,7 +10,7 @@ public class WebserverSitePage {
 	private String friendlyUrl;
 	private String name;
 	private String template;
-	private Map<String, String> defines = new HashMap<>();
+	private Map<String, String> inserts = new HashMap<>();
 	private List<WebserverSitePage> children = new ArrayList<>();
 
 	public String getFriendlyUrl() {
@@ -37,12 +37,12 @@ public class WebserverSitePage {
 		this.template = template;
 	}
 
-	public Map<String, String> getDefines() {
-		return defines;
+	public Map<String, String> getInserts() {
+		return inserts;
 	}
 
-	public void setDefines(Map<String, String> defines) {
-		this.defines = defines;
+	public void setInserts(Map<String, String> inserts) {
+		this.inserts = inserts;
 	}
 
 	public List<WebserverSitePage> getChildren() {

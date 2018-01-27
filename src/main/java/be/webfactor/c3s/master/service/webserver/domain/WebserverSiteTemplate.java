@@ -7,7 +7,7 @@ public class WebserverSiteTemplate {
 	private String name;
 	private String contents;
 	private String extendsFrom;
-	private Map<String, String> defines;
+	private Map<String, String> inserts;
 
 	public String getName() {
 		return name;
@@ -33,11 +33,11 @@ public class WebserverSiteTemplate {
 		this.extendsFrom = extendsFrom;
 	}
 
-	public Map<String, String> getDefines() {
-		return defines;
+	public Map<String, String> getInserts() {
+		return inserts;
 	}
 
-	public void setDefines(Map<String, String> defines) {
-		this.defines = defines;
+	public void setInserts(Map<String, String> inserts) {
+		this.inserts = inserts;
 	}
 }
