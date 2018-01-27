@@ -5,10 +5,13 @@ import java.util.Map;
 
 import be.webfactor.c3s.content.service.ContentService;
 import be.webfactor.c3s.master.domain.Page;
+import be.webfactor.c3s.master.domain.Template;
 import be.webfactor.c3s.master.service.MasterService;
 import be.webfactor.c3s.master.templateparser.TemplateParser;
 
 public class PageRenderer {
+
+	private static final String DEFINES_VAR = "defines";
 
 	private MasterService masterService;
 	private TemplateParser templateParser;
@@ -21,32 +24,36 @@ public class PageRenderer {
 	}
 
 	public String render(Page page, String[] params) {
-		String body = renderPageContent(page, params);
+		Map<String, Object> context = new HashMap<>();
 
-		return renderPage(body, page);
-	}
-
-	private String renderPageContent(Page page, String[] params) {
-		Map<String, Object> pageContext = new HashMap<>();
-
-		setGeneralContext(page, pageContext);
-		pageContext.put("params", params);
-
-		return templateParser.parse(page.getTemplate(), pageContext);
-	}
-
-	private String renderPage(String body, Page page) {
-		Map<String, Object> siteContext = new HashMap<>();
-
-		setGeneralContext(page, siteContext);
-		siteContext.put("body", body);
-
-		return templateParser.parse(masterService.getSiteTemplate(), siteContext);
-	}
-
-	private void setGeneralContext(Page page, Map<String, Object> context) {
 		context.put("pages", masterService.getPages());
-		context.put("currentPage", page);
 		context.put("api", contentService.getApi());
+		context.put("request", new RequestContext(page, params));
+
+		addParsedDefinesToContext(page.getDefines(), context);
+
+		return renderTemplate(page.getTemplate(), context);
+	}
+
+	private String renderTemplate(Template template, Map<String, Object> context) {
+		if (template.getContents() != null) {
+			return templateParser.parse(template.getContents(), context);
+		}
+
+		addParsedDefinesToContext(template.getDefines(), context);
+
+		return renderTemplate(template.getExtendedTemplate(), context);
+	}
+
+	private void addParsedDefinesToContext(Map<String, String> defines, Map<String, Object> context) {
+		Map<String, String> parsedDefines = new HashMap<>();
+
+		defines.forEach((key, value) -> parsedDefines.put(key, templateParser.parse(value, context)));
+
+		if (!context.containsKey(DEFINES_VAR)) {
+			context.put(DEFINES_VAR, new HashMap<String, String>());
+		}
+
+		((Map<String, Object>) context.get(DEFINES_VAR)).putAll(parsedDefines);
 	}
 }

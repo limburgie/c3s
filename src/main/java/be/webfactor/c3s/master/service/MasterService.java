@@ -62,9 +62,4 @@ public interface MasterService {
 	 * Retrieves the repository type of this master service.
 	 */
 	RepositoryType getType();
-
-	/**
-	 * Retrieves the site template of this master service.
-	 */
-	String getSiteTemplate();
 }

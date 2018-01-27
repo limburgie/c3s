@@ -1,12 +1,18 @@
 package be.webfactor.c3s.master.service.prismic;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.print.Doc;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import be.webfactor.c3s.master.domain.Page;
+import be.webfactor.c3s.master.domain.Template;
 import be.webfactor.c3s.master.domain.TemplateEngine;
 import be.webfactor.c3s.master.service.MasterService;
 import be.webfactor.c3s.repository.RepositoryConnection;
@@ -19,7 +25,6 @@ public class PrismicMasterService implements MasterService {
 
 	private Api prismic;
 	private Document document;
-	private static final String ERROR_PAGE_NAME = "Error";
 
 	public void initialize(RepositoryConnection connection) {
 		prismic = Api.get(connection.getRepositoryId(), connection.getAccessToken());
@@ -47,9 +52,10 @@ public class PrismicMasterService implements MasterService {
 		Document document = prismic.getByUID("page", friendlyUrl);
 
 		String name = document.getText("page.name");
-		String template = document.getText("page.template");
+		Fragment.DocumentLink templateLink = (Fragment.DocumentLink) document.getLink("page.template");
+		Map<String, String> defines = getDefines(document.getGroup("page.defines"));
 
-		return new Page(friendlyUrl, name, template);
+		return new Page(friendlyUrl, name, getTemplate(templateLink), defines, Collections.emptyList());
 	}
 
 	public Page getIndexPage() {
@@ -57,7 +63,43 @@ public class PrismicMasterService implements MasterService {
 	}
 
 	public Page getErrorPage() {
-		return new Page(ERROR_PAGE_NAME, document.getText("site.error_template"));
+		String name = document.getText("site.error_page_name");
+		Fragment.DocumentLink templateLink = (Fragment.DocumentLink) document.getLink("site.error_page_template");
+		Map<String, String> defines = getDefines(document.getGroup("site_error_page_defines"));
+
+		return new Page(name, getTemplate(templateLink), defines);
+	}
+
+	private Template getTemplate(Fragment.DocumentLink documentLink) {
+		Document document = prismic.getByID(documentLink.getId());
+
+		String name = document.getText("template.name");
+		Fragment.DocumentLink extendedTemplateDoc = ((Fragment.DocumentLink) document.getLink("template.extended_template"));
+
+		if (extendedTemplateDoc == null) {
+			String contents = document.getText("template.contents");
+
+			return new Template(name, contents);
+		} else {
+			Template extendedTemplate = getTemplate(extendedTemplateDoc);
+			Map<String, String> defines = getDefines(document.getGroup("template.defines"));
+
+			return new Template(name, extendedTemplate, defines);
+		}
+	}
+
+	private Map<String, String> getDefines(Fragment.Group documentGroup) {
+		List<GroupDoc> contextParams = documentGroup.getDocs();
+		Map<String, String> result = new HashMap<>();
+
+		for (GroupDoc contextParam : contextParams) {
+			String key = contextParam.getText("key");
+			String value = contextParam.getText("value");
+
+			result.put(key, value);
+		}
+
+		return result;
 	}
 
 	public String getAssetUrl(String assetPath) {
@@ -69,9 +111,5 @@ public class PrismicMasterService implements MasterService {
 
 	public RepositoryType getType() {
 		return RepositoryType.PRISMIC;
-	}
-
-	public String getSiteTemplate() {
-		return document.getText("site.template");
 	}
 }

@@ -3,14 +3,16 @@ package be.webfactor.c3s.master.service.webserver.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import be.webfactor.c3s.master.domain.Page;
+
 public class WebserverSiteConfiguration {
 
 	private String name;
-	private String indexPage;
-	private String errorTemplateFile;
+	private String indexPageFriendlyUrl;
 	private String templateEngine;
-	private String templateFile;
 	private WebserverSiteContentRepositoryConnection contentRepositoryConnection;
+	private WebserverSitePage errorPage;
+	private List<WebserverSiteTemplate> templates;
 	private List<WebserverSitePage> pages;
 
 	public List<WebserverSitePage> getAllPages() {
@@ -36,20 +38,12 @@ public class WebserverSiteConfiguration {
 		this.name = name;
 	}
 
-	public String getIndexPage() {
-		return indexPage;
+	public String getIndexPageFriendlyUrl() {
+		return indexPageFriendlyUrl;
 	}
 
-	public void setIndexPage(String indexPage) {
-		this.indexPage = indexPage;
-	}
-
-	public String getErrorTemplateFile() {
-		return errorTemplateFile;
-	}
-
-	public void setErrorTemplateFile(String errorTemplateFile) {
-		this.errorTemplateFile = errorTemplateFile;
+	public void setIndexPageFriendlyUrl(String indexPageFriendlyUrl) {
+		this.indexPageFriendlyUrl = indexPageFriendlyUrl;
 	}
 
 	public String getTemplateEngine() {
@@ -60,20 +54,28 @@ public class WebserverSiteConfiguration {
 		this.templateEngine = templateEngine;
 	}
 
-	public String getTemplateFile() {
-		return templateFile;
-	}
-
-	public void setTemplateFile(String templateFile) {
-		this.templateFile = templateFile;
-	}
-
 	public WebserverSiteContentRepositoryConnection getContentRepositoryConnection() {
 		return contentRepositoryConnection;
 	}
 
 	public void setContentRepositoryConnection(WebserverSiteContentRepositoryConnection contentRepositoryConnection) {
 		this.contentRepositoryConnection = contentRepositoryConnection;
+	}
+
+	public WebserverSitePage getErrorPage() {
+		return errorPage;
+	}
+
+	public void setErrorPage(WebserverSitePage errorPage) {
+		this.errorPage = errorPage;
+	}
+
+	public List<WebserverSiteTemplate> getTemplates() {
+		return templates;
+	}
+
+	public void setTemplates(List<WebserverSiteTemplate> templates) {
+		this.templates = templates;
 	}
 
 	public List<WebserverSitePage> getPages() {

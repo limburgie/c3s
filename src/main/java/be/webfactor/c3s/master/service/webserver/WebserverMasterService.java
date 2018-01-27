@@ -3,8 +3,7 @@ package be.webfactor.c3s.master.service.webserver;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -16,11 +15,13 @@ import com.google.gson.Gson;
 
 import be.webfactor.c3s.controller.PageController;
 import be.webfactor.c3s.master.domain.Page;
+import be.webfactor.c3s.master.domain.Template;
 import be.webfactor.c3s.master.domain.TemplateEngine;
 import be.webfactor.c3s.master.service.MasterService;
 import be.webfactor.c3s.master.service.webserver.domain.WebserverSiteConfiguration;
 import be.webfactor.c3s.master.service.webserver.domain.WebserverSiteContentRepositoryConnection;
 import be.webfactor.c3s.master.service.webserver.domain.WebserverSitePage;
+import be.webfactor.c3s.master.service.webserver.domain.WebserverSiteTemplate;
 import be.webfactor.c3s.repository.RepositoryConnection;
 import be.webfactor.c3s.repository.RepositoryType;
 
@@ -29,7 +30,6 @@ import be.webfactor.c3s.repository.RepositoryType;
 public class WebserverMasterService implements MasterService {
 
 	private static final String CONFIG_FILE = "c3s.json";
-	private static final String ERROR_PAGE_NAME = "Error";
 
 	private String basePath;
 	private WebserverSiteConfiguration config;
@@ -64,23 +64,56 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	public Page getIndexPage() {
-		return getPage(config.getIndexPage());
+		return getPage(config.getIndexPageFriendlyUrl());
 	}
 
 	public Page getErrorPage() {
-		;return new Page(ERROR_PAGE_NAME, readFile(config.getErrorTemplateFile()));
+		WebserverSitePage errorPage = config.getErrorPage();
+
+		return new Page(errorPage.getName(), getTemplate(errorPage.getTemplate()), readDefines(errorPage.getDefines()));
 	}
 
 	private Function<WebserverSitePage, Page> pageMapper(boolean withContents) {
 		return webserverSitePage -> {
 			String friendlyUrl = webserverSitePage.getFriendlyUrl();
 			String name = webserverSitePage.getName();
-			String template = withContents ? readFile(webserverSitePage.getTemplateFile()) : null;
+			Template template = withContents ? getTemplate(webserverSitePage.getTemplate()) : null;
+			Map<String, String> defines = readDefines(webserverSitePage.getDefines());
 
-			List<Page> children = webserverSitePage.getChildren().stream().map(pageMapper(false)).collect(Collectors.toList());
+			List<Page> children = withContents ? Collections.emptyList() : webserverSitePage.getChildren().stream().map(pageMapper(false)).collect(Collectors.toList());
 
-			return new Page(friendlyUrl, name, template, children);
+			return new Page(friendlyUrl, name, template, defines, children);
 		};
+	}
+
+	private Template getTemplate(String name) {
+		Optional<WebserverSiteTemplate> template = config.getTemplates().stream().filter(t -> name.equals(t.getName())).findFirst();
+
+		if (template.isPresent()) {
+			WebserverSiteTemplate webserverSiteTemplate = template.get();
+
+			String extendsFrom = webserverSiteTemplate.getExtendsFrom();
+
+			if (extendsFrom == null) {
+				String templateFile = webserverSiteTemplate.getTemplateFile();
+
+				return new Template(name, readFile(templateFile));
+			} else {
+				return new Template(name, getTemplate(extendsFrom), readDefines(webserverSiteTemplate.getDefines()));
+			}
+		}
+
+		return null;
+	}
+
+	private Map<String, String> readDefines(Map<String, String> defines) {
+		Map<String, String> readDefines = new HashMap<>();
+
+		for (Map.Entry<String, String> entry : defines.entrySet()) {
+			readDefines.put(entry.getKey(), readFile(entry.getValue()));
+		}
+
+		return readDefines;
 	}
 
 	public String getAssetUrl(String assetPath) {
@@ -97,9 +130,5 @@ public class WebserverMasterService implements MasterService {
 
 	public RepositoryType getType() {
 		return RepositoryType.WEB_SERVER;
-	}
-
-	public String getSiteTemplate() {
-		return readFile(config.getTemplateFile());
 	}
 }
