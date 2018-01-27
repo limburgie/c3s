@@ -5,7 +5,7 @@ import java.util.Map;
 public class WebserverSiteTemplate {
 
 	private String name;
-	private String templateFile;
+	private String contents;
 	private String extendsFrom;
 	private Map<String, String> defines;
 
@@ -17,12 +17,12 @@ public class WebserverSiteTemplate {
 		this.name = name;
 	}
 
-	public String getTemplateFile() {
-		return templateFile;
+	public String getContents() {
+		return contents;
 	}
 
-	public void setTemplateFile(String templateFile) {
-		this.templateFile = templateFile;
+	public void setContents(String contents) {
+		this.contents = contents;
 	}
 
 	public String getExtendsFrom() {

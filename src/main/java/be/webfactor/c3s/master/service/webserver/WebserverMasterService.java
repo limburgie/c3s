@@ -99,7 +99,7 @@ public class WebserverMasterService implements MasterService {
 			String extendsFrom = webserverSiteTemplate.getExtendsFrom();
 
 			if (extendsFrom == null) {
-				String templateFile = webserverSiteTemplate.getTemplateFile();
+				String templateFile = webserverSiteTemplate.getContents();
 
 				return new Template(name, readFile(templateFile));
 			} else {
