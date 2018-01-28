@@ -36,7 +36,7 @@ public class PrismicMasterService implements MasterService {
 	}
 
 	public List<Page> getPages() {
-		Response response = prismic.query(Predicates.at("document.type", "page")).orderings("my.page.priority").submit();
+		Response response = prismic.query(Predicates.at("document.type", "page"), Predicates.at("my.page.hidden", "Yes")).orderings("my.page.priority").submit();
 		return response.getResults().stream().map(pageDocument -> getPage(pageDocument.getUid())).collect(Collectors.toList());
 	}
 

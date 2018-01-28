@@ -9,6 +9,7 @@ public class WebserverSitePage {
 
 	private String friendlyUrl;
 	private String name;
+	private boolean hidden;
 	private String template;
 	private Map<String, String> inserts = new HashMap<>();
 	private List<WebserverSitePage> children = new ArrayList<>();
@@ -27,6 +28,14 @@ public class WebserverSitePage {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public boolean isHidden() {
+		return hidden;
+	}
+
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
 	}
 
 	public String getTemplate() {

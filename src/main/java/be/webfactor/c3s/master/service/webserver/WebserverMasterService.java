@@ -44,7 +44,7 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	public List<Page> getPages() {
-		return config.getPages().stream().map(pageMapper(false)).collect(Collectors.toList());
+		return config.getPages().stream().filter(page -> !page.isHidden()).map(pageMapper(false)).collect(Collectors.toList());
 	}
 
 	public TemplateEngine getTemplateEngine() {
@@ -84,7 +84,7 @@ public class WebserverMasterService implements MasterService {
 			Template template = withContents ? getTemplate(webserverSitePage.getTemplate()) : null;
 			Map<String, String> inserts = readInserts(webserverSitePage.getInserts());
 
-			List<Page> children = withContents ? Collections.emptyList() : webserverSitePage.getChildren().stream().map(pageMapper(false)).collect(Collectors.toList());
+			List<Page> children = withContents ? Collections.emptyList() : webserverSitePage.getChildren().stream().filter(page -> !page.isHidden()).map(pageMapper(false)).collect(Collectors.toList());
 
 			return new Page(friendlyUrl, name, template, inserts, children);
 		};
