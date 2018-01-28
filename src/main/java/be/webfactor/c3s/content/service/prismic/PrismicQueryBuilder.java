@@ -33,14 +33,14 @@ public class PrismicQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
-	public QueryBuilder withDateInPast(String field) {
-		predicates.add(Predicates.dateBefore(docPrefix(field), DateTime.now()));
+	public QueryBuilder withDateInPast(String field, boolean includingToday) {
+		predicates.add(Predicates.dateBefore(docPrefix(field), includingToday ? DateTime.now() : DateTime.now().withTimeAtStartOfDay()));
 
 		return this;
 	}
 
-	public QueryBuilder withDateInFuture(String field) {
-		predicates.add(Predicates.dateAfter(docPrefix(field), DateTime.now()));
+	public QueryBuilder withDateInFuture(String field, boolean includingToday) {
+		predicates.add(Predicates.dateAfter(docPrefix(field), includingToday ? DateTime.now() : DateTime.now().plusDays(1).withTimeAtStartOfDay()));
 
 		return this;
 	}

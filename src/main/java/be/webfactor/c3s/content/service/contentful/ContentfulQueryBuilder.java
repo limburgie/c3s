@@ -28,14 +28,16 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
-	public QueryBuilder withDateInPast(String field) {
-		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsEarlierThan, DateTime.now().toString());
+	public QueryBuilder withDateInPast(String field, boolean includingToday) {
+		DateTime endDate = includingToday ? DateTime.now() : DateTime.now().withTimeAtStartOfDay();
+		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsEarlierThan, endDate.toString());
 
 		return this;
 	}
 
-	public QueryBuilder withDateInFuture(String field) {
-		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsLaterThan, DateTime.now().toString());
+	public QueryBuilder withDateInFuture(String field, boolean includingToday) {
+		DateTime startDate = includingToday ? DateTime.now() : DateTime.now().plusDays(1).withTimeAtStartOfDay();
+		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsLaterThan, startDate.toString());
 
 		return this;
 	}

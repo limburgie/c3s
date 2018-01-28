@@ -11,13 +11,15 @@ public interface QueryBuilder {
 
 	/**
 	 * Only return content items with a date value, specified by the given field name, in the past.
+	 * If the includingToday flag is false, only dates before the start of today's date are included.
 	 */
-	QueryBuilder withDateInPast(String field);
+	QueryBuilder withDateInPast(String field, boolean includingToday);
 
 	/**
 	 * Only return content items with a date value, specified by the given field name, in the future.
+	 * If the includingToday flag is false, only dates after the end of today's date are included.
 	 */
-	QueryBuilder withDateInFuture(String field);
+	QueryBuilder withDateInFuture(String field, boolean includingToday);
 
 	/**
 	 * Only return content items with today's date (day, month and year) inside the specified field.
