@@ -3,6 +3,7 @@ package be.webfactor.c3s.master.service.webserver;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -81,12 +82,17 @@ public class WebserverMasterService implements MasterService {
 		return webserverSitePage -> {
 			String friendlyUrl = webserverSitePage.getFriendlyUrl();
 			String name = webserverSitePage.getName();
-			Template template = withContents ? getTemplate(webserverSitePage.getTemplate()) : null;
+
+			if (!withContents) {
+				List<Page> children = webserverSitePage.getChildren().stream().filter(page -> !page.isHidden()).map(pageMapper(false)).collect(Collectors.toList());
+
+				return new Page(friendlyUrl, name, null, null, children);
+			}
+
+			Template template = getTemplate(webserverSitePage.getTemplate());
 			Map<String, String> inserts = readInserts(webserverSitePage.getInserts());
 
-			List<Page> children = withContents ? Collections.emptyList() : webserverSitePage.getChildren().stream().filter(page -> !page.isHidden()).map(pageMapper(false)).collect(Collectors.toList());
-
-			return new Page(friendlyUrl, name, template, inserts, children);
+			return new Page(friendlyUrl, name, template, inserts, Collections.emptyList());
 		};
 	}
 
@@ -126,7 +132,7 @@ public class WebserverMasterService implements MasterService {
 
 	private String readFile(String path) {
 		try {
-			return IOUtils.toString(new URI(basePath + "/" + path));
+			return IOUtils.toString(new URI(basePath + "/" + path), Charset.defaultCharset());
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
