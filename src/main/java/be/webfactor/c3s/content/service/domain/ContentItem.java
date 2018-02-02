@@ -8,4 +8,9 @@ public interface ContentItem extends FieldContainer {
 	 * Returns the group items in this content item with the given field name.
 	 */
 	List<FieldContainer> getGroup(String fieldName);
+
+	/**
+	 * Returns the UID for this content item, which identifies this content item within its content type.
+	 */
+	String getUid();
 }

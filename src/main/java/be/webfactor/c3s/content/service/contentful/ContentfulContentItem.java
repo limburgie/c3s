@@ -57,4 +57,8 @@ public class ContentfulContentItem implements ContentItem {
 	public List<FieldContainer> getGroup(String fieldName) {
 		throw new UnsupportedOperationException();
 	}
+
+	public String getUid() {
+		return getText("uid");
+	}
 }

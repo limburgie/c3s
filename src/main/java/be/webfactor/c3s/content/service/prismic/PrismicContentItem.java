@@ -64,4 +64,8 @@ public class PrismicContentItem extends PrismicFieldContainer implements Content
 
 		return group == null ? Collections.emptyList() : group.getDocs().stream().map(withFragments -> new PrismicFieldContainer(withFragments, api)).collect(Collectors.toList());
 	}
+
+	public String getUid() {
+		return document.getSlug();
+	}
 }
