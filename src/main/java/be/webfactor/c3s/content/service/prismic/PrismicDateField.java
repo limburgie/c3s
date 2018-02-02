@@ -2,6 +2,7 @@ package be.webfactor.c3s.content.service.prismic;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
@@ -36,13 +37,9 @@ public class PrismicDateField implements DateField {
 		}
 
 		if (fragment instanceof Fragment.Date) {
-			org.joda.time.LocalDate jodaDate = ((Fragment.Date) fragment).getValue();
-			LocalDate javaDate = LocalDate.of(jodaDate.getYear(), jodaDate.getMonthOfYear(), jodaDate.getDayOfMonth());
-			return format(javaDate, pattern, locale);
+			return format(((Fragment.Date) fragment).getValue(), pattern, locale);
 		} else {
-			org.joda.time.DateTime jodaDateTime = ((Fragment.Timestamp) fragment).getValue();
-			LocalDateTime javaDateTime = LocalDateTime.of(jodaDateTime.getYear(), jodaDateTime.getMonthOfYear(), jodaDateTime.getDayOfMonth(), jodaDateTime.getHourOfDay(), jodaDateTime.getMinuteOfHour());
-			return format(javaDateTime, pattern, locale);
+			return format(((Fragment.Timestamp) fragment).getValue(), pattern, locale);
 		}
 	}
 

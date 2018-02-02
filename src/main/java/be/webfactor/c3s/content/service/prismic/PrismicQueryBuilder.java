@@ -1,12 +1,14 @@
 package be.webfactor.c3s.content.service.prismic;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 
 import be.webfactor.c3s.content.service.domain.ContentItem;
 import be.webfactor.c3s.content.service.domain.QueryBuilder;
@@ -34,21 +36,21 @@ public class PrismicQueryBuilder implements QueryBuilder {
 	}
 
 	public QueryBuilder withDateInPast(String field, boolean includingToday) {
-		predicates.add(Predicates.dateBefore(docPrefix(field), includingToday ? DateTime.now() : DateTime.now().withTimeAtStartOfDay()));
+		predicates.add(Predicates.dateBefore(docPrefix(field), includingToday ? ZonedDateTime.now() : ZonedDateTime.now().toLocalDate().atStartOfDay(ZoneId.systemDefault())));
 
 		return this;
 	}
 
 	public QueryBuilder withDateInFuture(String field, boolean includingToday) {
-		predicates.add(Predicates.dateAfter(docPrefix(field), includingToday ? DateTime.now() : DateTime.now().plusDays(1).withTimeAtStartOfDay()));
+		predicates.add(Predicates.dateAfter(docPrefix(field), includingToday ? ZonedDateTime.now() : ZonedDateTime.now().plusDays(1).toLocalDate().atStartOfDay(ZoneId.systemDefault())));
 
 		return this;
 	}
 
 	public QueryBuilder withDateToday(String field) {
-		predicates.add(Predicates.dayOfMonth(docPrefix(field), DateTime.now().getDayOfMonth()));
-		predicates.add(Predicates.month(docPrefix(field), Predicates.Month.valueOf(DateTime.now().toString("MMMMM").toUpperCase())));
-		predicates.add(Predicates.year(docPrefix(field), DateTime.now().getYear()));
+		predicates.add(Predicates.dayOfMonth(docPrefix(field), LocalDateTime.now().getDayOfMonth()));
+		predicates.add(Predicates.month(docPrefix(field), Predicates.Month.valueOf(LocalDateTime.now().getMonth().toString())));
+		predicates.add(Predicates.year(docPrefix(field), LocalDateTime.now().getYear()));
 
 		return this;
 	}

@@ -1,10 +1,12 @@
 package be.webfactor.c3s.content.service.contentful;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.joda.time.DateTime;
 
 import com.contentful.java.cda.CDAClient;
 import com.contentful.java.cda.CDAEntry;
@@ -29,24 +31,30 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 	}
 
 	public QueryBuilder withDateInPast(String field, boolean includingToday) {
-		DateTime endDate = includingToday ? DateTime.now() : DateTime.now().withTimeAtStartOfDay();
-		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsEarlierThan, endDate.toString());
+		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsEarlierThan, formatDate(includingToday ? ZonedDateTime.now() : getStartOfDay(ZonedDateTime.now())));
 
 		return this;
 	}
 
 	public QueryBuilder withDateInFuture(String field, boolean includingToday) {
-		DateTime startDate = includingToday ? DateTime.now() : DateTime.now().plusDays(1).withTimeAtStartOfDay();
-		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsLaterThan, startDate.toString());
+		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsLaterThan, formatDate(includingToday ? ZonedDateTime.now() : getStartOfDay(ZonedDateTime.now().plusDays(1))));
 
 		return this;
 	}
 
 	public QueryBuilder withDateToday(String field) {
-		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsLaterOrAt, DateTime.now().withTimeAtStartOfDay().toString());
-		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsEarlierOrAt, DateTime.now().plusDays(1).withTimeAtStartOfDay().toString());
+		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsLaterOrAt, formatDate(getStartOfDay(ZonedDateTime.now())));
+		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsEarlierOrAt, formatDate(getStartOfDay(ZonedDateTime.now().plusDays(1))));
 
 		return this;
+	}
+
+	private ZonedDateTime getStartOfDay(ZonedDateTime zonedDateTime) {
+		return zonedDateTime.toLocalDate().atStartOfDay(ZoneId.systemDefault());
+	}
+
+	private String formatDate(ZonedDateTime zonedDateTime) {
+		return zonedDateTime.toLocalDate().format(DateTimeFormatter.ISO_DATE);
 	}
 
 	public QueryBuilder orderByAsc(String fieldName) {
