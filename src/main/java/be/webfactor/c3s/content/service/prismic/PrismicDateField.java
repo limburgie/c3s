@@ -1,10 +1,9 @@
 package be.webfactor.c3s.content.service.prismic;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
+import java.util.Locale;
 
 import org.apache.commons.lang3.LocaleUtils;
 
@@ -20,15 +19,7 @@ public class PrismicDateField implements DateField {
 	}
 
 	public String format(String pattern) {
-		if (fragment == null) {
-			return "";
-		}
-
-		if (fragment instanceof Fragment.Date) {
-			return ((Fragment.Date) fragment).asText(pattern);
-		} else {
-			return ((Fragment.Timestamp) fragment).asText(pattern);
-		}
+		return format(pattern, Locale.getDefault().toString());
 	}
 
 	public String format(String pattern, String locale) {
@@ -44,7 +35,7 @@ public class PrismicDateField implements DateField {
 	}
 
 	private String format(TemporalAccessor javaDate, String pattern, String locale) {
-		return DateTimeFormatter.ofPattern(pattern).withLocale(LocaleUtils.toLocale(locale)).format(javaDate);
+		return DateTimeFormatter.ofPattern(pattern).withZone(ZoneId.systemDefault()).withLocale(LocaleUtils.toLocale(locale)).format(javaDate);
 	}
 
 	public boolean isEmpty() {
