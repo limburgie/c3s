@@ -61,4 +61,8 @@ public class ContentfulContentItem implements ContentItem {
 	public String getUid() {
 		return getText("uid");
 	}
+
+	public String getId() {
+		return cdaEntry.id();
+	}
 }

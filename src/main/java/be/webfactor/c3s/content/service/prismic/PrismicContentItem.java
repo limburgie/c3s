@@ -66,6 +66,10 @@ public class PrismicContentItem extends PrismicFieldContainer implements Content
 	}
 
 	public String getUid() {
-		return document.getSlug();
+		return document.getUid();
+	}
+
+	public String getId() {
+		return document.getId();
 	}
 }

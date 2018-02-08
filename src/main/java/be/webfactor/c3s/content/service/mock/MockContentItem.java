@@ -21,4 +21,8 @@ public class MockContentItem extends MockFieldContainer implements ContentItem {
 	public String getUid() {
 		return getText("uid");
 	}
+
+	public String getId() {
+		return getText("id");
+	}
 }
