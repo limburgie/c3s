@@ -35,6 +35,12 @@ public class PrismicQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
+	public QueryBuilder with(String field, ContentItem value) {
+		predicates.add(Predicates.at(docPrefix(field), value.getId()));
+
+		return this;
+	}
+
 	public QueryBuilder withDateInPast(String field, boolean includingToday) {
 		predicates.add(Predicates.dateBefore(docPrefix(field), includingToday ? ZonedDateTime.now() : ZonedDateTime.now().toLocalDate().atStartOfDay(ZoneId.systemDefault())));
 

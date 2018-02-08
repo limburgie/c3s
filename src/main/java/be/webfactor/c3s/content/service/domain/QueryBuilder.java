@@ -10,6 +10,11 @@ public interface QueryBuilder {
 	QueryBuilder with(String field, String value);
 
 	/**
+	 * Only return content items which are linked with the given content item for the given field name.
+	 */
+	QueryBuilder with(String field, ContentItem value);
+
+	/**
 	 * Only return content items with a date value, specified by the given field name, in the past.
 	 * If the includingToday flag is false, only dates before the start of today's date are included.
 	 */

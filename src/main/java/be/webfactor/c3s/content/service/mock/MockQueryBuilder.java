@@ -18,6 +18,10 @@ public class MockQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
+	public QueryBuilder with(String field, ContentItem value) {
+		return this;
+	}
+
 	public QueryBuilder withDateInPast(String field, boolean includingToday) {
 		return this;
 	}

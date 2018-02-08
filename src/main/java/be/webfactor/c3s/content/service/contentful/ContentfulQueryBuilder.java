@@ -1,6 +1,5 @@
 package be.webfactor.c3s.content.service.contentful;
 
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,6 +12,7 @@ import com.contentful.java.cda.CDAEntry;
 import com.contentful.java.cda.FetchQuery;
 import com.contentful.java.cda.QueryOperation;
 
+import be.webfactor.c3s.content.service.domain.ContentItem;
 import be.webfactor.c3s.content.service.domain.QueryBuilder;
 
 public class ContentfulQueryBuilder implements QueryBuilder {
@@ -26,6 +26,11 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 
 	public QueryBuilder with(String field, String value) {
 		fetchQuery.where(fieldsPrefix(field), value);
+
+		return this;
+	}
+	public QueryBuilder with(String field, ContentItem value) {
+		fetchQuery.where(fieldsPrefix(field), value.getId());
 
 		return this;
 	}
