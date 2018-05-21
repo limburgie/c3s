@@ -19,7 +19,7 @@ C3S is a website builder that simplifies the creation and maintenance of content
 
 In C3S, you first write a `c3s.json` file that defines the structure of your new website and the parameters to connect to the content API. E.g. suppose your site only has two pages (home and news) and its content is hosted by a Prismic.io repository:
 
-```
+```json
 {
    "name": "INR Diary",
    "indexPageFriendlyUrl": "home",
@@ -60,7 +60,7 @@ In C3S, you first write a `c3s.json` file that defines the structure of your new
 
 If you look closely at the `c3s.json` file, you can see that both pages use the same template (`base`). This page template looks something like this:
 
-```
+```freemarker
 <!DOCTYPE html>
 <html>
     <head>
@@ -87,7 +87,7 @@ Notice the `${inserts.body}` variable inside the `base` template. This is actual
 
 E.g. the definition of the news page inside `c3s.json` looks like this:
 
-```
+```json
 {
     "friendlyUrl": "news",
     "name": "News",
@@ -100,12 +100,12 @@ E.g. the definition of the news page inside `c3s.json` looks like this:
 
 In this case, `${inserts.body}` gets replaced with the contents of the `pages/news.ftl` file. This file looks something like this:
 
-```
+```freemarker
 <#assign items = api.query("news").orderByDesc("date").findAll(5)>
 <#list items as item>
     <article>
         <h2>${item.getText("title")}</h2>
-        <img src="${items.getImage("banner").url}>
+        <img src="${items.getImage("banner").url}/>
         ${item.getStructuredText("body").html}
     </article>
 </#list>
