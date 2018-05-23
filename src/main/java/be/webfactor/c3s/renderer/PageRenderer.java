@@ -33,9 +33,13 @@ public class PageRenderer {
 		context.put(SITE_TEMPLATE_VAR, new SiteContext(masterService.getSiteName(), masterService.getPages()));
 		context.put(REQUEST_TEMPLATE_VAR, new RequestContext(page, params));
 
-		addParsedInsertsToContext(page.getInserts(), context);
+		if (page.isTemplated()) {
+			addParsedInsertsToContext(page.getInserts(), context);
 
-		return renderTemplate(page.getTemplate(), context);
+			return renderTemplate(page.getTemplate(), context);
+		}
+
+		return templateParser.parse(page.getContents(), context);
 	}
 
 	private String renderTemplate(Template template, Map<String, Object> context) {

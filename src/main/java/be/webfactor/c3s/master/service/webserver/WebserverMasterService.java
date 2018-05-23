@@ -75,7 +75,11 @@ public class WebserverMasterService implements MasterService {
 	public Page getErrorPage() {
 		WebserverSitePage errorPage = config.getErrorPage();
 
-		return new Page(errorPage.getName(), getTemplate(errorPage.getTemplate()), readInserts(errorPage.getInserts()));
+		if (errorPage.isTemplated()) {
+			return new Page(errorPage.getName(), getTemplate(errorPage.getTemplate()), readInserts(errorPage.getInserts()));
+		}
+
+		return new Page(errorPage.getName(), readFile(errorPage.getContents()));
 	}
 
 	private Function<WebserverSitePage, Page> pageMapper(boolean withContents) {
@@ -86,13 +90,17 @@ public class WebserverMasterService implements MasterService {
 			if (!withContents) {
 				List<Page> children = webserverSitePage.getChildren().stream().filter(page -> !page.isHidden()).map(pageMapper(false)).collect(Collectors.toList());
 
-				return new Page(friendlyUrl, name, null, null, children);
+				return new Page(friendlyUrl, name, children);
 			}
 
-			Template template = getTemplate(webserverSitePage.getTemplate());
-			Map<String, String> inserts = readInserts(webserverSitePage.getInserts());
+			if (webserverSitePage.isTemplated()) {
+				Template template = getTemplate(webserverSitePage.getTemplate());
+				Map<String, String> inserts = readInserts(webserverSitePage.getInserts());
 
-			return new Page(friendlyUrl, name, template, inserts, Collections.emptyList());
+				return new Page(friendlyUrl, name, template, inserts);
+			}
+
+			return new Page(friendlyUrl, name, readFile(webserverSitePage.getContents()));
 		};
 	}
 
