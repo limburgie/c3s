@@ -69,7 +69,13 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	public Page getIndexPage() {
-		return getPage(config.getIndexPageFriendlyUrl());
+		String indexPageFriendlyUrl = config.getIndexPageFriendlyUrl();
+
+		if (indexPageFriendlyUrl != null) {
+			return getPage(config.getIndexPageFriendlyUrl());
+		}
+
+		return getPage(getPages().get(0).getFriendlyUrl());
 	}
 
 	public Page getErrorPage() {
