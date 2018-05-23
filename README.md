@@ -105,7 +105,7 @@ In this case, `${inserts.body}` gets replaced with the contents of the `pages/ne
 <#list items as item>
     <article>
         <h2>${item.getText("title")}</h2>
-        <img src="${items.getImage("banner").url}/>
+        <img src="${items.getImage("banner").url}"/>
         ${item.getStructuredText("body").html}
     </article>
 </#list>
