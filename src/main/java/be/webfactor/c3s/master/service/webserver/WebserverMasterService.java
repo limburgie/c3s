@@ -49,7 +49,13 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	public TemplateEngine getTemplateEngine() {
-		return TemplateEngine.valueOf(config.getTemplateEngine());
+		String templateEngine = config.getTemplateEngine();
+
+		if (templateEngine != null) {
+			return TemplateEngine.valueOf(config.getTemplateEngine());
+		}
+
+		return TemplateEngine.getDefault();
 	}
 
 	public RepositoryConnection getRepositoryConnection() {
