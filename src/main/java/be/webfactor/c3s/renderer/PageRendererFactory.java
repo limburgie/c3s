@@ -8,6 +8,7 @@ import be.webfactor.c3s.content.service.ContentServiceFactory;
 import be.webfactor.c3s.master.service.MasterService;
 import be.webfactor.c3s.master.templateparser.TemplateParser;
 import be.webfactor.c3s.master.templateparser.TemplateParserFactory;
+import be.webfactor.c3s.repository.RepositoryConnection;
 
 @Service
 public class PageRendererFactory {
@@ -17,7 +18,9 @@ public class PageRendererFactory {
 
 	public PageRenderer forMasterService(MasterService masterService) {
 		TemplateParser templateParser = templateParserFactory.forTemplateEngine(masterService.getTemplateEngine());
-		ContentService contentService = contentServiceFactory.forRepositoryConnection(masterService.getRepositoryConnection());
+
+		RepositoryConnection repoConnection = masterService.getRepositoryConnection();
+		ContentService contentService = repoConnection == null ? null : contentServiceFactory.forRepositoryConnection(repoConnection);
 
 		return new PageRenderer(masterService, contentService, templateParser);
 	}

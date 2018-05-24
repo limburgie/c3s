@@ -61,6 +61,10 @@ public class WebserverMasterService implements MasterService {
 	public RepositoryConnection getRepositoryConnection() {
 		WebserverSiteContentRepositoryConnection repositoryConnection = config.getContentRepositoryConnection();
 
+		if (repositoryConnection == null) {
+			return null;
+		}
+
 		RepositoryType type = RepositoryType.valueOf(repositoryConnection.getType());
 		String id = repositoryConnection.getRepositoryId();
 		String accessToken = repositoryConnection.getAccessToken();

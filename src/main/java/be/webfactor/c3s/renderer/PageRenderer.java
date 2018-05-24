@@ -29,7 +29,7 @@ public class PageRenderer {
 	public String render(Page page, String[] params) {
 		Map<String, Object> context = new HashMap<>();
 
-		context.put(API_TEMPLATE_VAR, contentService.getApi());
+		context.put(API_TEMPLATE_VAR, contentService == null ? null : contentService.getApi());
 		context.put(SITE_TEMPLATE_VAR, new SiteContext(masterService.getSiteName(), masterService.getPages()));
 		context.put(REQUEST_TEMPLATE_VAR, new RequestContext(page, params));
 
