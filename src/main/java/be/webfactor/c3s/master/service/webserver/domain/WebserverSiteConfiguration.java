@@ -8,7 +8,7 @@ import be.webfactor.c3s.master.domain.Page;
 public class WebserverSiteConfiguration {
 
 	private String name;
-	private String indexPageFriendlyUrl;
+	private String indexPage;
 	private String templateEngine;
 	private WebserverSiteContentRepositoryConnection contentRepositoryConnection;
 	private WebserverSitePage errorPage;
@@ -38,12 +38,12 @@ public class WebserverSiteConfiguration {
 		this.name = name;
 	}
 
-	public String getIndexPageFriendlyUrl() {
-		return indexPageFriendlyUrl;
+	public String getIndexPage() {
+		return indexPage;
 	}
 
-	public void setIndexPageFriendlyUrl(String indexPageFriendlyUrl) {
-		this.indexPageFriendlyUrl = indexPageFriendlyUrl;
+	public void setIndexPage(String indexPage) {
+		this.indexPage = indexPage;
 	}
 
 	public String getTemplateEngine() {
