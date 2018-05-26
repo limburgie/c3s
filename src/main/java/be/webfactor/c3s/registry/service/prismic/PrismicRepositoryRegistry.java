@@ -14,10 +14,10 @@ import io.prismic.Document;
 @Service
 public class PrismicRepositoryRegistry implements RepositoryRegistry {
 
-	@Value("${c3s.prismic.registry.endpoint}")
+	@Value("${c3s.prismic.registry.endpoint:#{null}")
 	private String prismicRegistryEndpoint;
 
-	@Value("${c3s.prismic.registry.access.token}")
+	@Value("${c3s.prismic.registry.access.token}:#{null}")
 	private String prismicRegistryAccessToken;
 
 	public MasterRepository findMasterRepository(String virtualHost) {
