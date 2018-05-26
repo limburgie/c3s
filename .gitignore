@@ -1,4 +1,4 @@
 .idea
 target
 *.iml
-application.properties
+application-peter.properties
