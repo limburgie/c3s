@@ -4,7 +4,9 @@ public enum TemplateEngine {
 
 	FREEMARKER, VELOCITY, THYMELEAF;
 
-	public static TemplateEngine getDefault() {
-		return FREEMARKER;
+	private static final TemplateEngine DEFAULT_ENGINE = FREEMARKER;
+
+	public static TemplateEngine get(String templateEngine) {
+		return templateEngine == null ? DEFAULT_ENGINE : valueOf(templateEngine.toUpperCase());
 	}
 }

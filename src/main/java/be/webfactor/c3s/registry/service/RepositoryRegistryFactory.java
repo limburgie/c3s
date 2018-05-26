@@ -22,7 +22,7 @@ public class RepositoryRegistryFactory {
 
 	@PostConstruct
 	public void init() {
-		RepositoryRegistryType type = RepositoryRegistryType.valueOf(registryType);
+		RepositoryRegistryType type = RepositoryRegistryType.get(registryType);
 
 		for (RepositoryRegistry registry : registries) {
 			if (registry.getType() == type) {
