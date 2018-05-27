@@ -79,7 +79,7 @@ public class WebserverMasterService implements MasterService {
 			return getPage(config.getIndexPage());
 		}
 
-		return getPage(getPages().get(0).getFriendlyUrl());
+		return config.getPages().stream().findFirst().map(pageMapper(true)).orElse(null);
 	}
 
 	public Page getErrorPage() {
