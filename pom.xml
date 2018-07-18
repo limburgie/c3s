@@ -99,7 +99,7 @@
 		<dependency>
 			<groupId>com.contentful.java</groupId>
 			<artifactId>java-sdk</artifactId>
-			<version>9.0.1</version>
+			<version>10.1.0</version>
 		</dependency>
 
 		<!-- Database -->
