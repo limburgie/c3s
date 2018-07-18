@@ -1,5 +1,7 @@
 package be.webfactor.c3s.content.service.contentful;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.contentful.java.cda.CDAEntry;
@@ -64,5 +66,17 @@ public class ContentfulContentItem implements ContentItem {
 
 	public String getId() {
 		return cdaEntry.id();
+	}
+
+	public DateBuilder getCreated() {
+		return getMetaDate("createdAt");
+	}
+
+	public DateBuilder getModified() {
+		return getMetaDate("updatedAt");
+	}
+
+	private DateBuilder getMetaDate(String dateAttribute) {
+		return new DateBuilder(LocalDateTime.parse((String) cdaEntry.attrs().get(dateAttribute), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")));
 	}
 }

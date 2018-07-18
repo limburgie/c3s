@@ -1,8 +1,14 @@
 package be.webfactor.c3s.content.service.prismic;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.LocaleUtils;
 
 import be.webfactor.c3s.content.service.domain.*;
 import io.prismic.Api;
@@ -71,5 +77,13 @@ public class PrismicContentItem extends PrismicFieldContainer implements Content
 
 	public String getId() {
 		return document.getId();
+	}
+
+	public DateBuilder getCreated() {
+		return new DateBuilder(document.getFirstPublicationDate());
+	}
+
+	public DateBuilder getModified() {
+		return new DateBuilder(document.getLastPublicationDate());
 	}
 }

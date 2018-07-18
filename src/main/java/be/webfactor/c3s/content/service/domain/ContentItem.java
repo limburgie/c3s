@@ -18,4 +18,14 @@ public interface ContentItem extends FieldContainer {
 	 * Returns the ID for this content item, which uniquely identifies this content item within the whole repository.
 	 */
 	String getId();
+
+	/**
+	 * Returns the create date for this content item, formatted using the given date pattern.
+	 */
+	DateBuilder getCreated();
+
+	/**
+	 * Returns the modified date for this content item, formatted using the given date pattern.
+	 */
+	DateBuilder getModified();
 }
