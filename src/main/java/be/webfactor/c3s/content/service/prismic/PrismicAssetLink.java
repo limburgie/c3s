@@ -43,7 +43,7 @@ public class PrismicAssetLink implements AssetLink {
 	}
 
 	public String getType() {
-		if (link == null || !(link instanceof Fragment.FileLink)) {
+		if (!(link instanceof Fragment.FileLink)) {
 			return null;
 		}
 
@@ -51,7 +51,7 @@ public class PrismicAssetLink implements AssetLink {
 	}
 
 	public Long getSize() {
-		if (link == null || !(link instanceof Fragment.FileLink)) {
+		if (!(link instanceof Fragment.FileLink)) {
 			return null;
 		}
 

@@ -125,7 +125,7 @@ public class PrismicQueryBuilder implements QueryBuilder {
 	}
 
 	private Form.SearchForm buildQuery() {
-		return api.query(predicates.toArray(new Predicate[predicates.size()]));
+		return api.query(predicates.toArray(new Predicate[0]));
 	}
 
 	private String buildOrderings() {

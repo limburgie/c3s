@@ -48,7 +48,7 @@ public class PageController {
 		return friendlyUrl(masterService.getIndexPage().getFriendlyUrl(), new String[0], masterService);
 	}
 
-	@RequestMapping("/assets/**")
+	@RequestMapping(ASSETS_PREFIX + "**")
 	public void asset(HttpServletRequest request, HttpServletResponse response) throws IOException, TikaException {
 		String requestUri = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 		String assetPath = StringUtils.removeStart(requestUri, ASSETS_PREFIX);
