@@ -19,6 +19,10 @@ public class PrismicFieldContainer implements FieldContainer {
 		return withFragments.getText(fieldName);
 	}
 
+	public boolean getBoolean(String fieldName) {
+		throw new UnsupportedOperationException();
+	}
+
 	public RichTextField getRichText(String fieldName) {
 		return new PrismicRichTextField(withFragments.getStructuredText(fieldName));
 	}

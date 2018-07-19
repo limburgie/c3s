@@ -8,6 +8,11 @@ public interface FieldContainer {
 	String getText(String fieldName);
 
 	/**
+	 * Returns the boolean value of the boolean field with the given field name.
+	 */
+	boolean getBoolean(String fieldName);
+
+	/**
 	 * Returns the rich text field in this content item with the given field name.
 	 */
 	RichTextField getRichText(String fieldName);

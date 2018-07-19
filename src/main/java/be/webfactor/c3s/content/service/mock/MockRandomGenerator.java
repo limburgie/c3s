@@ -60,6 +60,10 @@ public final class MockRandomGenerator {
 		return R.nextDouble() * 100.0;
 	}
 
+	static boolean bool() {
+		return R.nextBoolean();
+	}
+
 	static String alinea() {
 		return randomElement(ALINEAS);
 	}

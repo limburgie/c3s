@@ -14,6 +14,10 @@ public class MockFieldContainer implements FieldContainer {
 		return type + "." + fieldName;
 	}
 
+	public boolean getBoolean(String fieldName) {
+		return MockRandomGenerator.bool();
+	}
+
 	public RichTextField getRichText(String fieldName) {
 		return new MockRichTextField(type + "." + fieldName);
 	}
