@@ -7,6 +7,9 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.LocaleUtils;
 
+/**
+ * Helper class for formatting dates with optional locale or time zone settings.
+ */
 public class DateBuilder {
 
 	private TemporalAccessor temporalAccessor;
@@ -19,19 +22,28 @@ public class DateBuilder {
 		this.pattern = pattern;
 	}
 
+	/**
+	 * Uses the given locale to format this date.
+	 */
 	public DateBuilder withLocale(String locale) {
 		this.locale = locale;
 
 		return this;
 	}
 
+	/**
+	 * Uses the given time zone to format this date.
+	 */
 	public DateBuilder withTimeZone(String timeZone) {
 		this.timeZone = timeZone;
 
 		return this;
 	}
 
+	/**
+	 * Outputs this date's string representation, taking into account configured locale and time zone.
+	 */
 	public String toString() {
-		return DateTimeFormatter.ofPattern(pattern).withZone(ZoneId.of(timeZone)).withLocale(LocaleUtils.toLocale(locale)).format(temporalAccessor);
+		return temporalAccessor == null ? "" : DateTimeFormatter.ofPattern(pattern).withZone(ZoneId.of(timeZone)).withLocale(LocaleUtils.toLocale(locale)).format(temporalAccessor);
 	}
 }

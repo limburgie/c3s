@@ -2,14 +2,11 @@ package be.webfactor.c3s.content.service.contentful;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
-import java.util.Locale;
 
-import org.apache.commons.lang3.LocaleUtils;
-
+import be.webfactor.c3s.content.service.domain.DateBuilder;
 import be.webfactor.c3s.content.service.domain.DateField;
 
 public class ContentfulDateField implements DateField {
@@ -38,12 +35,8 @@ public class ContentfulDateField implements DateField {
 		}
 	}
 
-	public String format(String pattern) {
-		return format(pattern, Locale.getDefault().toString());
-	}
-
-	public String format(String pattern, String locale) {
-		return temporalAccessor == null ? "" : DateTimeFormatter.ofPattern(pattern).withZone(ZoneId.systemDefault()).withLocale(LocaleUtils.toLocale(locale)).format(temporalAccessor);
+	public DateBuilder format(String pattern) {
+		return new DateBuilder(temporalAccessor, pattern);
 	}
 
 	public boolean isEmpty() {
