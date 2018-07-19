@@ -5,10 +5,5 @@ public interface NumberField extends ValueWrapper {
 	/**
 	 * Formats this number using the given pattern.
 	 */
-	String format(String pattern);
-
-	/**
-	 * Formats this number using the given pattern and locale.
-	 */
-	String format(String pattern, String locale);
+	NumberBuilder format(String pattern);
 }
