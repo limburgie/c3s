@@ -68,15 +68,15 @@ public class ContentfulContentItem implements ContentItem {
 		return cdaEntry.id();
 	}
 
-	public DateBuilder getCreated() {
-		return getMetaDate("createdAt");
+	public DateBuilder getCreated(String pattern) {
+		return getMetaDate("createdAt", pattern);
 	}
 
-	public DateBuilder getModified() {
-		return getMetaDate("updatedAt");
+	public DateBuilder getModified(String pattern) {
+		return getMetaDate("updatedAt", pattern);
 	}
 
-	private DateBuilder getMetaDate(String dateAttribute) {
-		return new DateBuilder(LocalDateTime.parse((String) cdaEntry.attrs().get(dateAttribute), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")));
+	private DateBuilder getMetaDate(String dateAttribute, String pattern) {
+		return new DateBuilder(LocalDateTime.parse((String) cdaEntry.attrs().get(dateAttribute), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")), pattern);
 	}
 }

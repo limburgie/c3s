@@ -22,10 +22,10 @@ public interface ContentItem extends FieldContainer {
 	/**
 	 * Returns the create date for this content item, formatted using the given date pattern.
 	 */
-	DateBuilder getCreated();
+	DateBuilder getCreated(String pattern);
 
 	/**
 	 * Returns the modified date for this content item, formatted using the given date pattern.
 	 */
-	DateBuilder getModified();
+	DateBuilder getModified(String pattern);
 }

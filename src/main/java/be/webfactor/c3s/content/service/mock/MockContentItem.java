@@ -27,11 +27,11 @@ public class MockContentItem extends MockFieldContainer implements ContentItem {
 		return getText("id");
 	}
 
-	public DateBuilder getCreated() {
-		return new DateBuilder(ZonedDateTime.now());
+	public DateBuilder getCreated(String pattern) {
+		return new DateBuilder(ZonedDateTime.now(), pattern);
 	}
 
-	public DateBuilder getModified() {
-		return new DateBuilder(ZonedDateTime.now());
+	public DateBuilder getModified(String pattern) {
+		return new DateBuilder(ZonedDateTime.now(), pattern);
 	}
 }
