@@ -64,8 +64,16 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 	}
 
 	public List<GraphCmsContentItem> findAll() {
+		return findAll(100);
+	}
+
+	public List<GraphCmsContentItem> findAll(int limit) {
+		return findAll(1, limit);
+	}
+
+	public List<GraphCmsContentItem> findAll(int page, int size) {
 		JsonObject requestObject = new JsonObject();
-		requestObject.addProperty("query", "{ " + English.plural(type) + " { id } }");
+		requestObject.addProperty("query", "{ " + English.plural(type) + "(first: " + size + ", skip: " + (page-1) * size + ") { id } }");
 		requestObject.addProperty("variables", (String) null);
 
 		HttpEntity<String> requestEntity = new HttpEntity<>(requestObject.toString(), httpHeaders);
@@ -86,14 +94,6 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 		}
 
 		return results;
-	}
-
-	public List<? extends ContentItem> findAll(int limit) {
-		return null;
-	}
-
-	public List<? extends ContentItem> findAll(int page, int size) {
-		return null;
 	}
 
 	public ContentItem findFirst() {
