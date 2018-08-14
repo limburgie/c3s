@@ -15,6 +15,7 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 
 	private GraphCmsClient client;
 	private String type;
+	private String orderBy;
 
 	GraphCmsQueryBuilder(GraphCmsClient client, String type) {
 		this.client = client;
@@ -42,11 +43,15 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 	}
 
 	public QueryBuilder orderByAsc(String fieldName) {
-		return null;
+		orderBy = fieldName + "_ASC";
+
+		return this;
 	}
 
 	public QueryBuilder orderByDesc(String fieldName) {
-		return null;
+		orderBy = fieldName + "_DESC";
+
+		return this;
 	}
 
 	public QueryBuilder shuffle() {
@@ -54,7 +59,8 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 	}
 
 	public int count() {
-		JsonObject response = client.execute("{ " + English.plural(type) + "Connection { aggregate { count } } }");
+		String query = "{ " + English.plural(type) + "Connection { aggregate { count } } }";
+		JsonObject response = client.execute(query);
 		JsonObject dataObject = response.getAsJsonObject("data");
 		JsonObject typeConnectionObject = dataObject.getAsJsonObject(English.plural(type) + "Connection");
 		JsonObject aggregateObject = typeConnectionObject.getAsJsonObject("aggregate");
@@ -71,7 +77,9 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 	}
 
 	public List<GraphCmsContentItem> findAll(int page, int size) {
-		JsonObject response = client.execute("{ " + English.plural(type) + "(first: " + size + ", skip: " + (page-1) * size + ") { id } }");
+		String order = orderBy == null ? "" : ", orderBy: " + orderBy;
+		String query = "{ " + English.plural(type) + "(first: " + size + ", skip: " + (page - 1) * size + order + ") { id } }";
+		JsonObject response = client.execute(query);
 		JsonObject dataObject = response.getAsJsonObject("data");
 		JsonArray items = dataObject.getAsJsonArray(English.plural(type));
 
