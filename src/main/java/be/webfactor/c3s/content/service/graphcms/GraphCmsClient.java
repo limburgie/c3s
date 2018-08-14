@@ -1,6 +1,5 @@
 package be.webfactor.c3s.content.service.graphcms;
 
-import org.atteo.evo.inflector.English;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
@@ -10,7 +9,7 @@ import com.google.gson.JsonParser;
 
 import be.webfactor.c3s.repository.RepositoryConnection;
 
-class GraphCmsClient {
+public class GraphCmsClient {
 
 	private RestTemplate restTemplate;
 	private HttpHeaders httpHeaders;
