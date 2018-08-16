@@ -1,6 +1,7 @@
 package be.webfactor.c3s.content.service.graphcms;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.atteo.evo.inflector.English;
@@ -16,6 +17,7 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 	private GraphCmsClient client;
 	private String type;
 	private String orderBy;
+	private boolean shuffled;
 
 	GraphCmsQueryBuilder(GraphCmsClient client, String type) {
 		this.client = client;
@@ -55,7 +57,9 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 	}
 
 	public QueryBuilder shuffle() {
-		return null;
+		shuffled = true;
+
+		return this;
 	}
 
 	public int count() {
@@ -77,8 +81,15 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 	}
 
 	public List<GraphCmsContentItem> findAll(int page, int size) {
-		String order = orderBy == null ? "" : ", orderBy: " + orderBy;
-		String query = "{ " + English.plural(type) + "(first: " + size + ", skip: " + (page - 1) * size + order + ") { id } }";
+		String query;
+
+		if (!shuffled) {
+			String order = orderBy == null ? "" : ", orderBy: " + orderBy;
+			query = "{ " + English.plural(type) + "(first: " + size + ", skip: " + (page - 1) * size + order + ") { id } }";
+		} else {
+			query = "{ " + English.plural(type) + " { id } }";
+		}
+
 		JsonObject response = client.execute(query);
 		JsonObject dataObject = response.getAsJsonObject("data");
 		JsonArray items = dataObject.getAsJsonArray(English.plural(type));
@@ -89,6 +100,11 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 			String id = item.get("id").getAsString();
 
 			results.add(new GraphCmsContentItem(id));
+		}
+
+		if (shuffled) {
+			Collections.shuffle(results);
+			results = results.subList((page-1) * size, Math.min(results.size(), page * size));
 		}
 
 		return results;
