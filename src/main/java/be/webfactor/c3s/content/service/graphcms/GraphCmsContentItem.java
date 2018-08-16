@@ -2,14 +2,20 @@ package be.webfactor.c3s.content.service.graphcms;
 
 import java.util.List;
 
+import com.google.gson.JsonObject;
+
 import be.webfactor.c3s.content.service.domain.*;
 
 public class GraphCmsContentItem implements ContentItem {
 
 	private String id;
+	private String type;
+	private GraphCmsClient client;
 
-	GraphCmsContentItem(String id) {
+	GraphCmsContentItem(String id, String type, GraphCmsClient client) {
 		this.id = id;
+		this.type = type;
+		this.client = client;
 	}
 
 	public List<FieldContainer> getGroup(String fieldName) {
@@ -33,7 +39,12 @@ public class GraphCmsContentItem implements ContentItem {
 	}
 
 	public String getText(String fieldName) {
-		return null;
+		String query = "{" + type + "( where: { id: \"" + id + "\" } ) { " + fieldName + " } }";
+		JsonObject resultObject = client.execute(query);
+		JsonObject dataObject = resultObject.getAsJsonObject("data");
+		JsonObject typeObject = dataObject.getAsJsonObject(type);
+
+		return typeObject.getAsJsonPrimitive(fieldName).getAsString();
 	}
 
 	public boolean getBoolean(String fieldName) {

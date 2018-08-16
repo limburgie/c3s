@@ -113,7 +113,7 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 			JsonObject item = items.get(i).getAsJsonObject();
 			String id = item.get("id").getAsString();
 
-			results.add(new GraphCmsContentItem(id));
+			results.add(new GraphCmsContentItem(id, type, client));
 		}
 
 		if (shuffled) {
