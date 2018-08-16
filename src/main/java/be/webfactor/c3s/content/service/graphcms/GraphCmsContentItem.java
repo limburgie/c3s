@@ -2,6 +2,7 @@ package be.webfactor.c3s.content.service.graphcms;
 
 import java.util.List;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import be.webfactor.c3s.content.service.domain.*;
@@ -39,16 +40,15 @@ public class GraphCmsContentItem implements ContentItem {
 	}
 
 	public String getText(String fieldName) {
-		String query = "{" + type + "( where: { id: \"" + id + "\" } ) { " + fieldName + " } }";
-		JsonObject resultObject = client.execute(query);
-		JsonObject dataObject = resultObject.getAsJsonObject("data");
-		JsonObject typeObject = dataObject.getAsJsonObject(type);
+		JsonElement element = get(fieldName);
 
-		return typeObject.getAsJsonPrimitive(fieldName).getAsString();
+		return element.isJsonNull() ? null : element.getAsString();
 	}
 
 	public boolean getBoolean(String fieldName) {
-		return false;
+		JsonElement element = get(fieldName);
+
+		return !element.isJsonNull() && element.getAsBoolean();
 	}
 
 	public RichTextField getRichText(String fieldName) {
@@ -81,5 +81,14 @@ public class GraphCmsContentItem implements ContentItem {
 
 	public ContentItem getReference(String fieldName) {
 		return null;
+	}
+
+	private JsonElement get(String fieldName) {
+		String query = "{" + type + "( where: { id: \"" + id + "\" } ) { " + fieldName + " } }";
+		JsonObject resultObject = client.execute(query);
+		JsonObject dataObject = resultObject.getAsJsonObject("data");
+		JsonObject typeObject = dataObject.getAsJsonObject(type);
+
+		return typeObject.get(fieldName);
 	}
 }
