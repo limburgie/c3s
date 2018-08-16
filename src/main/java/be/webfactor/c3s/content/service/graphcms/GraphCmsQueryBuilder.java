@@ -1,9 +1,9 @@
 package be.webfactor.c3s.content.service.graphcms;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.atteo.evo.inflector.English;
 
 import com.google.gson.JsonArray;
@@ -18,6 +18,7 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 	private String type;
 	private String orderBy;
 	private boolean shuffled;
+	private Map<String, String> whereMappings = new LinkedHashMap<>();
 
 	GraphCmsQueryBuilder(GraphCmsClient client, String type) {
 		this.client = client;
@@ -25,11 +26,15 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 	}
 
 	public QueryBuilder with(String field, String value) {
-		return null;
+		whereMappings.put(field, "\"" + value + "\"");
+
+		return this;
 	}
 
 	public QueryBuilder with(String field, ContentItem value) {
-		return null;
+		whereMappings.put(field, "{id: \"" + value.getId() + "\"}");
+
+		return this;
 	}
 
 	public QueryBuilder withDateInPast(String field, boolean includingToday) {
@@ -85,7 +90,16 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 
 		if (!shuffled) {
 			String order = orderBy == null ? "" : ", orderBy: " + orderBy;
-			query = "{ " + English.plural(type) + "(first: " + size + ", skip: " + (page - 1) * size + order + ") { id } }";
+
+			String where = "";
+
+			if (!whereMappings.isEmpty()) {
+				List<String> whereClauses = whereMappings.entrySet().stream().map(entry -> "{ " + entry.getKey() + ": " + entry.getValue() + "}").collect(Collectors.toList());
+
+				where = ", where: {AND: [" + StringUtils.join(whereClauses, ", ") + "]}";
+			}
+
+			query = "{ " + English.plural(type) + "(first: " + size + ", skip: " + (page - 1) * size + where + order + ") { id } }";
 		} else {
 			query = "{ " + English.plural(type) + " { id } }";
 		}
