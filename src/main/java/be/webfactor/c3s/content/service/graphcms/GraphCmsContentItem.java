@@ -45,10 +45,10 @@ public class GraphCmsContentItem implements ContentItem {
 		return element.isJsonNull() ? null : element.getAsString();
 	}
 
-	public boolean getBoolean(String fieldName) {
+	public Boolean getBoolean(String fieldName) {
 		JsonElement element = get(fieldName);
 
-		return !element.isJsonNull() && element.getAsBoolean();
+		return element.isJsonNull() ? null : element.getAsBoolean();
 	}
 
 	public RichTextField getRichText(String fieldName) {

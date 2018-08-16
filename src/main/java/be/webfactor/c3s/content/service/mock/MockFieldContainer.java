@@ -14,7 +14,7 @@ public class MockFieldContainer implements FieldContainer {
 		return type + "." + fieldName;
 	}
 
-	public boolean getBoolean(String fieldName) {
+	public Boolean getBoolean(String fieldName) {
 		return MockRandomGenerator.bool();
 	}
 

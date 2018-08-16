@@ -10,7 +10,7 @@ public interface FieldContainer {
 	/**
 	 * Returns the boolean value of the boolean field with the given field name.
 	 */
-	boolean getBoolean(String fieldName);
+	Boolean getBoolean(String fieldName);
 
 	/**
 	 * Returns the rich text field in this content item with the given field name.

@@ -19,7 +19,7 @@ public class PrismicFieldContainer implements FieldContainer {
 		return withFragments.getText(fieldName);
 	}
 
-	public boolean getBoolean(String fieldName) {
+	public Boolean getBoolean(String fieldName) {
 		throw new UnsupportedOperationException();
 	}
 

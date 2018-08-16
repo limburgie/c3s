@@ -22,10 +22,8 @@ public class ContentfulContentItem implements ContentItem {
 		return text == null ? "" : text;
 	}
 
-	public boolean getBoolean(String fieldName) {
-		Boolean bool = cdaEntry.getField(fieldName);
-
-		return bool == null ? false : bool;
+	public Boolean getBoolean(String fieldName) {
+		return cdaEntry.getField(fieldName);
 	}
 
 	public RichTextField getRichText(String fieldName) {
