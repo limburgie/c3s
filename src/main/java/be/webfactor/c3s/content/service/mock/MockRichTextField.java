@@ -1,11 +1,8 @@
 package be.webfactor.c3s.content.service.mock;
 
-import org.apache.commons.lang.WordUtils;
-import org.jsoup.Jsoup;
+import be.webfactor.c3s.content.service.domain.AbstractRichTextField;
 
-import be.webfactor.c3s.content.service.domain.RichTextField;
-
-public class MockRichTextField implements RichTextField {
+public class MockRichTextField extends AbstractRichTextField {
 
 	private String value;
 
@@ -15,9 +12,5 @@ public class MockRichTextField implements RichTextField {
 
 	public String getHtml() {
 		return "<p>" + value + ". " + MockRandomGenerator.alinea() + "</p><p>" + MockRandomGenerator.alinea() + "</p>";
-	}
-
-	public String abbreviate(int length) {
-		return WordUtils.abbreviate(Jsoup.parse(getHtml()).text(), length, -1, "...");
 	}
 }

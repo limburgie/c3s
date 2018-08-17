@@ -1,12 +1,9 @@
 package be.webfactor.c3s.content.service.prismic;
 
-import org.apache.commons.lang.WordUtils;
-import org.jsoup.Jsoup;
-
-import be.webfactor.c3s.content.service.domain.RichTextField;
+import be.webfactor.c3s.content.service.domain.AbstractRichTextField;
 import io.prismic.Fragment;
 
-public class PrismicRichTextField implements RichTextField {
+public class PrismicRichTextField extends AbstractRichTextField {
 
 	private Fragment.StructuredText structuredText;
 
@@ -16,9 +13,5 @@ public class PrismicRichTextField implements RichTextField {
 
 	public String getHtml() {
 		return structuredText.asHtml(null);
-	}
-
-	public String abbreviate(int length) {
-		return WordUtils.abbreviate(Jsoup.parse(getHtml()).text(), length, -1, "...");
 	}
 }
