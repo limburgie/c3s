@@ -8,8 +8,4 @@ public class MockNumberField implements NumberField {
 	public NumberBuilder format(String pattern) {
 		return new NumberBuilder(MockRandomGenerator.number(), pattern);
 	}
-
-	public boolean isEmpty() {
-		return false;
-	}
 }

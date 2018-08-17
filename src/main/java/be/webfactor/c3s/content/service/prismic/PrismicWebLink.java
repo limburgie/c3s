@@ -12,10 +12,6 @@ public class PrismicWebLink implements WebLink {
 	}
 
 	public String getUrl() {
-		return webLink == null ? "#" : webLink.getUrl();
-	}
-
-	public boolean isEmpty() {
-		return webLink == null;
+		return webLink.getUrl();
 	}
 }

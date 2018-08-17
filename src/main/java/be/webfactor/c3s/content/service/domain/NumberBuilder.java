@@ -33,6 +33,6 @@ public class NumberBuilder {
 	 * Outputs this number's string representation, taking into account configured locale.
 	 */
 	public String toString() {
-		return number == null ? "" : new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(LocaleUtils.toLocale(locale))).format(number);
+		return new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(LocaleUtils.toLocale(locale))).format(number);
 	}
 }

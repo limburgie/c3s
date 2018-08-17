@@ -11,20 +11,14 @@ public class PrismicDateField implements DateField {
 	private TemporalAccessor temporalAccessor;
 
 	PrismicDateField(Fragment fragment) {
-		if (fragment != null) {
-			if (fragment instanceof Fragment.Date) {
-				temporalAccessor = ((Fragment.Date) fragment).getValue();
-			} else {
-				temporalAccessor = ((Fragment.Timestamp) fragment).getValue();
-			}
+		if (fragment instanceof Fragment.Date) {
+			temporalAccessor = ((Fragment.Date) fragment).getValue();
+		} else {
+			temporalAccessor = ((Fragment.Timestamp) fragment).getValue();
 		}
 	}
 
 	public DateBuilder format(String pattern) {
 		return new DateBuilder(temporalAccessor, pattern);
-	}
-
-	public boolean isEmpty() {
-		return temporalAccessor == null;
 	}
 }

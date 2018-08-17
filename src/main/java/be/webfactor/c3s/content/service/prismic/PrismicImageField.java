@@ -12,16 +12,12 @@ public class PrismicImageField implements ImageField {
 	}
 
 	public String getUrl() {
-		return imageFragment == null ? "#" : imageFragment.getUrl();
+		return imageFragment.getUrl();
 	}
 
 	public String getAlt() {
-		String alt = imageFragment == null ? null : imageFragment.getAlt();
+		String alt = imageFragment.getAlt();
 
 		return alt == null || "null".equals(alt) ? "" : alt;
-	}
-
-	public boolean isEmpty() {
-		return imageFragment == null;
 	}
 }

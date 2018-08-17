@@ -7,8 +7,4 @@ public class MockWebLink implements WebLink {
 	public String getUrl() {
 		return "https://www.google.com";
 	}
-
-	public boolean isEmpty() {
-		return false;
-	}
 }

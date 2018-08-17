@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.contentful.java.cda.CDAAsset;
 import com.contentful.java.cda.CDAEntry;
+import com.google.gson.internal.LinkedTreeMap;
 
 import be.webfactor.c3s.content.service.domain.*;
 
@@ -17,9 +19,7 @@ public class ContentfulContentItem implements ContentItem {
 	}
 
 	public String getText(String fieldName) {
-		String text = cdaEntry.getField(fieldName);
-
-		return text == null ? "" : text;
+		return cdaEntry.getField(fieldName);
 	}
 
 	public Boolean getBoolean(String fieldName) {
@@ -27,19 +27,27 @@ public class ContentfulContentItem implements ContentItem {
 	}
 
 	public RichTextField getRichText(String fieldName) {
-		return new ContentfulRichTextField(cdaEntry.getField(fieldName));
+		String value = cdaEntry.getField(fieldName);
+
+		return value == null ? null : new ContentfulRichTextField(value);
 	}
 
 	public ImageField getImage(String fieldName) {
-		return new ContentfulImageField(cdaEntry.getField(fieldName));
+		CDAAsset asset = cdaEntry.getField(fieldName);
+
+		return asset == null ? null : new ContentfulImageField(asset);
 	}
 
 	public DateField getDate(String fieldName) {
-		return new ContentfulDateField(cdaEntry.getField(fieldName));
+		String value = cdaEntry.getField(fieldName);
+
+		return value == null ? null : new ContentfulDateField(value);
 	}
 
 	public NumberField getNumber(String fieldName) {
-		return new ContentfulNumberField(cdaEntry.getField(fieldName));
+		Double value = cdaEntry.getField(fieldName);
+
+		return value == null ? null : new ContentfulNumberField(value);
 	}
 
 	public WebLink getWebLink(String fieldName) {
@@ -47,11 +55,15 @@ public class ContentfulContentItem implements ContentItem {
 	}
 
 	public GeolocationField getGeolocation(String fieldName) {
-		return new ContentfulGeolocationField(cdaEntry.getField(fieldName));
+		LinkedTreeMap<String, Double> value = cdaEntry.getField(fieldName);
+
+		return value == null ? null : new ContentfulGeolocationField(value);
 	}
 
 	public AssetLink getAsset(String fieldName) {
-		return new ContentfulAssetLink(cdaEntry.getField(fieldName));
+		CDAAsset asset = cdaEntry.getField(fieldName);
+
+		return asset == null ? null : new ContentfulAssetLink(asset);
 	}
 
 	public ContentItem getReference(String fieldName) {
@@ -65,7 +77,7 @@ public class ContentfulContentItem implements ContentItem {
 	}
 
 	public String getUid() {
-		return getText("uid");
+		throw new UnsupportedOperationException();
 	}
 
 	public String getId() {

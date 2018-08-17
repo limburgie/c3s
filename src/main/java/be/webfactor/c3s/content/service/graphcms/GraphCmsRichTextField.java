@@ -18,14 +18,10 @@ public class GraphCmsRichTextField implements RichTextField {
 	}
 
 	public String getHtml() {
-		return markdownContent == null ? "" : htmlRenderer.render(parser.parse(markdownContent));
+		return htmlRenderer.render(parser.parse(markdownContent));
 	}
 
 	public String abbreviate(int length) {
 		return WordUtils.abbreviate(Jsoup.parse(getHtml()).text(), length, -1, "...");
-	}
-
-	public boolean isEmpty() {
-		return markdownContent == null;
 	}
 }

@@ -15,14 +15,10 @@ public class PrismicAssetLink implements AssetLink {
 	}
 
 	public String getUrl() {
-		return link == null ? "#" : link.getUrl(null);
+		return link.getUrl(null);
 	}
 
 	public String getFilename() {
-		if (link == null) {
-			return null;
-		}
-
 		if (link instanceof Fragment.FileLink) {
 			String fileNameIncludingExtension = ((Fragment.FileLink) link).getFilename();
 			return fileNameIncludingExtension.substring(0, fileNameIncludingExtension.lastIndexOf('.'));
@@ -39,7 +35,7 @@ public class PrismicAssetLink implements AssetLink {
 	}
 
 	public String getExtension() {
-		return link == null ? null : getUrl().substring(getUrl().lastIndexOf('.') + 1);
+		return getUrl().substring(getUrl().lastIndexOf('.') + 1);
 	}
 
 	public String getType() {
@@ -56,9 +52,5 @@ public class PrismicAssetLink implements AssetLink {
 		}
 
 		return ((Fragment.FileLink) link).getSize();
-	}
-
-	public boolean isEmpty() {
-		return link == null;
 	}
 }

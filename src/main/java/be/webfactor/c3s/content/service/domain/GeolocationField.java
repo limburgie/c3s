@@ -1,6 +1,6 @@
 package be.webfactor.c3s.content.service.domain;
 
-public interface GeolocationField extends ValueWrapper {
+public interface GeolocationField {
 
 	/**
 	 * Gets the latitude of this geolocation.

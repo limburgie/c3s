@@ -10,8 +10,4 @@ public class MockDateField implements DateField {
 	public DateBuilder format(String pattern) {
 		return new DateBuilder(LocalDateTime.now(), pattern);
 	}
-
-	public boolean isEmpty() {
-		return false;
-	}
 }

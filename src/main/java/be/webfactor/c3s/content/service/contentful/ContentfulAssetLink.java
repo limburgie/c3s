@@ -15,26 +15,22 @@ public class ContentfulAssetLink implements AssetLink {
 	}
 
 	public String getUrl() {
-		return cdaAsset == null ? "#" : cdaAsset.url();
+		return cdaAsset.url();
 	}
 
 	public String getFilename() {
-		return cdaAsset == null ? null : cdaAsset.title();
+		return cdaAsset.title();
 	}
 
 	public String getExtension() {
-		return cdaAsset == null ? null : getUrl().substring(getUrl().lastIndexOf('.') + 1);
+		return getUrl().substring(getUrl().lastIndexOf('.') + 1);
 	}
 
 	public String getType() {
-		return cdaAsset == null ? null : cdaAsset.mimeType();
+		return cdaAsset.mimeType();
 	}
 
 	public Long getSize() {
-		return cdaAsset == null ? null : ((Double) ((Map) ((Map) ((Map) cdaAsset.rawFields().get("file")).values().iterator().next()).get("details")).get("size")).longValue();
-	}
-
-	public boolean isEmpty() {
-		return cdaAsset == null;
+		return ((Double) ((Map) ((Map) ((Map) cdaAsset.rawFields().get("file")).values().iterator().next()).get("details")).get("size")).longValue();
 	}
 }

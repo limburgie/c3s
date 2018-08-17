@@ -18,28 +18,22 @@ public class ContentfulDateField implements DateField {
 	private TemporalAccessor temporalAccessor;
 
 	ContentfulDateField(String stringRepresentationOfDate) {
-		if (stringRepresentationOfDate != null) {
-			DateTimeFormatter dateTimeWithTimezoneFormatter = DateTimeFormatter.ofPattern(DATETIME_WITH_TIMEZONE_PATTERN);
-			DateTimeFormatter dateTimeWithoutTimezoneFormatter = DateTimeFormatter.ofPattern(DATETIME_WITHOUT_TIMEZONE_PATTERN);
-			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(DATE_PATTERN);
+		DateTimeFormatter dateTimeWithTimezoneFormatter = DateTimeFormatter.ofPattern(DATETIME_WITH_TIMEZONE_PATTERN);
+		DateTimeFormatter dateTimeWithoutTimezoneFormatter = DateTimeFormatter.ofPattern(DATETIME_WITHOUT_TIMEZONE_PATTERN);
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(DATE_PATTERN);
 
+		try {
+			temporalAccessor = LocalDateTime.parse(stringRepresentationOfDate, dateTimeWithTimezoneFormatter);
+		} catch (DateTimeParseException e1) {
 			try {
-				temporalAccessor = LocalDateTime.parse(stringRepresentationOfDate, dateTimeWithTimezoneFormatter);
-			} catch (DateTimeParseException e1) {
-				try {
-					temporalAccessor = LocalDateTime.parse(stringRepresentationOfDate, dateTimeWithoutTimezoneFormatter);
-				} catch (DateTimeParseException e2) {
-					temporalAccessor = LocalDate.parse(stringRepresentationOfDate, dateFormatter);
-				}
+				temporalAccessor = LocalDateTime.parse(stringRepresentationOfDate, dateTimeWithoutTimezoneFormatter);
+			} catch (DateTimeParseException e2) {
+				temporalAccessor = LocalDate.parse(stringRepresentationOfDate, dateFormatter);
 			}
 		}
 	}
 
 	public DateBuilder format(String pattern) {
 		return new DateBuilder(temporalAccessor, pattern);
-	}
-
-	public boolean isEmpty() {
-		return temporalAccessor == null;
 	}
 }

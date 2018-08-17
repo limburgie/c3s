@@ -11,8 +11,4 @@ public class MockImageField implements ImageField {
 	public String getAlt() {
 		return MockRandomGenerator.sentence();
 	}
-
-	public boolean isEmpty() {
-		return false;
-	}
 }

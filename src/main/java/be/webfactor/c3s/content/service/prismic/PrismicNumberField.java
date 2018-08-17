@@ -9,16 +9,10 @@ public class PrismicNumberField implements NumberField {
 	private Double value;
 
 	PrismicNumberField(Fragment.Number number) {
-		if (number != null) {
-			value = number.getValue();
-		}
+		value = number.getValue();
 	}
 
 	public NumberBuilder format(String pattern) {
 		return new NumberBuilder(value, pattern);
-	}
-
-	public boolean isEmpty() {
-		return value == null;
 	}
 }

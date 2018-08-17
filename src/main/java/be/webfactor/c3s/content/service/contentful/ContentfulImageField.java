@@ -13,14 +13,10 @@ public class ContentfulImageField implements ImageField {
 	}
 
 	public String getUrl() {
-		return cdaAsset == null ? "#" : cdaAsset.url();
+		return cdaAsset.url();
 	}
 
 	public String getAlt() {
-		return cdaAsset == null ? "" : cdaAsset.title();
-	}
-
-	public boolean isEmpty() {
-		return cdaAsset == null;
+		return cdaAsset.title();
 	}
 }

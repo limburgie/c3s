@@ -12,14 +12,10 @@ public class PrismicGeolocationField implements GeolocationField {
 	}
 
 	public Double getLatitude() {
-		return geoPoint == null ? null : geoPoint.getLatitude();
+		return geoPoint.getLatitude();
 	}
 
 	public Double getLongitude() {
-		return geoPoint == null ? null : geoPoint.getLongitude();
-	}
-
-	public boolean isEmpty() {
-		return geoPoint == null;
+		return geoPoint.getLongitude();
 	}
 }
