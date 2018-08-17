@@ -2,6 +2,9 @@ package be.webfactor.c3s.content.service.mock;
 
 import java.util.*;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import be.webfactor.c3s.content.service.domain.ContentItem;
 import be.webfactor.c3s.content.service.domain.FieldContainer;
 
@@ -82,5 +85,9 @@ public final class MockRandomGenerator {
 
 	private static <E> E randomElement(List<E> elements) {
 		return elements.get(R.nextInt(elements.size()));
+	}
+
+	static JsonObject json() {
+		return new JsonParser().parse("{ \"name\": \"Peter\", \"age\": 33 }").getAsJsonObject();
 	}
 }

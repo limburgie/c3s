@@ -1,5 +1,7 @@
 package be.webfactor.c3s.content.service.domain;
 
+import com.google.gson.JsonObject;
+
 public interface FieldContainer {
 
 	/**
@@ -43,9 +45,14 @@ public interface FieldContainer {
 	GeolocationField getGeolocation(String fieldName);
 
 	/**
-	 * Returns the asset referenced by the give field name in this content item.
+	 * Returns the asset referenced by the given field name in this content item.
 	 */
 	AssetLink getAsset(String fieldName);
+
+	/**
+	 * Returns the JSON object referenced by the given field name in this content item.
+	 */
+	JsonObject getJson(String fieldName);
 
 	/**
 	 * Returns the content item referenced by the given field name in this content item.

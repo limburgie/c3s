@@ -6,6 +6,9 @@ import java.util.List;
 
 import com.contentful.java.cda.CDAAsset;
 import com.contentful.java.cda.CDAEntry;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.internal.LinkedTreeMap;
 
 import be.webfactor.c3s.content.service.domain.*;
@@ -64,6 +67,12 @@ public class ContentfulContentItem implements ContentItem {
 		CDAAsset asset = cdaEntry.getField(fieldName);
 
 		return asset == null ? null : new ContentfulAssetLink(asset);
+	}
+
+	public JsonObject getJson(String fieldName) {
+		LinkedTreeMap<String, Object> value = cdaEntry.getField(fieldName);
+
+		return value == null ? null : new Gson().toJsonTree(value).getAsJsonObject();
 	}
 
 	public ContentItem getReference(String fieldName) {

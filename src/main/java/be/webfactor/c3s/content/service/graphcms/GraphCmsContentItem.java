@@ -81,6 +81,12 @@ public class GraphCmsContentItem implements ContentItem {
 		return null;
 	}
 
+	public JsonObject getJson(String fieldName) {
+		JsonElement element = get(fieldName);
+
+		return element.isJsonNull() ? null : element.getAsJsonObject();
+	}
+
 	public ContentItem getReference(String fieldName) {
 		return null;
 	}

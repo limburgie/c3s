@@ -1,5 +1,7 @@
 package be.webfactor.c3s.content.service.prismic;
 
+import com.google.gson.JsonObject;
+
 import be.webfactor.c3s.content.service.domain.*;
 import io.prismic.Api;
 import io.prismic.Fragment;
@@ -63,6 +65,10 @@ public class PrismicFieldContainer implements FieldContainer {
 		Fragment.Link link = withFragments.getLink(fieldName);
 
 		return link == null ? null : new PrismicAssetLink(link);
+	}
+
+	public JsonObject getJson(String fieldName) {
+		throw new UnsupportedOperationException();
 	}
 
 	public ContentItem getReference(String fieldName) {
