@@ -52,7 +52,9 @@ public class GraphCmsContentItem implements ContentItem {
 	}
 
 	public RichTextField getRichText(String fieldName) {
-		return null;
+		JsonElement element = get(fieldName);
+
+		return element.isJsonNull() ? null : new GraphCmsRichTextField(element.getAsString());
 	}
 
 	public ImageField getImage(String fieldName) {
