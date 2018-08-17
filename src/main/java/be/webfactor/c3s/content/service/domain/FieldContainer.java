@@ -35,7 +35,7 @@ public interface FieldContainer {
 	/**
 	 * Returns the web link in this content item with the given field name.
 	 */
-	WebLink getWebLink(String fieldName);
+	String getWebLink(String fieldName);
 
 	/**
 	 * Returns the geolocation field in this content item with the given field name.

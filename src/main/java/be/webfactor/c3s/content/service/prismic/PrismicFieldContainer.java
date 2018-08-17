@@ -47,10 +47,10 @@ public class PrismicFieldContainer implements FieldContainer {
 		return number == null ? null : new PrismicNumberField(number);
 	}
 
-	public WebLink getWebLink(String fieldName) {
+	public String getWebLink(String fieldName) {
 		Fragment.Link link = withFragments.getLink(fieldName);
 
-		return link == null ? null : new PrismicWebLink((Fragment.WebLink) link);
+		return link == null ? null : link.getUrl(null);
 	}
 
 	public GeolocationField getGeolocation(String fieldName) {

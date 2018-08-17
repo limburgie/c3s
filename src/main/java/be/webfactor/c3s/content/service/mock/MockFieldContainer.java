@@ -34,8 +34,8 @@ public class MockFieldContainer implements FieldContainer {
 		return new MockNumberField();
 	}
 
-	public WebLink getWebLink(String fieldName) {
-		return new MockWebLink();
+	public String getWebLink(String fieldName) {
+		return MockRandomGenerator.url();
 	}
 
 	public GeolocationField getGeolocation(String fieldName) {
