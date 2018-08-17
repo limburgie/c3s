@@ -1,8 +1,8 @@
 package be.webfactor.c3s.content.service.mock;
 
-import be.webfactor.c3s.content.service.domain.AbstractRichTextField;
+import be.webfactor.c3s.content.service.domain.RichTextField;
 
-public class MockRichTextField extends AbstractRichTextField {
+public class MockRichTextField extends RichTextField {
 
 	private String value;
 

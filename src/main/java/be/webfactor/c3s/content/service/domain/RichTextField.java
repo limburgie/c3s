@@ -1,14 +1,13 @@
 package be.webfactor.c3s.content.service.domain;
 
-public interface RichTextField {
+import org.apache.commons.lang.WordUtils;
+import org.jsoup.Jsoup;
 
-	/**
-	 * Outputs the rich text as HTML.
-	 */
-	String getHtml();
+public abstract class RichTextField {
 
-	/**
-	 * Abbreviates the HTML stripped content of this field to retain at most {length} characters.
-	 */
-	String abbreviate(int length);
+	public abstract String getHtml();
+
+	public String abbreviate(int length) {
+		return WordUtils.abbreviate(Jsoup.parse(getHtml()).text(), length, -1, "...");
+	}
 }

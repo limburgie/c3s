@@ -50,7 +50,7 @@ public class ContentfulContentItem implements ContentItem {
 		return value == null ? null : new ContentfulNumberField(value);
 	}
 
-	public WebLink getWebLink(String fieldName) {
+	public String getWebLink(String fieldName) {
 		throw new UnsupportedOperationException();
 	}
 
