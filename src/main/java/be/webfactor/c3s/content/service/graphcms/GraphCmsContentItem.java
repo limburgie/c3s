@@ -1,5 +1,7 @@
 package be.webfactor.c3s.content.service.graphcms;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.google.gson.JsonElement;
@@ -8,6 +10,8 @@ import com.google.gson.JsonObject;
 import be.webfactor.c3s.content.service.domain.*;
 
 public class GraphCmsContentItem implements ContentItem {
+
+	private static final String DATETIME_WITH_TIMEZONE_PATTERN = "yyyy-MM-dd'T'HH:mmXXX";
 
 	private String id;
 	private String type;
@@ -20,11 +24,11 @@ public class GraphCmsContentItem implements ContentItem {
 	}
 
 	public List<FieldContainer> getGroup(String fieldName) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	public String getUid() {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	public String getId() {
@@ -32,11 +36,15 @@ public class GraphCmsContentItem implements ContentItem {
 	}
 
 	public DateBuilder getCreated(String pattern) {
-		return null;
+		return getMetaDate("createdAt", pattern);
 	}
 
 	public DateBuilder getModified(String pattern) {
-		return null;
+		return getMetaDate("updatedAt", pattern);
+	}
+
+	private DateBuilder getMetaDate(String dateAttribute, String pattern) {
+		return new DateBuilder(LocalDateTime.parse(getText(dateAttribute), DateTimeFormatter.ofPattern(DATETIME_WITH_TIMEZONE_PATTERN)), pattern);
 	}
 
 	public String getText(String fieldName) {

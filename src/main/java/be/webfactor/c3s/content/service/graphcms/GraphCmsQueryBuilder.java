@@ -38,15 +38,15 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 	}
 
 	public QueryBuilder withDateInPast(String field, boolean includingToday) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	public QueryBuilder withDateInFuture(String field, boolean includingToday) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	public QueryBuilder withDateToday(String field) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	public QueryBuilder orderByAsc(String fieldName) {
