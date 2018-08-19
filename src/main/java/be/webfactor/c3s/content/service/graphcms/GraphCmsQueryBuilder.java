@@ -14,10 +14,11 @@ import be.webfactor.c3s.content.service.domain.QueryBuilder;
 
 public class GraphCmsQueryBuilder implements QueryBuilder {
 
+	private static final int MAX_ITEMS = 1000;
+
 	private GraphCmsClient client;
 	private String type;
 	private String orderBy;
-	private boolean shuffled;
 	private Map<String, String> whereMappings = new LinkedHashMap<>();
 
 	GraphCmsQueryBuilder(GraphCmsClient client, String type) {
@@ -61,12 +62,6 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
-	public QueryBuilder shuffle() {
-		shuffled = true;
-
-		return this;
-	}
-
 	public int count() {
 		String query = "{ " + English.plural(type) + "Connection { aggregate { count } } }";
 		JsonObject response = client.execute(query);
@@ -78,7 +73,7 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 	}
 
 	public List<GraphCmsContentItem> findAll() {
-		return findAll(1000);
+		return findAll(MAX_ITEMS);
 	}
 
 	public List<GraphCmsContentItem> findAll(int limit) {
@@ -86,23 +81,16 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 	}
 
 	public List<GraphCmsContentItem> findAll(int page, int size) {
-		String query;
+		String order = orderBy == null ? "" : ", orderBy: " + orderBy;
+		String where = "";
 
-		if (!shuffled) {
-			String order = orderBy == null ? "" : ", orderBy: " + orderBy;
+		if (!whereMappings.isEmpty()) {
+			List<String> whereClauses = whereMappings.entrySet().stream().map(entry -> "{ " + entry.getKey() + ": " + entry.getValue() + "}").collect(Collectors.toList());
 
-			String where = "";
-
-			if (!whereMappings.isEmpty()) {
-				List<String> whereClauses = whereMappings.entrySet().stream().map(entry -> "{ " + entry.getKey() + ": " + entry.getValue() + "}").collect(Collectors.toList());
-
-				where = ", where: {AND: [" + StringUtils.join(whereClauses, ", ") + "]}";
-			}
-
-			query = "{ " + English.plural(type) + "(first: " + size + ", skip: " + (page - 1) * size + where + order + ") { id } }";
-		} else {
-			query = "{ " + English.plural(type) + " { id } }";
+			where = ", where: {AND: [" + StringUtils.join(whereClauses, ", ") + "]}";
 		}
+
+		String query = "{ " + English.plural(type) + "(first: " + size + ", skip: " + (page - 1) * size + where + order + ") { id } }";
 
 		JsonObject response = client.execute(query);
 		JsonObject dataObject = response.getAsJsonObject("data");
@@ -116,11 +104,6 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 			results.add(new GraphCmsContentItem(id, type, client));
 		}
 
-		if (shuffled) {
-			Collections.shuffle(results);
-			results = results.subList((page-1) * size, Math.min(results.size(), page * size));
-		}
-
 		return results;
 	}
 
@@ -128,5 +111,17 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 		List<GraphCmsContentItem> items = findAll(1);
 
 		return items.isEmpty() ? null : items.get(0);
+	}
+
+	public List<GraphCmsContentItem> findRandom() {
+		return findRandom(MAX_ITEMS);
+	}
+
+	public List<GraphCmsContentItem> findRandom(int limit) {
+		List<GraphCmsContentItem> items = findAll();
+
+		Collections.shuffle(items);
+
+		return items.subList(0, Math.min(items.size(), limit));
 	}
 }

@@ -3,7 +3,6 @@ package be.webfactor.c3s.content.service.mock;
 import java.util.List;
 
 import be.webfactor.c3s.content.service.domain.ContentItem;
-import be.webfactor.c3s.content.service.domain.FieldContainer;
 import be.webfactor.c3s.content.service.domain.QueryBuilder;
 
 public class MockQueryBuilder implements QueryBuilder {
@@ -42,10 +41,6 @@ public class MockQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
-	public QueryBuilder shuffle() {
-		return this;
-	}
-
 	public int count() {
 		return MockRandomGenerator.integer();
 	}
@@ -64,5 +59,13 @@ public class MockQueryBuilder implements QueryBuilder {
 
 	public ContentItem findFirst() {
 		return MockRandomGenerator.contentItem(type);
+	}
+
+	public List<? extends ContentItem> findRandom() {
+		return findAll();
+	}
+
+	public List<? extends ContentItem> findRandom(int limit) {
+		return findAll(limit);
 	}
 }

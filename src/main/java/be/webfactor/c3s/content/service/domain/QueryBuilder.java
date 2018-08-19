@@ -42,11 +42,6 @@ public interface QueryBuilder {
 	QueryBuilder orderByDesc(String fieldName);
 
 	/**
-	 * Order results randomly.
-	 */
-	QueryBuilder shuffle();
-
-	/**
 	 * Count the number of items matching the query.
 	 */
 	int count();
@@ -70,4 +65,14 @@ public interface QueryBuilder {
 	 * Find first item matching the query. Returns null if no items were found.
 	 */
 	ContentItem findFirst();
+
+	/**
+	 * Find all items matching the query in random order.
+	 */
+	List<? extends ContentItem> findRandom();
+
+	/**
+	 * Find all items matching the query in random order, returning at most {limit} results.
+	 */
+	List<? extends ContentItem> findRandom(int limit);
 }

@@ -16,11 +16,12 @@ import io.prismic.*;
 
 public class PrismicQueryBuilder implements QueryBuilder {
 
+	private static final int MAX_ITEMS = 100;
+
 	private Api api;
 	private List<Predicate> predicates = new ArrayList<>();
 	private List<String> orderings = new ArrayList<>();
 	private String type;
-	private boolean shuffled;
 
 	PrismicQueryBuilder(Api api, String type) {
 		this.api = api;
@@ -69,12 +70,6 @@ public class PrismicQueryBuilder implements QueryBuilder {
 		return addOrdering(fieldName + " desc");
 	}
 
-	public QueryBuilder shuffle() {
-		shuffled = true;
-
-		return this;
-	}
-
 	private QueryBuilder addOrdering(String ordering) {
 		orderings.add(docPrefix(ordering));
 
@@ -90,7 +85,7 @@ public class PrismicQueryBuilder implements QueryBuilder {
 	}
 
 	public List<PrismicContentItem> findAll() {
-		return findAll(100);
+		return findAll(MAX_ITEMS);
 	}
 
 	public List<PrismicContentItem> findAll(int limit) {
@@ -98,26 +93,25 @@ public class PrismicQueryBuilder implements QueryBuilder {
 	}
 
 	public List<PrismicContentItem> findAll(int page, int size) {
-		Form.SearchForm searchForm = buildQueryWithOrderings();
-
-		if (!shuffled) {
-			searchForm.page(page).pageSize(size);
-		}
-
-		List<PrismicContentItem> results = searchForm.submit().getResults().stream().map(document -> new PrismicContentItem(document, api)).collect(Collectors.toList());
-
-		if (shuffled) {
-			Collections.shuffle(results);
-			results = results.subList((page-1) * size, Math.min(results.size(), page * size));
-		}
-
-		return results;
+		return buildQueryWithOrderings().page(page).pageSize(size).submit().getResults().stream().map(document -> new PrismicContentItem(document, api)).collect(Collectors.toList());
 	}
 
-	public ContentItem findFirst() {
+	public PrismicContentItem findFirst() {
 		List<PrismicContentItem> items = findAll(1);
 
 		return items.isEmpty() ? null : items.get(0);
+	}
+
+	public List<PrismicContentItem> findRandom() {
+		return findRandom(MAX_ITEMS);
+	}
+
+	public List<PrismicContentItem> findRandom(int limit) {
+		List<PrismicContentItem> items = findAll();
+
+		Collections.shuffle(items);
+
+		return items.subList(0, Math.min(items.size(), limit));
 	}
 
 	private Form.SearchForm buildQueryWithOrderings() {
