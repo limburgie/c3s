@@ -18,7 +18,9 @@ public class PrismicFieldContainer implements FieldContainer {
 	}
 
 	public String getText(String fieldName) {
-		return withFragments.getText(fieldName);
+		Fragment fragment = withFragments.get(fieldName);
+
+		return fragment == null ? null : withFragments.getText(fieldName);
 	}
 
 	public Boolean getBoolean(String fieldName) {
