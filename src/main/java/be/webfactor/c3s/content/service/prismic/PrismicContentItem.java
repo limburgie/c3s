@@ -66,7 +66,7 @@ public class PrismicContentItem extends PrismicFieldContainer implements Content
 	}
 
 	public String getUid() {
-		return document.getUid();
+		return "null".equals(document.getUid()) ? null : document.getUid();
 	}
 
 	public String getId() {
