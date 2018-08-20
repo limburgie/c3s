@@ -11,7 +11,7 @@ import be.webfactor.c3s.content.service.domain.*;
 
 public class GraphCmsContentItem implements ContentItem {
 
-	private static final String DATETIME_WITH_TIMEZONE_PATTERN = "yyyy-MM-dd'T'HH:mmXXX";
+	private static final String METADATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
 	private String id;
 	private String type;
@@ -44,7 +44,7 @@ public class GraphCmsContentItem implements ContentItem {
 	}
 
 	private DateBuilder getMetaDate(String dateAttribute, String pattern) {
-		return new DateBuilder(LocalDateTime.parse(getText(dateAttribute), DateTimeFormatter.ofPattern(DATETIME_WITH_TIMEZONE_PATTERN)), pattern);
+		return new DateBuilder(LocalDateTime.parse(getText(dateAttribute), DateTimeFormatter.ofPattern(METADATE_PATTERN)), pattern);
 	}
 
 	public String getText(String fieldName) {
