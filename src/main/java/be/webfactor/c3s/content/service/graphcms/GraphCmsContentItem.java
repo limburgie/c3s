@@ -1,6 +1,6 @@
 package be.webfactor.c3s.content.service.graphcms;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -44,7 +44,7 @@ public class GraphCmsContentItem implements ContentItem {
 	}
 
 	private DateBuilder getMetaDate(String dateAttribute, String pattern) {
-		return new DateBuilder(LocalDateTime.parse(getText(dateAttribute), DateTimeFormatter.ofPattern(METADATE_PATTERN)), pattern);
+		return new DateBuilder(ZonedDateTime.parse(getText(dateAttribute), DateTimeFormatter.ofPattern(METADATE_PATTERN)), pattern);
 	}
 
 	public String getText(String fieldName) {

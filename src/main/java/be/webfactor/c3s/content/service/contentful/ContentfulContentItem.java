@@ -1,6 +1,6 @@
 package be.webfactor.c3s.content.service.contentful;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -8,12 +8,13 @@ import com.contentful.java.cda.CDAAsset;
 import com.contentful.java.cda.CDAEntry;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.internal.LinkedTreeMap;
 
 import be.webfactor.c3s.content.service.domain.*;
 
 public class ContentfulContentItem implements ContentItem {
+
+	private static final String METADATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
 	private CDAEntry cdaEntry;
 
@@ -102,6 +103,6 @@ public class ContentfulContentItem implements ContentItem {
 	}
 
 	private DateBuilder getMetaDate(String dateAttribute, String pattern) {
-		return new DateBuilder(LocalDateTime.parse((String) cdaEntry.attrs().get(dateAttribute), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")), pattern);
+		return new DateBuilder(ZonedDateTime.parse((String) cdaEntry.attrs().get(dateAttribute), DateTimeFormatter.ofPattern(METADATE_PATTERN)), pattern);
 	}
 }
