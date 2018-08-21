@@ -76,7 +76,9 @@ public class GraphCmsContentItem implements ContentItem {
 	}
 
 	public NumberField getNumber(String fieldName) {
-		return null;
+		JsonElement element = get(fieldName);
+
+		return element.isJsonNull() ? null : new GraphCmsNumberField(element.getAsNumber());
 	}
 
 	public String getWebLink(String fieldName) {
