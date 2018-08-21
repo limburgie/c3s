@@ -2,6 +2,7 @@ package be.webfactor.c3s.content.service.contentful;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
@@ -23,7 +24,7 @@ public class ContentfulDateField implements DateField {
 		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(DATE_PATTERN);
 
 		try {
-			temporalAccessor = LocalDateTime.parse(stringRepresentationOfDate, dateTimeWithTimezoneFormatter);
+			temporalAccessor = ZonedDateTime.parse(stringRepresentationOfDate, dateTimeWithTimezoneFormatter);
 		} catch (DateTimeParseException e1) {
 			try {
 				temporalAccessor = LocalDateTime.parse(stringRepresentationOfDate, dateTimeWithoutTimezoneFormatter);

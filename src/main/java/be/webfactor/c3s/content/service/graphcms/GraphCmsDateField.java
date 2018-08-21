@@ -1,5 +1,6 @@
 package be.webfactor.c3s.content.service.graphcms;
 
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
@@ -13,9 +14,7 @@ public class GraphCmsDateField implements DateField {
 	private TemporalAccessor temporalAccessor;
 
 	GraphCmsDateField(String stringRepresentationOfDate) {
-		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(DATE_PATTERN);
-
-		temporalAccessor = dateFormatter.parse(stringRepresentationOfDate);
+		temporalAccessor = ZonedDateTime.parse(stringRepresentationOfDate, DateTimeFormatter.ofPattern(DATE_PATTERN));
 	}
 
 	public DateBuilder format(String pattern) {
