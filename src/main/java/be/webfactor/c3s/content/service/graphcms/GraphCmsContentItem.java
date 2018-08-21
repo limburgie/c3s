@@ -70,7 +70,9 @@ public class GraphCmsContentItem implements ContentItem {
 	}
 
 	public DateField getDate(String fieldName) {
-		return null;
+		JsonElement element = get(fieldName);
+
+		return element.isJsonNull() ? null : new GraphCmsDateField(element.getAsString());
 	}
 
 	public NumberField getNumber(String fieldName) {
