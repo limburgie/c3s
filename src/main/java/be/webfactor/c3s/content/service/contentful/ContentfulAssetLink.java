@@ -19,7 +19,7 @@ public class ContentfulAssetLink implements AssetLink {
 	}
 
 	public String getFilename() {
-		return cdaAsset.title();
+		return cdaAsset.title() + "." + getExtension();
 	}
 
 	public String getExtension() {

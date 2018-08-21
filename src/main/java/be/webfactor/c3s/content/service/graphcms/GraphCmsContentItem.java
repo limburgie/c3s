@@ -90,7 +90,9 @@ public class GraphCmsContentItem implements ContentItem {
 	}
 
 	public AssetLink getAsset(String fieldName) {
-		return null;
+		JsonElement element = get(fieldName + " { fileName url mimeType size }", fieldName);
+
+		return element.isJsonNull() ? null : new GraphCmsAssetLink(element.getAsJsonObject());
 	}
 
 	public JsonObject getJson(String fieldName) {
@@ -104,7 +106,11 @@ public class GraphCmsContentItem implements ContentItem {
 	}
 
 	private JsonElement get(String fieldName) {
-		String query = "{" + type + "( where: { id: \"" + id + "\" } ) { " + fieldName + " } }";
+		return get(fieldName, fieldName);
+	}
+
+	private JsonElement get(String definition, String fieldName) {
+		String query = "{" + type + "( where: { id: \"" + id + "\" } ) { " + definition + " } }";
 		JsonObject resultObject = client.execute(query);
 		JsonObject dataObject = resultObject.getAsJsonObject("data");
 		JsonObject typeObject = dataObject.getAsJsonObject(type);

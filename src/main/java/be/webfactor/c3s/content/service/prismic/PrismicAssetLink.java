@@ -20,15 +20,14 @@ public class PrismicAssetLink implements AssetLink {
 
 	public String getFilename() {
 		if (link instanceof Fragment.FileLink) {
-			String fileNameIncludingExtension = ((Fragment.FileLink) link).getFilename();
-			return fileNameIncludingExtension.substring(0, fileNameIncludingExtension.lastIndexOf('.'));
+			return ((Fragment.FileLink) link).getFilename();
 		}
 
 		try {
 			String url = URLDecoder.decode(getUrl(), "UTF-8");
 			url = url.substring(url.lastIndexOf('/') + 1);
 
-			return url.substring(url.indexOf('_') + 1);
+			return url.substring(url.indexOf('_') + 1) + "." + getExtension();
 		} catch (UnsupportedEncodingException e) {
 			return null;
 		}
