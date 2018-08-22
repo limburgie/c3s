@@ -102,7 +102,9 @@ public class GraphCmsContentItem implements ContentItem {
 	}
 
 	public ContentItem getReference(String fieldName) {
-		return null;
+		JsonElement element = get(fieldName + " { id }", fieldName);
+
+		return element.isJsonNull() ? null : new GraphCmsContentItem(element.getAsJsonObject().get("id").getAsString(), type, client);
 	}
 
 	private JsonElement get(String fieldName) {
