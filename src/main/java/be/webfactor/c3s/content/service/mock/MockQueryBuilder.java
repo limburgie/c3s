@@ -21,12 +21,20 @@ public class MockQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
-	public QueryBuilder withDateInPast(String field, boolean includingToday) {
+	public QueryBuilder withDateInPast(String field) {
 		return this;
 	}
 
-	public QueryBuilder withDateInFuture(String field, boolean includingToday) {
+	public QueryBuilder withDateInPastExcludingToday(String field) {
+		return null;
+	}
+
+	public QueryBuilder withDateInFuture(String field) {
 		return this;
+	}
+
+	public QueryBuilder withDateInFutureExcludingToday(String field) {
+		return null;
 	}
 
 	public QueryBuilder withDateToday(String field) {
