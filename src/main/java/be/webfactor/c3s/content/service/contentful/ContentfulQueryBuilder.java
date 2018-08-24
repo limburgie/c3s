@@ -31,7 +31,7 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 		return this;
 	}
 	public QueryBuilder with(String field, ContentItem value) {
-		fetchQuery.where(fieldsPrefix(field), value.getId());
+		fetchQuery.where(fieldsPrefix(field) + ".sys.id", value.getId());
 
 		return this;
 	}
