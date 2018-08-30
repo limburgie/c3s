@@ -14,8 +14,4 @@ public class ContentfulNumberField implements NumberField {
 	public NumberBuilder format(String pattern) {
 		return new NumberBuilder(value, pattern);
 	}
-
-	public boolean isEmpty() {
-		return value == null;
-	}
 }

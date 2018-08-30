@@ -1,6 +1,6 @@
 package be.webfactor.c3s.content.service.domain;
 
-public interface NumberField extends ValueWrapper {
+public interface NumberField {
 
 	/**
 	 * Formats this number using the given pattern.

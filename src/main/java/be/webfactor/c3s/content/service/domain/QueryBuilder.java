@@ -16,15 +16,23 @@ public interface QueryBuilder {
 
 	/**
 	 * Only return content items with a date value, specified by the given field name, in the past.
-	 * If the includingToday flag is false, only dates before the start of today's date are included.
 	 */
-	QueryBuilder withDateInPast(String field, boolean includingToday);
+	QueryBuilder withDateInPast(String field);
+
+	/**
+	 * Only return content items with a date value, specified by the given field name, in the past until the end of yesterday.
+	 */
+	QueryBuilder withDateBeforeToday(String field);
 
 	/**
 	 * Only return content items with a date value, specified by the given field name, in the future.
-	 * If the includingToday flag is false, only dates after the end of today's date are included.
 	 */
-	QueryBuilder withDateInFuture(String field, boolean includingToday);
+	QueryBuilder withDateInFuture(String field);
+
+	/**
+	 * Only return content items with a date value, specified by the given field name, in the future starting from the beginning of tomorrow.
+	 */
+	QueryBuilder withDateAfterToday(String field);
 
 	/**
 	 * Only return content items with today's date (day, month and year) inside the specified field.
@@ -40,11 +48,6 @@ public interface QueryBuilder {
 	 * Reversely results by the given field name.
 	 */
 	QueryBuilder orderByDesc(String fieldName);
-
-	/**
-	 * Order results randomly.
-	 */
-	QueryBuilder shuffle();
 
 	/**
 	 * Count the number of items matching the query.
@@ -69,5 +72,15 @@ public interface QueryBuilder {
 	/**
 	 * Find first item matching the query. Returns null if no items were found.
 	 */
-	ContentItem findFirst();
+	ContentItem findOne();
+
+	/**
+	 * Find all items matching the query in random order.
+	 */
+	List<? extends ContentItem> findRandom();
+
+	/**
+	 * Find all items matching the query in random order, returning at most {limit} results.
+	 */
+	List<? extends ContentItem> findRandom(int limit);
 }

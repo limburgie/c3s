@@ -1,5 +1,7 @@
 package be.webfactor.c3s.content.service.mock;
 
+import com.google.gson.JsonObject;
+
 import be.webfactor.c3s.content.service.domain.*;
 
 public class MockFieldContainer implements FieldContainer {
@@ -14,7 +16,7 @@ public class MockFieldContainer implements FieldContainer {
 		return type + "." + fieldName;
 	}
 
-	public boolean getBoolean(String fieldName) {
+	public Boolean getBoolean(String fieldName) {
 		return MockRandomGenerator.bool();
 	}
 
@@ -34,8 +36,8 @@ public class MockFieldContainer implements FieldContainer {
 		return new MockNumberField();
 	}
 
-	public WebLink getWebLink(String fieldName) {
-		return new MockWebLink();
+	public String getWebLink(String fieldName) {
+		return MockRandomGenerator.url();
 	}
 
 	public GeolocationField getGeolocation(String fieldName) {
@@ -44,6 +46,10 @@ public class MockFieldContainer implements FieldContainer {
 
 	public AssetLink getAsset(String fieldName) {
 		return new MockAssetLink(type + "." + fieldName);
+	}
+
+	public JsonObject getJson(String fieldName) {
+		return MockRandomGenerator.json();
 	}
 
 	public ContentItem getReference(String fieldName) {
