@@ -72,7 +72,7 @@ public interface QueryBuilder {
 	/**
 	 * Find first item matching the query. Returns null if no items were found.
 	 */
-	ContentItem findFirst();
+	ContentItem findOne();
 
 	/**
 	 * Find all items matching the query in random order.

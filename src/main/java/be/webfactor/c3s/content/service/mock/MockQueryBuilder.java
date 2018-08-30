@@ -65,7 +65,7 @@ public class MockQueryBuilder implements QueryBuilder {
 		return findAll(size);
 	}
 
-	public ContentItem findFirst() {
+	public ContentItem findOne() {
 		return MockRandomGenerator.contentItem(type);
 	}
 

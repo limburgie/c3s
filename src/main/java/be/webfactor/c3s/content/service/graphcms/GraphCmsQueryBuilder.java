@@ -115,7 +115,7 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 		return results;
 	}
 
-	public GraphCmsContentItem findFirst() {
+	public GraphCmsContentItem findOne() {
 		List<GraphCmsContentItem> items = findAll(1);
 
 		return items.isEmpty() ? null : items.get(0);

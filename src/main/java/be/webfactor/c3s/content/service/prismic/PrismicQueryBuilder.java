@@ -112,7 +112,7 @@ public class PrismicQueryBuilder implements QueryBuilder {
 		return buildQueryWithOrderings().page(page).pageSize(size).submit().getResults().stream().map(document -> new PrismicContentItem(document, api)).collect(Collectors.toList());
 	}
 
-	public PrismicContentItem findFirst() {
+	public PrismicContentItem findOne() {
 		List<PrismicContentItem> items = findAll(1);
 
 		return items.isEmpty() ? null : items.get(0);

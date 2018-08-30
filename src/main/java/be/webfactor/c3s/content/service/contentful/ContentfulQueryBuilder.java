@@ -111,7 +111,7 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 		return fetchQuery.limit(size).skip((page-1)*size).all().items().stream().map(cdaResource -> new ContentfulContentItem((CDAEntry) cdaResource)).collect(Collectors.toList());
 	}
 
-	public ContentfulContentItem findFirst() {
+	public ContentfulContentItem findOne() {
 		List<ContentfulContentItem> items = findAll(1);
 
 		return items.isEmpty() ? null : items.get(0);
