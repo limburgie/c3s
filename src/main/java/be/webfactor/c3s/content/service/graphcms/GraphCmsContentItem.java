@@ -86,7 +86,7 @@ public class GraphCmsContentItem implements ContentItem {
 	}
 
 	public GeolocationField getGeolocation(String fieldName) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	public AssetLink getAsset(String fieldName) {
