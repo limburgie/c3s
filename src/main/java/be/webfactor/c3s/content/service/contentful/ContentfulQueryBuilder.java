@@ -40,7 +40,7 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 		return withDateInPast(field, true);
 	}
 
-	public QueryBuilder withDateInPastExcludingToday(String field) {
+	public QueryBuilder withDateBeforeToday(String field) {
 		return withDateInPast(field, false);
 	}
 
@@ -54,7 +54,7 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 		return withDateInFuture(field, true);
 	}
 
-	public QueryBuilder withDateInFutureExcludingToday(String field) {
+	public QueryBuilder withDateAfterToday(String field) {
 		return withDateInFuture(field, false);
 	}
 

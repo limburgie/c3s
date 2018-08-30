@@ -25,7 +25,7 @@ public class MockQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
-	public QueryBuilder withDateInPastExcludingToday(String field) {
+	public QueryBuilder withDateBeforeToday(String field) {
 		return null;
 	}
 
@@ -33,7 +33,7 @@ public class MockQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
-	public QueryBuilder withDateInFutureExcludingToday(String field) {
+	public QueryBuilder withDateAfterToday(String field) {
 		return null;
 	}
 

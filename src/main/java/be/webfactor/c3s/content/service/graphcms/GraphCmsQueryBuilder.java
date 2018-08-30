@@ -42,7 +42,7 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 		throw new UnsupportedOperationException();
 	}
 
-	public QueryBuilder withDateInPastExcludingToday(String field) {
+	public QueryBuilder withDateBeforeToday(String field) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -50,7 +50,7 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 		throw new UnsupportedOperationException();
 	}
 
-	public QueryBuilder withDateInFutureExcludingToday(String field) {
+	public QueryBuilder withDateAfterToday(String field) {
 		throw new UnsupportedOperationException();
 	}
 

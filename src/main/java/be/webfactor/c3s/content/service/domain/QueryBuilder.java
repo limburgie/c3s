@@ -22,7 +22,7 @@ public interface QueryBuilder {
 	/**
 	 * Only return content items with a date value, specified by the given field name, in the past until the end of yesterday.
 	 */
-	QueryBuilder withDateInPastExcludingToday(String field);
+	QueryBuilder withDateBeforeToday(String field);
 
 	/**
 	 * Only return content items with a date value, specified by the given field name, in the future.
@@ -32,7 +32,7 @@ public interface QueryBuilder {
 	/**
 	 * Only return content items with a date value, specified by the given field name, in the future starting from the beginning of tomorrow.
 	 */
-	QueryBuilder withDateInFutureExcludingToday(String field);
+	QueryBuilder withDateAfterToday(String field);
 
 	/**
 	 * Only return content items with today's date (day, month and year) inside the specified field.
