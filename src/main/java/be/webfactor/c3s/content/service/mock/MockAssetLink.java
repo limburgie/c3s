@@ -29,8 +29,4 @@ public class MockAssetLink implements AssetLink {
 	public Long getSize() {
 		return (long) MockRandomGenerator.integer();
 	}
-
-	public boolean isEmpty() {
-		return false;
-	}
 }

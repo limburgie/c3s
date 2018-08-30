@@ -3,7 +3,6 @@ package be.webfactor.c3s.content.service.mock;
 import java.util.List;
 
 import be.webfactor.c3s.content.service.domain.ContentItem;
-import be.webfactor.c3s.content.service.domain.FieldContainer;
 import be.webfactor.c3s.content.service.domain.QueryBuilder;
 
 public class MockQueryBuilder implements QueryBuilder {
@@ -22,12 +21,20 @@ public class MockQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
-	public QueryBuilder withDateInPast(String field, boolean includingToday) {
+	public QueryBuilder withDateInPast(String field) {
 		return this;
 	}
 
-	public QueryBuilder withDateInFuture(String field, boolean includingToday) {
+	public QueryBuilder withDateBeforeToday(String field) {
+		return null;
+	}
+
+	public QueryBuilder withDateInFuture(String field) {
 		return this;
+	}
+
+	public QueryBuilder withDateAfterToday(String field) {
+		return null;
 	}
 
 	public QueryBuilder withDateToday(String field) {
@@ -39,10 +46,6 @@ public class MockQueryBuilder implements QueryBuilder {
 	}
 
 	public QueryBuilder orderByDesc(String fieldName) {
-		return this;
-	}
-
-	public QueryBuilder shuffle() {
 		return this;
 	}
 
@@ -62,7 +65,15 @@ public class MockQueryBuilder implements QueryBuilder {
 		return findAll(size);
 	}
 
-	public ContentItem findFirst() {
+	public ContentItem findOne() {
 		return MockRandomGenerator.contentItem(type);
+	}
+
+	public List<? extends ContentItem> findRandom() {
+		return findAll();
+	}
+
+	public List<? extends ContentItem> findRandom(int limit) {
+		return findAll(limit);
 	}
 }

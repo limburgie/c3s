@@ -2,6 +2,9 @@ package be.webfactor.c3s.content.service.mock;
 
 import java.util.*;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import be.webfactor.c3s.content.service.domain.ContentItem;
 import be.webfactor.c3s.content.service.domain.FieldContainer;
 
@@ -26,11 +29,11 @@ public final class MockRandomGenerator {
 
 	private MockRandomGenerator() {}
 
-	public static MockContentItem contentItem(String type) {
+	static MockContentItem contentItem(String type) {
 		return new MockContentItem(type);
 	}
 
-	public static List<ContentItem> contentItemList(String type, int count) {
+	static List<ContentItem> contentItemList(String type, int count) {
 		List<ContentItem> result = new ArrayList<>(count);
 		for (int i = 0; i < count; i++) {
 			result.add(contentItem(type));
@@ -39,7 +42,7 @@ public final class MockRandomGenerator {
 		return result;
 	}
 
-	public static List<FieldContainer> groupItemList(String type, int count) {
+	static List<FieldContainer> groupItemList(String type, int count) {
 		List<FieldContainer> result = new ArrayList<>(count);
 		for (int i = 0; i < count; i++) {
 			result.add(groupItem(type));
@@ -48,23 +51,27 @@ public final class MockRandomGenerator {
 		return result;
 	}
 
-	public static int smallInt() {
+	static int smallInt() {
 		return R.nextInt(20);
 	}
 
-	public static int integer() {
+	static int integer() {
 		return R.nextInt(1000);
 	}
 
-	public static double number() {
+	static double number() {
 		return R.nextDouble() * 100.0;
 	}
 
-	public static String alinea() {
+	static boolean bool() {
+		return R.nextBoolean();
+	}
+
+	static String alinea() {
 		return randomElement(ALINEAS);
 	}
 
-	public static String sentence() {
+	static String sentence() {
 		return randomElement(SENTENCES);
 	}
 
@@ -78,5 +85,9 @@ public final class MockRandomGenerator {
 
 	private static <E> E randomElement(List<E> elements) {
 		return elements.get(R.nextInt(elements.size()));
+	}
+
+	static JsonObject json() {
+		return new JsonParser().parse("{ \"name\": \"Peter\", \"age\": 33 }").getAsJsonObject();
 	}
 }

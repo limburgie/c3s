@@ -1,5 +1,6 @@
 package be.webfactor.c3s.content.service.mock;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import be.webfactor.c3s.content.service.domain.*;
@@ -24,5 +25,13 @@ public class MockContentItem extends MockFieldContainer implements ContentItem {
 
 	public String getId() {
 		return getText("id");
+	}
+
+	public DateBuilder getCreated(String pattern) {
+		return new DateBuilder(ZonedDateTime.now(), pattern);
+	}
+
+	public DateBuilder getModified(String pattern) {
+		return new DateBuilder(ZonedDateTime.now(), pattern);
 	}
 }

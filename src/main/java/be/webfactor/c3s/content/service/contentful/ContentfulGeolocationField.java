@@ -13,14 +13,10 @@ public class ContentfulGeolocationField implements GeolocationField {
 	}
 
 	public Double getLatitude() {
-		return coordinates == null ? null : coordinates.get("lat");
+		return coordinates.get("lat");
 	}
 
 	public Double getLongitude() {
-		return coordinates == null ? null : coordinates.get("lon");
-	}
-
-	public boolean isEmpty() {
-		return coordinates == null;
+		return coordinates.get("lon");
 	}
 }

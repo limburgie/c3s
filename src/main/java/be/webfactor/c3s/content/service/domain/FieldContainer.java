@@ -1,11 +1,18 @@
 package be.webfactor.c3s.content.service.domain;
 
+import com.google.gson.JsonObject;
+
 public interface FieldContainer {
 
 	/**
 	 * Returns the contents of the text field with the given field name.
 	 */
 	String getText(String fieldName);
+
+	/**
+	 * Returns the boolean value of the boolean field with the given field name.
+	 */
+	Boolean getBoolean(String fieldName);
 
 	/**
 	 * Returns the rich text field in this content item with the given field name.
@@ -30,7 +37,7 @@ public interface FieldContainer {
 	/**
 	 * Returns the web link in this content item with the given field name.
 	 */
-	WebLink getWebLink(String fieldName);
+	String getWebLink(String fieldName);
 
 	/**
 	 * Returns the geolocation field in this content item with the given field name.
@@ -38,9 +45,14 @@ public interface FieldContainer {
 	GeolocationField getGeolocation(String fieldName);
 
 	/**
-	 * Returns the asset referenced by the give field name in this content item.
+	 * Returns the asset referenced by the given field name in this content item.
 	 */
 	AssetLink getAsset(String fieldName);
+
+	/**
+	 * Returns the JSON object referenced by the given field name in this content item.
+	 */
+	JsonObject getJson(String fieldName);
 
 	/**
 	 * Returns the content item referenced by the given field name in this content item.

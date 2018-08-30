@@ -1,17 +1,17 @@
-package be.webfactor.c3s.content.service.contentful;
+package be.webfactor.c3s.content.service.graphcms;
 
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
 import be.webfactor.c3s.content.service.domain.RichTextField;
 
-public class ContentfulRichTextField extends RichTextField {
+public class GraphCmsRichTextField extends RichTextField {
 
 	private String markdownContent;
 	private Parser parser = Parser.builder().build();
 	private HtmlRenderer htmlRenderer = HtmlRenderer.builder().build();
 
-	ContentfulRichTextField(String markdownContent) {
+	GraphCmsRichTextField(String markdownContent) {
 		this.markdownContent = markdownContent;
 	}
 

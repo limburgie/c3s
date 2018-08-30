@@ -1,10 +1,6 @@
 package be.webfactor.c3s.content.service.contentful;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-
-import org.apache.commons.lang3.LocaleUtils;
-
+import be.webfactor.c3s.content.service.domain.NumberBuilder;
 import be.webfactor.c3s.content.service.domain.NumberField;
 
 public class ContentfulNumberField implements NumberField {
@@ -15,19 +11,7 @@ public class ContentfulNumberField implements NumberField {
 		this.value = value;
 	}
 
-	public String format(String pattern) {
-		return format(new DecimalFormat(pattern));
-	}
-
-	public String format(String pattern, String locale) {
-		return format(new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(LocaleUtils.toLocale(locale))));
-	}
-
-	private String format(DecimalFormat df) {
-		return value == null ? "" : df.format(value);
-	}
-
-	public boolean isEmpty() {
-		return value == null;
+	public NumberBuilder format(String pattern) {
+		return new NumberBuilder(value, pattern);
 	}
 }

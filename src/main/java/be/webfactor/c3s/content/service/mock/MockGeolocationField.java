@@ -11,8 +11,4 @@ public class MockGeolocationField implements GeolocationField {
 	public Double getLongitude() {
 		return MockRandomGenerator.number();
 	}
-
-	public boolean isEmpty() {
-		return false;
-	}
 }

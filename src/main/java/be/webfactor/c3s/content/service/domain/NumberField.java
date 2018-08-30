@@ -1,8 +1,9 @@
 package be.webfactor.c3s.content.service.domain;
 
-public interface NumberField extends ValueWrapper {
+public interface NumberField {
 
-	String format(String pattern);
-
-	String format(String pattern, String locale);
+	/**
+	 * Formats this number using the given pattern.
+	 */
+	NumberBuilder format(String pattern);
 }

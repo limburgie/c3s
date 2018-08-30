@@ -17,8 +17,9 @@ import be.webfactor.c3s.content.service.domain.QueryBuilder;
 
 public class ContentfulQueryBuilder implements QueryBuilder {
 
+	private static final int MAX_ITEMS = 1000;
+
 	private FetchQuery<CDAEntry> fetchQuery;
-	private boolean shuffled;
 
 	ContentfulQueryBuilder(CDAClient cdaClient, String type) {
 		fetchQuery = cdaClient.fetch(CDAEntry.class).withContentType(type);
@@ -30,18 +31,34 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 		return this;
 	}
 	public QueryBuilder with(String field, ContentItem value) {
-		fetchQuery.where(fieldsPrefix(field), value.getId());
+		fetchQuery.where(fieldsPrefix(field) + ".sys.id", value.getId());
 
 		return this;
 	}
 
-	public QueryBuilder withDateInPast(String field, boolean includingToday) {
+	public QueryBuilder withDateInPast(String field) {
+		return withDateInPast(field, true);
+	}
+
+	public QueryBuilder withDateBeforeToday(String field) {
+		return withDateInPast(field, false);
+	}
+
+	private QueryBuilder withDateInPast(String field, boolean includingToday) {
 		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsEarlierThan, formatDate(includingToday ? ZonedDateTime.now() : getStartOfDay(ZonedDateTime.now())));
 
 		return this;
 	}
 
-	public QueryBuilder withDateInFuture(String field, boolean includingToday) {
+	public QueryBuilder withDateInFuture(String field) {
+		return withDateInFuture(field, true);
+	}
+
+	public QueryBuilder withDateAfterToday(String field) {
+		return withDateInFuture(field, false);
+	}
+
+	private QueryBuilder withDateInFuture(String field, boolean includingToday) {
 		fetchQuery.where(fieldsPrefix(field), QueryOperation.IsLaterThan, formatDate(includingToday ? ZonedDateTime.now() : getStartOfDay(ZonedDateTime.now().plusDays(1))));
 
 		return this;
@@ -74,12 +91,6 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
-	public QueryBuilder shuffle() {
-		shuffled = true;
-
-		return this;
-	}
-
 	private String fieldsPrefix(String fieldName) {
 		return "fields." + fieldName;
 	}
@@ -89,7 +100,7 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 	}
 
 	public List<ContentfulContentItem> findAll() {
-		return findAll(1000);
+		return findAll(MAX_ITEMS);
 	}
 
 	public List<ContentfulContentItem> findAll(int limit) {
@@ -97,23 +108,24 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 	}
 
 	public List<ContentfulContentItem> findAll(int page, int size) {
-		if (!shuffled) {
-			fetchQuery.limit(size).skip((page-1)*size);
-		}
-
-		List<ContentfulContentItem> results = fetchQuery.all().items().stream().map(cdaResource -> new ContentfulContentItem((CDAEntry) cdaResource)).collect(Collectors.toList());
-
-		if (shuffled) {
-			Collections.shuffle(results);
-			results = results.subList((page-1) * size, Math.min(results.size(), page * size));
-		}
-
-		return results;
+		return fetchQuery.limit(size).skip((page-1)*size).all().items().stream().map(cdaResource -> new ContentfulContentItem((CDAEntry) cdaResource)).collect(Collectors.toList());
 	}
 
-	public ContentfulContentItem findFirst() {
+	public ContentfulContentItem findOne() {
 		List<ContentfulContentItem> items = findAll(1);
 
 		return items.isEmpty() ? null : items.get(0);
+	}
+
+	public List<ContentfulContentItem> findRandom() {
+		return findRandom(MAX_ITEMS);
+	}
+
+	public List<ContentfulContentItem> findRandom(int limit) {
+		List<ContentfulContentItem> items = findAll();
+
+		Collections.shuffle(items);
+
+		return items.subList(0, Math.min(items.size(), limit));
 	}
 }

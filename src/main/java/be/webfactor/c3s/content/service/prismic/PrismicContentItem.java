@@ -39,7 +39,7 @@ public class PrismicContentItem extends PrismicFieldContainer implements Content
 		return super.getNumber(docPrefix(fieldName));
 	}
 
-	public WebLink getWebLink(String fieldName) {
+	public String getWebLink(String fieldName) {
 		return super.getWebLink(docPrefix(fieldName));
 	}
 
@@ -66,10 +66,18 @@ public class PrismicContentItem extends PrismicFieldContainer implements Content
 	}
 
 	public String getUid() {
-		return document.getUid();
+		return "null".equals(document.getUid()) ? null : document.getUid();
 	}
 
 	public String getId() {
 		return document.getId();
+	}
+
+	public DateBuilder getCreated(String pattern) {
+		return new DateBuilder(document.getFirstPublicationDate(), pattern);
+	}
+
+	public DateBuilder getModified(String pattern) {
+		return new DateBuilder(document.getLastPublicationDate(), pattern);
 	}
 }

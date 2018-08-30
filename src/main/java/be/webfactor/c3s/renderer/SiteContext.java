@@ -9,7 +9,7 @@ public class SiteContext {
 	private String name;
 	private List<Page> pages;
 
-	public SiteContext(String name, List<Page> pages) {
+	SiteContext(String name, List<Page> pages) {
 		this.name = name;
 		this.pages = pages;
 	}

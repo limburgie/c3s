@@ -1,5 +1,7 @@
 package be.webfactor.c3s.registry.service.database.domain;
 
+import java.util.Objects;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -70,5 +72,18 @@ public class PersistedRepository {
 
 	public void setAccessToken(String accessToken) {
 		this.accessToken = accessToken;
+	}
+
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		PersistedRepository that = (PersistedRepository) o;
+		return Objects.equals(id, that.id);
+	}
+
+	public int hashCode() {
+		return Objects.hash(id);
 	}
 }

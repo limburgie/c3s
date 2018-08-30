@@ -1,5 +1,7 @@
 package be.webfactor.c3s.content.service.prismic;
 
+import com.google.gson.JsonObject;
+
 import be.webfactor.c3s.content.service.domain.*;
 import io.prismic.Api;
 import io.prismic.Fragment;
@@ -16,35 +18,59 @@ public class PrismicFieldContainer implements FieldContainer {
 	}
 
 	public String getText(String fieldName) {
-		return withFragments.getText(fieldName);
+		Fragment fragment = withFragments.get(fieldName);
+
+		return fragment == null ? null : withFragments.getText(fieldName);
+	}
+
+	public Boolean getBoolean(String fieldName) {
+		throw new UnsupportedOperationException();
 	}
 
 	public RichTextField getRichText(String fieldName) {
-		return new PrismicRichTextField(withFragments.getStructuredText(fieldName));
+		Fragment.StructuredText value = withFragments.getStructuredText(fieldName);
+
+		return value == null ? null : new PrismicRichTextField(value);
 	}
 
 	public ImageField getImage(String fieldName) {
-		return new PrismicImageField(withFragments.getImage(fieldName));
+		Fragment.Image image = withFragments.getImage(fieldName);
+
+		return image == null ? null : new PrismicImageField(image);
 	}
 
 	public DateField getDate(String fieldName) {
-		return new PrismicDateField(withFragments.get(fieldName));
+		Fragment fragment = withFragments.get(fieldName);
+
+		return fragment == null ? null : new PrismicDateField(fragment);
 	}
 
 	public NumberField getNumber(String fieldName) {
-		return new PrismicNumberField(withFragments.getNumber(fieldName));
+		Fragment.Number number = withFragments.getNumber(fieldName);
+
+		return number == null ? null : new PrismicNumberField(number);
 	}
 
-	public WebLink getWebLink(String fieldName) {
-		return new PrismicWebLink((Fragment.WebLink) withFragments.getLink(fieldName));
+	public String getWebLink(String fieldName) {
+		Fragment.Link link = withFragments.getLink(fieldName);
+
+		return link == null ? null : link.getUrl(null);
 	}
 
 	public GeolocationField getGeolocation(String fieldName) {
-		return new PrismicGeolocationField(withFragments.getGeoPoint(fieldName));
+		Fragment.GeoPoint geoPoint = withFragments.getGeoPoint(fieldName);
+
+		return geoPoint == null ? null : new PrismicGeolocationField(geoPoint);
 	}
 
 	public AssetLink getAsset(String fieldName) {
-		return new PrismicAssetLink(withFragments.getLink(fieldName));
+		Fragment.Link link = withFragments.getLink(fieldName);
+
+		return link == null ? null : new PrismicAssetLink(link);
+	}
+
+	public JsonObject getJson(String fieldName) {
+		throw new UnsupportedOperationException();
 	}
 
 	public ContentItem getReference(String fieldName) {

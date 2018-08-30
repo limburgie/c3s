@@ -1,14 +1,10 @@
 package be.webfactor.c3s.controller;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,14 +13,14 @@ import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
-import org.apache.tika.mime.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.http.CacheControl;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
 
-import be.webfactor.c3s.master.domain.Page;
 import be.webfactor.c3s.registry.domain.MasterRepository;
 import be.webfactor.c3s.renderer.PageRenderer;
 import be.webfactor.c3s.renderer.PageRendererFactory;
@@ -36,6 +32,15 @@ import be.webfactor.c3s.registry.service.RepositoryRegistryFactory;
 public class PageController {
 
 	public static final String ASSETS_PREFIX = "/assets/";
+	private static final TikaConfig TIKA_CONFIG;
+
+	static {
+		try {
+			TIKA_CONFIG = new TikaConfig();
+		} catch (TikaException | IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	@Autowired private RepositoryRegistryFactory repositoryRegistryFactory;
 	@Autowired private MasterServiceFactory masterServiceFactory;
@@ -48,17 +53,14 @@ public class PageController {
 		return friendlyUrl(masterService.getIndexPage().getFriendlyUrl(), new String[0], masterService);
 	}
 
-	@RequestMapping("/assets/**")
-	public void asset(HttpServletRequest request, HttpServletResponse response) throws IOException, TikaException {
+	@RequestMapping(ASSETS_PREFIX + "**")
+	public ResponseEntity<byte[]> asset(HttpServletRequest request) throws IOException {
 		String requestUri = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 		String assetPath = StringUtils.removeStart(requestUri, ASSETS_PREFIX);
 		String assetUrl = getMasterService(request).getAssetUrl(assetPath);
+		byte[] content = IOUtils.toByteArray(new URL(assetUrl));
 
-		try(InputStream is = new URL(assetUrl).openStream()) {
-			IOUtils.copy(is, response.getOutputStream());
-			response.setContentType(getContentType(is, assetPath));
-			response.flushBuffer();
-		}
+		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS)).contentType(getContentType(content, assetPath)).body(content);
 	}
 
 	@RequestMapping("/**")
@@ -77,11 +79,11 @@ public class PageController {
 		return friendlyUrl(friendlyUrl, params, getMasterService(request));
 	}
 
-	private String getContentType(InputStream is, String assetPath) throws TikaException, IOException {
+	private MediaType getContentType(byte[] content, String assetPath) throws IOException {
 		Metadata metadata = new Metadata();
 		metadata.set(Metadata.RESOURCE_NAME_KEY, assetPath);
 
-		return new TikaConfig().getDetector().detect(TikaInputStream.get(is), metadata).toString();
+		return MediaType.valueOf(TIKA_CONFIG.getDetector().detect(TikaInputStream.get(content), metadata).toString());
 	}
 
 	private MasterService getMasterService(HttpServletRequest request) {
