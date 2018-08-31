@@ -10,10 +10,10 @@ import be.webfactor.c3s.master.domain.TemplateEngine;
 public interface TemplateParser {
 
 	/**
-	 * Parses a given template to a String based on the provided object context.
+	 * Parses the given template contents to a String based on the provided object context.
 	 * If a problem occurs while parsing, an exception is thrown.
 	 */
-	String parse(String template, Map<String, Object> context) throws TemplateParserException;
+	String parse(String templateName, String templateContents, Map<String, Object> context) throws TemplateParserException;
 
 	/**
 	 * Returns the template engine for which this template parser is a suitable parser.

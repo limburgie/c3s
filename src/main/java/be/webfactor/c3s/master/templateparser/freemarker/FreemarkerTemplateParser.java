@@ -29,9 +29,9 @@ public class FreemarkerTemplateParser implements TemplateParser {
 		configuration.setSharedVariable("objectUtil", new ObjectConstructor());
 	}
 
-	public String parse(String template, Map<String, Object> context) {
+	public String parse(String templateName, String templateContents, Map<String, Object> context) {
 		try {
-			Template templateObj = new Template(null, template, configuration);
+			Template templateObj = new Template(templateName, templateContents, configuration);
 			StringWriter stringWriter = new StringWriter();
 
 			templateObj.process(context, stringWriter);

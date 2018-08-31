@@ -22,11 +22,11 @@ public class VelocityTemplateParser implements TemplateParser {
 		velocityEngine.init();
 	}
 
-	public String parse(String template, Map<String, Object> context) throws TemplateParserException {
+	public String parse(String templateName, String templateContents, Map<String, Object> context) throws TemplateParserException {
 		VelocityContext velocityContext = new VelocityContext(context, new ToolManager().createContext());
 
 		StringWriter stringWriter = new StringWriter();
-		velocityEngine.evaluate(velocityContext, stringWriter, "", template);
+		velocityEngine.evaluate(velocityContext, stringWriter, templateName, templateContents);
 
 		return stringWriter.toString();
 	}
