@@ -159,4 +159,8 @@ public class WebserverMasterService implements MasterService {
 	public RepositoryType getType() {
 		return RepositoryType.WEB_SERVER;
 	}
+
+	public String getBaseUrl() {
+		return basePath;
+	}
 }

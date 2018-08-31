@@ -2,6 +2,10 @@ package be.webfactor.c3s.master.templateparser.freemarker;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -9,28 +13,30 @@ import org.springframework.stereotype.Service;
 import be.webfactor.c3s.master.domain.TemplateEngine;
 import be.webfactor.c3s.master.templateparser.TemplateParser;
 import be.webfactor.c3s.master.templateparser.TemplateParserException;
-import freemarker.ext.beans.BeansWrapper;
-import freemarker.ext.beans.BeansWrapperBuilder;
+import freemarker.cache.URLTemplateLoader;
 import freemarker.template.*;
 
 @Service
 public class FreemarkerTemplateParser implements TemplateParser {
 
-	private Configuration configuration;
-
-	public FreemarkerTemplateParser() {
-		configuration = new Configuration(Configuration.getVersion());
-		configuration.setDefaultEncoding("UTF-8");
-		configuration.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
-
-		BeansWrapper beansWrapper = new BeansWrapperBuilder(Configuration.getVersion()).build();
-		configuration.setSharedVariable("statics", beansWrapper.getStaticModels());
-		configuration.setSharedVariable("enums", beansWrapper.getEnumModels());
-		configuration.setSharedVariable("objectUtil", new ObjectConstructor());
-	}
-
-	public String parse(String templateName, String templateContents, Map<String, Object> context) {
+	public String parse(String templateName, String templateContents, Map<String, Object> context, String baseUrl) {
 		try {
+			Configuration configuration = new Configuration(Configuration.getVersion());
+			configuration.setDefaultEncoding("UTF-8");
+			configuration.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
+			configuration.setLocalizedLookup(false);
+
+			configuration.setTemplateLoader(new URLTemplateLoader() {
+				protected URL getURL(String s) {
+					try {
+						return new URI(baseUrl + "/" + s).toURL();
+					} catch (URISyntaxException | MalformedURLException e) {
+						return null;
+					}
+				}
+
+			});
+
 			Template templateObj = new Template(templateName, templateContents, configuration);
 			StringWriter stringWriter = new StringWriter();
 
