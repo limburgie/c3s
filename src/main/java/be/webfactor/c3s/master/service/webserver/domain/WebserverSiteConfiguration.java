@@ -3,8 +3,6 @@ package be.webfactor.c3s.master.service.webserver.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import be.webfactor.c3s.master.domain.Page;
-
 public class WebserverSiteConfiguration {
 
 	private String name;

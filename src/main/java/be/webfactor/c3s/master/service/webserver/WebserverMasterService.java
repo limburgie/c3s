@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 
 import be.webfactor.c3s.controller.PageController;
+import be.webfactor.c3s.master.domain.LocationThreadLocal;
 import be.webfactor.c3s.master.domain.Page;
 import be.webfactor.c3s.master.domain.Template;
 import be.webfactor.c3s.master.domain.TemplateEngine;
@@ -38,6 +39,11 @@ public class WebserverMasterService implements MasterService {
 	public void initialize(RepositoryConnection connection) {
 		basePath = connection.getRepositoryId();
 		config = new Gson().fromJson(readFile(CONFIG_FILE), WebserverSiteConfiguration.class);
+
+		if (config.getLocationSettings() != null) {
+			LocationThreadLocal.setLocale(config.getLocationSettings().getLocale());
+			LocationThreadLocal.setTimeZone(config.getLocationSettings().getTimeZone());
+		}
 	}
 
 	public String getSiteName() {
@@ -67,9 +73,9 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	public Page getPage(String friendlyUrl) {
-		return friendlyUrl == null ? null : config.getAllPages().stream()
-				.filter(webserverSitePage -> friendlyUrl.equals(webserverSitePage.getFriendlyUrl()))
-				.map(pageMapper(true)).collect(Collectors.toList()).get(0);
+		return friendlyUrl == null ?
+				null :
+				config.getAllPages().stream().filter(webserverSitePage -> friendlyUrl.equals(webserverSitePage.getFriendlyUrl())).map(pageMapper(true)).collect(Collectors.toList()).get(0);
 	}
 
 	public Page getIndexPage() {
