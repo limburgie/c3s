@@ -17,4 +17,4 @@ C3S is a website builder that simplifies the creation and maintenance of content
 
 ## Documentation
 
-You can find the full documentation on the project's [Wiki](https://github.com/limburgie/c3s/wiki)
+You can find the full documentation on the project's [wiki](https://github.com/limburgie/c3s/wiki).
