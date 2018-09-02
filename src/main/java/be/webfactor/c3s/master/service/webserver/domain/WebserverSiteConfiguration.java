@@ -11,6 +11,7 @@ public class WebserverSiteConfiguration {
 	private String indexPage;
 	private String templateEngine;
 	private WebserverSiteContentRepositoryConnection contentRepositoryConnection;
+	private WebserverSiteLocationSettings locationSettings;
 	private WebserverSitePage errorPage;
 	private List<WebserverSiteTemplate> templates;
 	private List<WebserverSitePage> pages;
@@ -60,6 +61,14 @@ public class WebserverSiteConfiguration {
 
 	public void setContentRepositoryConnection(WebserverSiteContentRepositoryConnection contentRepositoryConnection) {
 		this.contentRepositoryConnection = contentRepositoryConnection;
+	}
+
+	public WebserverSiteLocationSettings getLocationSettings() {
+		return locationSettings;
+	}
+
+	public void setLocationSettings(WebserverSiteLocationSettings locationSettings) {
+		this.locationSettings = locationSettings;
 	}
 
 	public WebserverSitePage getErrorPage() {
