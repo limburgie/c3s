@@ -3,14 +3,13 @@ package be.webfactor.c3s.master.service.webserver.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import be.webfactor.c3s.master.domain.Page;
-
 public class WebserverSiteConfiguration {
 
 	private String name;
 	private String indexPage;
 	private String templateEngine;
 	private WebserverSiteContentRepositoryConnection contentRepositoryConnection;
+	private WebserverSiteLocationSettings locationSettings;
 	private WebserverSitePage errorPage;
 	private List<WebserverSiteTemplate> templates;
 	private List<WebserverSitePage> pages;
@@ -60,6 +59,14 @@ public class WebserverSiteConfiguration {
 
 	public void setContentRepositoryConnection(WebserverSiteContentRepositoryConnection contentRepositoryConnection) {
 		this.contentRepositoryConnection = contentRepositoryConnection;
+	}
+
+	public WebserverSiteLocationSettings getLocationSettings() {
+		return locationSettings;
+	}
+
+	public void setLocationSettings(WebserverSiteLocationSettings locationSettings) {
+		this.locationSettings = locationSettings;
 	}
 
 	public WebserverSitePage getErrorPage() {
