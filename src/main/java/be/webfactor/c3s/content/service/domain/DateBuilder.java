@@ -4,6 +4,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.commons.lang3.LocaleUtils;
 
@@ -12,10 +13,12 @@ import org.apache.commons.lang3.LocaleUtils;
  */
 public class DateBuilder {
 
+	private static final String DEFAULT_TIME_ZONE = "UTC";
+
 	private TemporalAccessor temporalAccessor;
 	private String pattern;
 	private String locale = Locale.getDefault().toString();
-	private String timeZone = ZoneId.systemDefault().getId();
+	private String timeZone = DEFAULT_TIME_ZONE;
 
 	public DateBuilder(TemporalAccessor temporalAccessor, String pattern) {
 		this.temporalAccessor = temporalAccessor;
