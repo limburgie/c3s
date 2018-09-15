@@ -1,6 +1,8 @@
 package be.webfactor.c3s.content.service.contentful;
 
 import com.contentful.java.cda.CDAClient;
+import com.contentful.java.cda.CDAEntry;
+import com.contentful.java.cda.CDAResourceNotFoundException;
 
 import be.webfactor.c3s.content.service.domain.ContentApi;
 import be.webfactor.c3s.content.service.domain.ContentItem;
@@ -19,7 +21,11 @@ public class ContentfulContentApi implements ContentApi {
 	}
 
 	public ContentItem findById(String id) {
-		throw new UnsupportedOperationException();
+		try {
+			return new ContentfulContentItem(cdaClient.fetch(CDAEntry.class).one(id));
+		} catch (CDAResourceNotFoundException e) {
+			return null;
+		}
 	}
 
 	public Object nativeApi() {
