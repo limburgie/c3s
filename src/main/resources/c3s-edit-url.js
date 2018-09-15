@@ -9,8 +9,8 @@ window.onload = function() {
 			var editLinkElement = document.createElement("a");
 			editLinkElement.href = "/c3s/" + dataElement.getAttribute("data-c3s-id");
 			editLinkElement.target = "_blank";
+			editLinkElement.classList.add("c3s-edit-link");
 			editLinkElement.style.display = "none";
-			editLinkElement.innerHTML = "Edit";
 
 			dataElement.appendChild(editLinkElement);
 
