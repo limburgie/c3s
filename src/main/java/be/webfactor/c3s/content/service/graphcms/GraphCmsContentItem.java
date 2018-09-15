@@ -35,6 +35,10 @@ public class GraphCmsContentItem implements ContentItem {
 		return id;
 	}
 
+	public String getEditUrl() {
+		throw new UnsupportedOperationException();
+	}
+
 	public DateBuilder getCreated(String pattern) {
 		return getMetaDate("createdAt", pattern);
 	}

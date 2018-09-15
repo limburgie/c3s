@@ -20,6 +20,12 @@ public interface ContentItem extends FieldContainer {
 	String getId();
 
 	/**
+	 * Returns the edit URL of this content item. This URL will redirect to the edit page inside the content repository's webapp.
+	 * @return
+	 */
+	String getEditUrl();
+
+	/**
 	 * Returns the create date for this content item, formatted using the given date pattern.
 	 */
 	DateBuilder getCreated(String pattern);
