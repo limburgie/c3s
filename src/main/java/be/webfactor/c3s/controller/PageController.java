@@ -24,6 +24,7 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import be.webfactor.c3s.content.service.ContentService;
 import be.webfactor.c3s.content.service.ContentServiceFactory;
+import be.webfactor.c3s.content.service.domain.ContentItem;
 import be.webfactor.c3s.registry.domain.MasterRepository;
 import be.webfactor.c3s.renderer.PageRenderer;
 import be.webfactor.c3s.renderer.PageRendererFactory;
@@ -88,12 +89,12 @@ public class PageController {
 		ContentService contentService = repoConnection == null ? null : contentServiceFactory.forRepositoryConnection(repoConnection);
 
 		if (contentService != null) {
-//			String editUrl = contentService.getApi().get(contentItemId);
-//
-//			if (editUrl != null) {
-//				response.setHeader("Location", editUrl);
-//				response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-//			}
+			ContentItem contentItem = contentService.getApi().findById(contentItemId);
+
+			if (contentItem != null) {
+				response.setHeader("Location", contentItem.getEditUrl());
+				response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+			}
 		}
 	}
 
