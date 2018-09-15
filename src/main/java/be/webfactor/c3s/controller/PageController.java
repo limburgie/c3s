@@ -83,7 +83,7 @@ public class PageController {
 	@RequestMapping(C3S_PREFIX + "**")
 	public void editUrl(HttpServletRequest request, HttpServletResponse response) {
 		String requestUri = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-		String contentItemId = StringUtils.removeStart(requestUri, ASSETS_PREFIX);
+		String contentItemId = StringUtils.removeStart(requestUri, C3S_PREFIX);
 
 		RepositoryConnection repoConnection = getMasterService(request).getRepositoryConnection();
 		ContentService contentService = repoConnection == null ? null : contentServiceFactory.forRepositoryConnection(repoConnection);
