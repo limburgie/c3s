@@ -1,8 +1,12 @@
 package be.webfactor.c3s.content.service.prismic;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 
 import be.webfactor.c3s.content.service.domain.*;
 import io.prismic.Api;
@@ -10,6 +14,8 @@ import io.prismic.Document;
 import io.prismic.Fragment;
 
 public class PrismicContentItem extends PrismicFieldContainer implements ContentItem {
+
+	private static final String EDIT_URL_PATTERN = "https://%s/app/documents/%s/ref";
 
 	private Document document;
 
@@ -74,7 +80,13 @@ public class PrismicContentItem extends PrismicFieldContainer implements Content
 	}
 
 	public String getEditUrl() {
-		throw new UnsupportedOperationException();
+		try {
+			URI hrefUri = new URI(document.getHref());
+			String cleanHost = StringUtils.remove(StringUtils.remove(hrefUri.getHost(), ".cdn"), "/api");
+			return String.format(EDIT_URL_PATTERN, cleanHost, document.getId());
+		} catch (URISyntaxException e) {
+			throw new RuntimeException("Problem while generating edit URL for document " + document.getId(), e);
+		}
 	}
 
 	public DateBuilder getCreated(String pattern) {
