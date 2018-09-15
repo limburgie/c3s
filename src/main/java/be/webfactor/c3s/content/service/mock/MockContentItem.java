@@ -27,6 +27,10 @@ public class MockContentItem extends MockFieldContainer implements ContentItem {
 		return getText("id");
 	}
 
+	public String getEditUrl() {
+		return MockRandomGenerator.url();
+	}
+
 	public DateBuilder getCreated(String pattern) {
 		return new DateBuilder(ZonedDateTime.now(), pattern);
 	}

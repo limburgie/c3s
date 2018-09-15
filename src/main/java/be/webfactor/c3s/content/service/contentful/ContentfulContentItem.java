@@ -94,6 +94,10 @@ public class ContentfulContentItem implements ContentItem {
 		return cdaEntry.id();
 	}
 
+	public String getEditUrl() {
+		throw new UnsupportedOperationException();
+	}
+
 	public DateBuilder getCreated(String pattern) {
 		return getMetaDate("createdAt", pattern);
 	}

@@ -73,6 +73,10 @@ public class PrismicContentItem extends PrismicFieldContainer implements Content
 		return document.getId();
 	}
 
+	public String getEditUrl() {
+		throw new UnsupportedOperationException();
+	}
+
 	public DateBuilder getCreated(String pattern) {
 		return new DateBuilder(document.getFirstPublicationDate(), pattern);
 	}
