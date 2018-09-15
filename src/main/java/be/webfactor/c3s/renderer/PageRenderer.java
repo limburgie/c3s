@@ -3,7 +3,11 @@ package be.webfactor.c3s.renderer;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import be.webfactor.c3s.content.service.ContentService;
+import be.webfactor.c3s.controller.PageController;
 import be.webfactor.c3s.master.domain.Page;
 import be.webfactor.c3s.master.domain.Template;
 import be.webfactor.c3s.master.service.MasterService;
@@ -27,6 +31,15 @@ public class PageRenderer {
 	}
 
 	public String render(Page page, String[] params) {
+		String result = doRender(page, params);
+
+		Document doc = Jsoup.parse(result);
+		doc.body().append(String.format("<script src=\"%s\"></script>", PageController.EDIT_URL_JS_PATH));
+
+		return doc.html();
+	}
+
+	private String doRender(Page page, String[] params) {
 		Map<String, Object> context = new HashMap<>();
 
 		context.put(API_TEMPLATE_VAR, contentService == null ? null : contentService.getApi());
