@@ -3,6 +3,9 @@ package be.webfactor.c3s.content.service.contentful;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.ArrayUtils;
 
 import com.contentful.java.cda.CDAAsset;
 import com.contentful.java.cda.CDAEntry;
@@ -15,6 +18,7 @@ import be.webfactor.c3s.content.service.domain.*;
 public class ContentfulContentItem implements ContentItem {
 
 	private static final String METADATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+	private static final String EDIT_URL_PATTERN = "https://app.contentful.com/spaces/%s/entries/%s";
 
 	private CDAEntry cdaEntry;
 
@@ -95,7 +99,10 @@ public class ContentfulContentItem implements ContentItem {
 	}
 
 	public String getEditUrl() {
-		throw new UnsupportedOperationException();
+		String spaceId = getAttribute(cdaEntry, "space", "sys", "id");
+		String documentId = cdaEntry.id();
+
+		return String.format(EDIT_URL_PATTERN, spaceId, documentId);
 	}
 
 	public DateBuilder getCreated(String pattern) {
@@ -108,5 +115,21 @@ public class ContentfulContentItem implements ContentItem {
 
 	private DateBuilder getMetaDate(String dateAttribute, String pattern) {
 		return new DateBuilder(ZonedDateTime.parse((String) cdaEntry.attrs().get(dateAttribute), DateTimeFormatter.ofPattern(METADATE_PATTERN)), pattern);
+	}
+
+	private String getAttribute(CDAEntry entry, String... attributePathParts) {
+		Object attribute = entry.getAttribute(attributePathParts[0]);
+
+		for (int i = 1; i <= attributePathParts.length; i++) {
+			if (attribute instanceof String) {
+				return (String) attribute;
+			}
+
+			if (i < attributePathParts.length) {
+				attribute = ((Map) attribute).get(attributePathParts[i]);
+			}
+		}
+
+		throw new IllegalArgumentException("Attribute path does not resolve to a valid attribute");
 	}
 }
