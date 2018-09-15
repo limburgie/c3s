@@ -76,8 +76,7 @@ public class PageController {
 	public ResponseEntity<byte[]> editUrlJavascript() throws IOException {
 		byte[] content = IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream(EDIT_URL_JS_FILENAME));
 
-		//TODO add severe caching!!!
-		return ResponseEntity.ok().contentType(MediaType.valueOf("application/javascript")).body(content);
+		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).contentType(MediaType.valueOf("application/javascript")).body(content);
 	}
 
 	@RequestMapping(C3S_PREFIX + "**")

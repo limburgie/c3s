@@ -33,7 +33,6 @@ public class PageRenderer {
 	public String render(Page page, String[] params) {
 		String result = doRender(page, params);
 
-		//TODO only add Javascript for supported content services!!!
 		Document doc = Jsoup.parse(result);
 		doc.body().append(String.format("<script src=\"%s\"></script>", PageController.EDIT_URL_JS_PATH));
 
