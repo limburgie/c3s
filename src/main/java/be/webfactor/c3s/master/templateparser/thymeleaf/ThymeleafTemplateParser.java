@@ -19,8 +19,8 @@ public class ThymeleafTemplateParser implements TemplateParser {
 		templateEngine = new org.thymeleaf.TemplateEngine();
 	}
 
-	public String parse(String template, Map<String, Object> context) throws TemplateParserException {
-		return templateEngine.process(template, new Context(Locale.getDefault(), context));
+	public String parse(String templateName, String templateContents, Map<String, Object> context, String baseUrl) throws TemplateParserException {
+		return templateEngine.process(templateContents, new Context(Locale.getDefault(), context));
 	}
 
 	public TemplateEngine getTemplateEngine() {

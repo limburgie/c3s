@@ -3,9 +3,10 @@ package be.webfactor.c3s.content.service.domain;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
-import java.util.Locale;
 
 import org.apache.commons.lang3.LocaleUtils;
+
+import be.webfactor.c3s.master.domain.LocationThreadLocal;
 
 /**
  * Helper class for formatting dates with optional locale or time zone settings.
@@ -14,12 +15,14 @@ public class DateBuilder {
 
 	private TemporalAccessor temporalAccessor;
 	private String pattern;
-	private String locale = Locale.getDefault().toString();
-	private String timeZone = ZoneId.systemDefault().getId();
+	private String locale;
+	private String timeZone;
 
 	public DateBuilder(TemporalAccessor temporalAccessor, String pattern) {
 		this.temporalAccessor = temporalAccessor;
 		this.pattern = pattern;
+		this.locale = LocationThreadLocal.getLocale();
+		this.timeZone = LocationThreadLocal.getTimeZone();
 	}
 
 	/**

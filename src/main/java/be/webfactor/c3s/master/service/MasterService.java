@@ -67,4 +67,9 @@ public interface MasterService {
 	 * Retrieves the repository type of this master service.
 	 */
 	RepositoryType getType();
+
+	/**
+	 * Returns the base URL from which all site resources are loaded.
+	 */
+	String getBaseUrl();
 }
