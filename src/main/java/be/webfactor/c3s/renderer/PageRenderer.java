@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document;
 
 import be.webfactor.c3s.content.service.ContentService;
 import be.webfactor.c3s.controller.PageController;
+import be.webfactor.c3s.controller.LocaleThreadLocal;
 import be.webfactor.c3s.master.domain.Page;
 import be.webfactor.c3s.master.domain.Template;
 import be.webfactor.c3s.master.service.MasterService;
@@ -44,7 +45,7 @@ public class PageRenderer {
 
 		context.put(API_TEMPLATE_VAR, contentService == null ? null : contentService.getApi());
 		context.put(SITE_TEMPLATE_VAR, new SiteContext(masterService.getSiteName(), masterService.getPages()));
-		context.put(REQUEST_TEMPLATE_VAR, new RequestContext(page, params));
+		context.put(REQUEST_TEMPLATE_VAR, new RequestContext(page, params, LocaleThreadLocal.get()));
 
 		if (page.isTemplated()) {
 			addParsedInsertsToContext(page.getName(), page.getInserts(), context);
