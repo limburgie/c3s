@@ -10,7 +10,7 @@ public class LocaleThreadLocal {
 		return localeThreadLocal.get();
 	}
 
-	public static void set(Locale locale) {
+	static void set(Locale locale) {
 		localeThreadLocal.set(locale);
 	}
 }

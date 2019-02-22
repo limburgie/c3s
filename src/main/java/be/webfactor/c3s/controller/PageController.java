@@ -91,8 +91,21 @@ public class PageController {
 		String newLocale = StringUtils.removeStart(requestUri, LANG_PREFIX);
 
 		response.addCookie(createLocaleCookie(newLocale));
-		response.setHeader("Location", request.getHeader("Referer"));
+		response.setHeader("Location", getReferer(request));
 		response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+	}
+
+	private String getReferer(HttpServletRequest request) {
+		String referer = request.getHeader("Referer");
+
+		if (referer == null) {
+			String scheme = request.getScheme();
+			String host = request.getHeader("Host");
+
+			referer = scheme + "://" + host;
+		}
+
+		return referer;
 	}
 
 	private Cookie createLocaleCookie(String newLocale) {
