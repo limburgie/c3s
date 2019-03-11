@@ -62,8 +62,10 @@ public class PageController {
 	@Autowired private ContentServiceFactory contentServiceFactory;
 
 	@RequestMapping("/")
-	public String index(HttpServletRequest request) {
+	public String index(HttpServletRequest request, @CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale) {
 		MasterService masterService = getMasterService(request);
+
+		LocaleThreadLocal.set(LocaleUtils.toLocale(locale == null ? LocationThreadLocal.getLocale() : locale));
 
 		return friendlyUrl(masterService.getIndexPage().getFriendlyUrl(), new String[0], masterService);
 	}
