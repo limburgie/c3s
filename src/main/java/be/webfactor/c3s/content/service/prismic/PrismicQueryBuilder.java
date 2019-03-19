@@ -6,12 +6,14 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
 import be.webfactor.c3s.content.service.domain.ContentItem;
 import be.webfactor.c3s.content.service.domain.QueryBuilder;
+import be.webfactor.c3s.controller.LocaleThreadLocal;
 import io.prismic.*;
 
 public class PrismicQueryBuilder implements QueryBuilder {
@@ -135,7 +137,16 @@ public class PrismicQueryBuilder implements QueryBuilder {
 	}
 
 	private Form.SearchForm buildQuery() {
-		return api.query(predicates.toArray(new Predicate[0]));
+		return api.query(predicates.toArray(new Predicate[0])).lang(getLanguage());
+	}
+
+	private String getLanguage() {
+		Locale locale = LocaleThreadLocal.get();
+
+		String language = locale.getLanguage();
+		String country = locale.getCountry().toLowerCase();
+
+		return String.format("%s-%s", language, country);
 	}
 
 	private String buildOrderings() {

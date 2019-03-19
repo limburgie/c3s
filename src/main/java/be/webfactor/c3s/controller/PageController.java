@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.tika.config.TikaConfig;
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
@@ -25,6 +28,7 @@ import org.springframework.web.servlet.HandlerMapping;
 import be.webfactor.c3s.content.service.ContentService;
 import be.webfactor.c3s.content.service.ContentServiceFactory;
 import be.webfactor.c3s.content.service.domain.ContentItem;
+import be.webfactor.c3s.master.domain.LocationThreadLocal;
 import be.webfactor.c3s.registry.domain.MasterRepository;
 import be.webfactor.c3s.renderer.PageRenderer;
 import be.webfactor.c3s.renderer.PageRendererFactory;
@@ -38,6 +42,8 @@ public class PageController {
 
 	public static final String ASSETS_PREFIX = "/assets/";
 	private static final String C3S_PREFIX = "/c3s/";
+	private static final String LANG_PREFIX = "/lang/";
+	private static final String LOCALE_COOKIE_NAME = "C3S_LOCALE";
 	private static final String EDIT_URL_JS_FILENAME = "c3s-edit-url.js";
 	public static final String EDIT_URL_JS_PATH = C3S_PREFIX + EDIT_URL_JS_FILENAME;
 	private static final TikaConfig TIKA_CONFIG;
@@ -56,8 +62,10 @@ public class PageController {
 	@Autowired private ContentServiceFactory contentServiceFactory;
 
 	@RequestMapping("/")
-	public String index(HttpServletRequest request) {
+	public String index(HttpServletRequest request, @CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale) {
 		MasterService masterService = getMasterService(request);
+
+		LocaleThreadLocal.set(LocaleUtils.toLocale(locale == null ? LocationThreadLocal.getLocale() : locale));
 
 		return friendlyUrl(masterService.getIndexPage().getFriendlyUrl(), new String[0], masterService);
 	}
@@ -79,6 +87,39 @@ public class PageController {
 		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).contentType(MediaType.valueOf("application/javascript")).body(content);
 	}
 
+	@RequestMapping(LANG_PREFIX + "**")
+	public void changeLanguageUrl(HttpServletRequest request, HttpServletResponse response) {
+		String requestUri = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+		String newLocale = StringUtils.removeStart(requestUri, LANG_PREFIX);
+
+		response.addCookie(createLocaleCookie(newLocale));
+		response.setHeader("Location", getReferer(request));
+		response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+	}
+
+	private String getReferer(HttpServletRequest request) {
+		String referer = request.getHeader("Referer");
+
+		if (referer == null) {
+			String scheme = request.getScheme();
+			String host = request.getHeader("Host");
+
+			referer = scheme + "://" + host;
+		}
+
+		return referer;
+	}
+
+	private Cookie createLocaleCookie(String newLocale) {
+		Cookie cookie = new Cookie(LOCALE_COOKIE_NAME, newLocale);
+
+		cookie.setMaxAge(Integer.MAX_VALUE);
+		cookie.setHttpOnly(true);
+		cookie.setPath("/");
+
+		return cookie;
+	}
+
 	@RequestMapping(C3S_PREFIX + "**")
 	public void editUrl(HttpServletRequest request, HttpServletResponse response) {
 		String requestUri = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
@@ -98,7 +139,7 @@ public class PageController {
 	}
 
 	@RequestMapping("/**")
-	public String friendlyUrl(HttpServletRequest request) {
+	public String friendlyUrl(HttpServletRequest request, @CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale) {
 		String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 		String friendlyUrl = path.substring(1);
 		String[] params = new String[0];
@@ -110,7 +151,11 @@ public class PageController {
 			params = pathParts[1].split("/");
 		}
 
-		return friendlyUrl(friendlyUrl, params, getMasterService(request));
+		MasterService masterService = getMasterService(request);
+
+		LocaleThreadLocal.set(LocaleUtils.toLocale(locale == null ? LocationThreadLocal.getLocale() : locale));
+
+		return friendlyUrl(friendlyUrl, params, masterService);
 	}
 
 	private MediaType getContentType(byte[] content, String assetPath) throws IOException {

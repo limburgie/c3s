@@ -14,7 +14,7 @@ import io.prismic.Document;
 @Service
 public class PrismicRepositoryRegistry implements RepositoryRegistry {
 
-	@Value("${c3s.prismic.registry.endpoint:#{null}")
+	@Value("${c3s.prismic.registry.endpoint}:#{null}")
 	private String prismicRegistryEndpoint;
 
 	@Value("${c3s.prismic.registry.access.token}:#{null}")
