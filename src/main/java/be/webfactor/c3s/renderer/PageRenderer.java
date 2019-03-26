@@ -20,6 +20,7 @@ public class PageRenderer {
 	private static final String SITE_TEMPLATE_VAR = "site";
 	private static final String REQUEST_TEMPLATE_VAR = "request";
 	private static final String INSERTS_TEMPLATE_VAR = "inserts";
+	private static final String I18N_TEMPLATE_VAR = "i18n";
 
 	private MasterService masterService;
 	private TemplateParser templateParser;
@@ -46,6 +47,7 @@ public class PageRenderer {
 		context.put(API_TEMPLATE_VAR, contentService == null ? null : contentService.getApi());
 		context.put(SITE_TEMPLATE_VAR, new SiteContext(masterService.getSiteName(), masterService.getPages()));
 		context.put(REQUEST_TEMPLATE_VAR, new RequestContext(page, params, LocationThreadLocal.getLocale()));
+		context.put(I18N_TEMPLATE_VAR, new I18n(masterService.getResourceBundle()));
 
 		if (page.isTemplated()) {
 			addParsedInsertsToContext(page.getName(), page.getInserts(), context);
