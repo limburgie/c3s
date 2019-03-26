@@ -1,14 +1,15 @@
 package be.webfactor.c3s.master.service.webserver;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.nio.charset.Charset;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.LocaleUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -32,17 +33,35 @@ import be.webfactor.c3s.repository.RepositoryType;
 public class WebserverMasterService implements MasterService {
 
 	private static final String CONFIG_FILE = "c3s.json";
+	private static final String I18N_BASE_NAME = "i18n";
 
 	private String basePath;
 	private WebserverSiteConfiguration config;
+	private ResourceBundle resourceBundle;
 
 	public void initialize(RepositoryConnection connection) {
 		basePath = connection.getRepositoryId();
 		config = new Gson().fromJson(readFile(CONFIG_FILE), WebserverSiteConfiguration.class);
 
 		if (config.getLocationSettings() != null) {
-			LocationThreadLocal.setLocale(config.getLocationSettings().getLocale());
-			LocationThreadLocal.setTimeZone(config.getLocationSettings().getTimeZone());
+			if (!LocationThreadLocal.hasLocale()) {
+				LocationThreadLocal.setLocale(LocaleUtils.toLocale(config.getLocationSettings().getLocale()));
+			}
+			LocationThreadLocal.setTimeZone(ZoneId.of(config.getLocationSettings().getTimeZone()));
+		}
+
+		initResourceBundle();
+	}
+
+	private void initResourceBundle() {
+		Locale locale = LocationThreadLocal.getLocale();
+		URL i18nFolder = getURL(I18N_BASE_NAME + "/");
+		ClassLoader classLoader = new URLClassLoader(new URL[] {i18nFolder});
+
+		try {
+			resourceBundle = ResourceBundle.getBundle(I18N_BASE_NAME, locale, classLoader);
+		} catch (MissingResourceException e) {
+
 		}
 	}
 
@@ -156,8 +175,24 @@ public class WebserverMasterService implements MasterService {
 
 	private String readFile(String path) {
 		try {
-			return IOUtils.toString(new URI(basePath + "/" + path), Charset.defaultCharset());
-		} catch (IOException | URISyntaxException e) {
+			return IOUtils.toString(getURI(path), Charset.defaultCharset());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private URI getURI(String path) {
+		try {
+			return new URI(basePath + "/" + path);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private URL getURL(String path) {
+		try {
+			return getURI(path).toURL();
+		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -168,5 +203,9 @@ public class WebserverMasterService implements MasterService {
 
 	public String getBaseUrl() {
 		return basePath;
+	}
+
+	public ResourceBundle getResourceBundle() {
+		return resourceBundle;
 	}
 }
