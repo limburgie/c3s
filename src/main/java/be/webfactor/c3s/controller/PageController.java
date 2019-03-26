@@ -63,11 +63,9 @@ public class PageController {
 
 	@RequestMapping("/")
 	public String index(HttpServletRequest request, @CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale) {
-		MasterService masterService = getMasterService(request);
+		LocationThreadLocal.setLocale(LocaleUtils.toLocale(locale));
 
-		LocaleThreadLocal.set(LocaleUtils.toLocale(locale == null ? LocationThreadLocal.getLocale() : locale));
-
-		return friendlyUrl(masterService.getIndexPage().getFriendlyUrl(), new String[0], masterService);
+		return friendlyUrl(getMasterService(request).getIndexPage().getFriendlyUrl(), new String[0], getMasterService(request));
 	}
 
 	@RequestMapping(ASSETS_PREFIX + "**")
@@ -140,6 +138,8 @@ public class PageController {
 
 	@RequestMapping("/**")
 	public String friendlyUrl(HttpServletRequest request, @CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale) {
+		LocationThreadLocal.setLocale(LocaleUtils.toLocale(locale));
+
 		String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 		String friendlyUrl = path.substring(1);
 		String[] params = new String[0];
@@ -151,11 +151,7 @@ public class PageController {
 			params = pathParts[1].split("/");
 		}
 
-		MasterService masterService = getMasterService(request);
-
-		LocaleThreadLocal.set(LocaleUtils.toLocale(locale == null ? LocationThreadLocal.getLocale() : locale));
-
-		return friendlyUrl(friendlyUrl, params, masterService);
+		return friendlyUrl(friendlyUrl, params, getMasterService(request));
 	}
 
 	private MediaType getContentType(byte[] content, String assetPath) throws IOException {

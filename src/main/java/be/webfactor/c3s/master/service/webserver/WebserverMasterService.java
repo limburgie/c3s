@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.LocaleUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -41,8 +43,10 @@ public class WebserverMasterService implements MasterService {
 		config = new Gson().fromJson(readFile(CONFIG_FILE), WebserverSiteConfiguration.class);
 
 		if (config.getLocationSettings() != null) {
-			LocationThreadLocal.setLocale(config.getLocationSettings().getLocale());
-			LocationThreadLocal.setTimeZone(config.getLocationSettings().getTimeZone());
+			if (!LocationThreadLocal.hasLocale()) {
+				LocationThreadLocal.setLocale(LocaleUtils.toLocale(config.getLocationSettings().getLocale()));
+			}
+			LocationThreadLocal.setTimeZone(ZoneId.of(config.getLocationSettings().getTimeZone()));
 		}
 	}
 
