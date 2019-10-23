@@ -12,7 +12,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 
 import be.webfactor.c3s.content.service.domain.*;
-import be.webfactor.c3s.controller.LocaleThreadLocal;
+import be.webfactor.c3s.master.domain.LocationThreadLocal;
 
 public class ContentfulContentItem implements ContentItem {
 
@@ -133,6 +133,6 @@ public class ContentfulContentItem implements ContentItem {
 	}
 
 	private String getLocale() {
-		return LocaleThreadLocal.get().toString().replace('_', '-');
+		return LocationThreadLocal.getLocale().toString().replace('_', '-');
 	}
 }

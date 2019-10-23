@@ -1,6 +1,7 @@
 package be.webfactor.c3s.master.service;
 
 import java.util.List;
+import java.util.ResourceBundle;
 
 import be.webfactor.c3s.master.domain.Page;
 import be.webfactor.c3s.master.domain.TemplateEngine;
@@ -72,4 +73,9 @@ public interface MasterService {
 	 * Returns the base URL from which all site resources are loaded.
 	 */
 	String getBaseUrl();
+
+	/**
+	 * Returns the resource bundle containing resource keys for the currently active locale.
+	 */
+	ResourceBundle getResourceBundle();
 }

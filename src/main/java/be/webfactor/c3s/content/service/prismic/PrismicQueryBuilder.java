@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import be.webfactor.c3s.content.service.domain.ContentItem;
 import be.webfactor.c3s.content.service.domain.QueryBuilder;
-import be.webfactor.c3s.controller.LocaleThreadLocal;
+import be.webfactor.c3s.master.domain.LocationThreadLocal;
 import io.prismic.*;
 
 public class PrismicQueryBuilder implements QueryBuilder {
@@ -141,7 +141,7 @@ public class PrismicQueryBuilder implements QueryBuilder {
 	}
 
 	private String getLanguage() {
-		Locale locale = LocaleThreadLocal.get();
+		Locale locale = LocationThreadLocal.getLocale();
 
 		String language = locale.getLanguage();
 		String country = locale.getCountry().toLowerCase();

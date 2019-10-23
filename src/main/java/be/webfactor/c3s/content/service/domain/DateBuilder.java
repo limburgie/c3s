@@ -3,6 +3,7 @@ package be.webfactor.c3s.content.service.domain;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
+import java.util.Locale;
 
 import org.apache.commons.lang3.LocaleUtils;
 
@@ -15,8 +16,8 @@ public class DateBuilder {
 
 	private TemporalAccessor temporalAccessor;
 	private String pattern;
-	private String locale;
-	private String timeZone;
+	private Locale locale;
+	private ZoneId timeZone;
 
 	public DateBuilder(TemporalAccessor temporalAccessor, String pattern) {
 		this.temporalAccessor = temporalAccessor;
@@ -29,7 +30,7 @@ public class DateBuilder {
 	 * Uses the given locale to format this date.
 	 */
 	public DateBuilder withLocale(String locale) {
-		this.locale = locale;
+		this.locale = LocaleUtils.toLocale(locale);
 
 		return this;
 	}
@@ -38,7 +39,7 @@ public class DateBuilder {
 	 * Uses the given time zone to format this date.
 	 */
 	public DateBuilder withTimeZone(String timeZone) {
-		this.timeZone = timeZone;
+		this.timeZone = ZoneId.of(timeZone);
 
 		return this;
 	}
@@ -47,6 +48,6 @@ public class DateBuilder {
 	 * Outputs this date's string representation, taking into account configured locale and time zone.
 	 */
 	public String toString() {
-		return temporalAccessor == null ? "" : DateTimeFormatter.ofPattern(pattern).withZone(ZoneId.of(timeZone)).withLocale(LocaleUtils.toLocale(locale)).format(temporalAccessor);
+		return temporalAccessor == null ? "" : DateTimeFormatter.ofPattern(pattern).withZone(timeZone).withLocale(locale).format(temporalAccessor);
 	}
 }
