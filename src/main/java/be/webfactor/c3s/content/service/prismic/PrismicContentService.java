@@ -8,6 +8,8 @@ import be.webfactor.c3s.content.service.domain.ContentApi;
 import be.webfactor.c3s.repository.RepositoryConnection;
 import be.webfactor.c3s.repository.RepositoryType;
 import io.prismic.Api;
+import io.prismic.Cache;
+import io.prismic.Logger;
 import io.prismic.Predicates;
 
 @Service
@@ -17,7 +19,7 @@ public class PrismicContentService implements ContentService {
 	private ContentApi api;
 
 	public void initialize(RepositoryConnection connection) {
-		api = new PrismicContentApi(Api.get(connection.getRepositoryId(), connection.getAccessToken()));
+		api = new PrismicContentApi(Api.get(connection.getRepositoryId(), connection.getAccessToken(), new Cache.NoCache(), new Logger.NoLogger()));
 	}
 
 	public ContentApi getApi() {
