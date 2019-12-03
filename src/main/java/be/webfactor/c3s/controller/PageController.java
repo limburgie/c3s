@@ -16,6 +16,7 @@ import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
+import org.glowroot.agent.api.Glowroot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
@@ -63,6 +64,8 @@ public class PageController {
 
 	@RequestMapping("/")
 	public String index(HttpServletRequest request, @CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale) {
+		setTransactionName(request);
+
 		LocationThreadLocal.setLocale(LocaleUtils.toLocale(locale));
 
 		return friendlyUrl(getMasterService(request).getIndexPage().getFriendlyUrl(), new String[0], getMasterService(request));
@@ -70,6 +73,8 @@ public class PageController {
 
 	@RequestMapping(ASSETS_PREFIX + "**")
 	public ResponseEntity<byte[]> asset(HttpServletRequest request) throws IOException {
+		setTransactionName(request);
+
 		String requestUri = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 		String assetPath = StringUtils.removeStart(requestUri, ASSETS_PREFIX);
 		String assetUrl = getMasterService(request).getAssetUrl(assetPath);
@@ -138,6 +143,7 @@ public class PageController {
 
 	@RequestMapping("/**")
 	public String friendlyUrl(HttpServletRequest request, @CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale) {
+		setTransactionName(request);
 		LocationThreadLocal.setLocale(LocaleUtils.toLocale(locale));
 
 		String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
@@ -175,5 +181,9 @@ public class PageController {
 		} catch (Throwable t) {
 			return pageRenderer.render(masterService.getErrorPage(), new String[] { ExceptionUtils.getStackTrace(t) });
 		}
+	}
+
+	private void setTransactionName(HttpServletRequest request) {
+		Glowroot.setTransactionName(request.getRequestURL().toString());
 	}
 }

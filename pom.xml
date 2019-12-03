@@ -73,6 +73,11 @@
 			<artifactId>evo-inflector</artifactId>
 			<version>1.2.2</version>
 		</dependency>
+		<dependency>
+			<groupId>org.glowroot</groupId>
+			<artifactId>glowroot-agent-api</artifactId>
+			<version>0.13.5</version>
+		</dependency>
 
 		<!-- Templating engines -->
 		<dependency>
