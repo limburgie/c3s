@@ -2,7 +2,9 @@ package be.webfactor.c3s.controller;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +31,7 @@ import org.springframework.web.servlet.HandlerMapping;
 import be.webfactor.c3s.content.service.ContentService;
 import be.webfactor.c3s.content.service.ContentServiceFactory;
 import be.webfactor.c3s.content.service.domain.ContentItem;
+import be.webfactor.c3s.controller.sass.SassCompiler;
 import be.webfactor.c3s.master.domain.LocationThreadLocal;
 import be.webfactor.c3s.registry.domain.MasterRepository;
 import be.webfactor.c3s.renderer.PageRenderer;
@@ -77,10 +80,29 @@ public class PageController {
 
 		String requestUri = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 		String assetPath = StringUtils.removeStart(requestUri, ASSETS_PREFIX);
-		String assetUrl = getMasterService(request).getAssetUrl(assetPath);
-		byte[] content = IOUtils.toByteArray(new URL(assetUrl));
+		MasterService masterService = getMasterService(request);
+		String basePath = masterService.getBaseUrl();
+		byte[] content = getAssetBytes(basePath, assetPath);
 
 		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS)).contentType(getContentType(content, assetPath)).body(content);
+	}
+
+	private byte[] getAssetBytes(String basePath, String assetPath) throws IOException {
+		String assetUrl = basePath + ASSETS_PREFIX + assetPath;
+		try {
+			return IOUtils.toByteArray(new URL(assetUrl));
+		} catch(IOException e) {
+			if (assetPath.endsWith(".css")) {
+				String relativeDirectory = assetPath.substring(0, assetPath.lastIndexOf("/") + 1);
+				String sassAssetPath = assetPath.replace(".css", ".scss");
+
+				SassCompiler sassCompiler = new SassCompiler(basePath, relativeDirectory);
+
+				return sassCompiler.compile(IOUtils.toByteArray(new URL(basePath + ASSETS_PREFIX + sassAssetPath)));
+			} else {
+				throw e;
+			}
+		}
 	}
 
 	@RequestMapping(EDIT_URL_JS_PATH)
