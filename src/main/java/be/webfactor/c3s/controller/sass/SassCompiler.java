@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import be.webfactor.c3s.controller.PageController;
 import io.bit3.jsass.*;
@@ -22,14 +23,27 @@ public class SassCompiler {
 	private Compiler compiler = new Compiler();
 	private Options options = new Options();
 
-	public SassCompiler(String basePath, String relativeDirectory) {
+	public SassCompiler(String basePath, String originalRelativeDirectory) {
 		options.setOutputStyle(OutputStyle.COMPRESSED);
 		options.setImporters(Collections.singletonList((importUrl, previous) -> {
-			String absoluteUrl = toAbsoluteUrl(basePath, relativeDirectory, importUrl);
+			String relativeDir = getRelativeDirectory(originalRelativeDirectory, basePath, previous);
+
+			String absoluteUrl = toAbsoluteUrl(basePath, relativeDir, importUrl);
 			String absolutePartialUrl = toPartialUrl(absoluteUrl);
 
 			return Collections.singletonList(createImport(absoluteUrl, absolutePartialUrl));
 		}));
+	}
+
+	private String getRelativeDirectory(String originalRelativeDirectory, String basePath, Import previous) {
+		String previousAbsoluteUri = previous.getAbsoluteUri().toString().replaceAll("file:/", "file:///");
+		String previousUrl = StringUtils.removeStart(previousAbsoluteUri, basePath + PageController.ASSETS_PREFIX);
+		String relativeDir = originalRelativeDirectory;
+
+		if (!previousUrl.equals("stdin")) {
+			relativeDir = previousUrl.substring(0, previousUrl.lastIndexOf("/") + 1);
+		}
+		return relativeDir;
 	}
 
 	private Import createImport(String absoluteUrl, String absolutePartialUrl) {
