@@ -72,7 +72,7 @@ public class SassCompiler {
 	}
 
 	private String toAbsoluteUrl(String basePath, String relativeDirectory, String url) {
-		if (!url.endsWith(".scss")) {
+		if (!url.endsWith(".scss") && !url.endsWith(".css")) {
 			url += ".scss";
 		}
 
