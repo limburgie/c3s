@@ -1,5 +1,7 @@
 package be.webfactor.c3s.content.service.prismic;
 
+import com.sun.javafx.fxml.builder.URLBuilder;
+
 import be.webfactor.c3s.content.service.domain.ImageField;
 import io.prismic.Fragment;
 
@@ -12,7 +14,19 @@ public class PrismicImageField implements ImageField {
 	}
 
 	public String getUrl() {
-		return imageFragment.getUrl();
+		String baseUrl = imageFragment.getUrl();
+
+		if (baseUrl == null) {
+			return null;
+		}
+
+		int queryIndex = baseUrl.lastIndexOf('?');
+
+		if (queryIndex != -1) {
+			baseUrl = baseUrl.substring(0, queryIndex);
+		}
+
+		return baseUrl;
 	}
 
 	public String getAlt() {
