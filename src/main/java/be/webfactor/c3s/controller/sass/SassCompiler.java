@@ -36,7 +36,7 @@ public class SassCompiler {
 	}
 
 	private String getRelativeDirectory(String originalRelativeDirectory, String basePath, Import previous) {
-		String previousAbsoluteUri = previous.getAbsoluteUri().toString().replaceAll("file:/", "file:///");
+		String previousAbsoluteUri = getPreviousAbsoluteUri(previous, basePath);
 		String previousUrl = StringUtils.removeStart(previousAbsoluteUri, basePath + PageController.ASSETS_PREFIX);
 		String relativeDir = originalRelativeDirectory;
 
@@ -46,6 +46,18 @@ public class SassCompiler {
 		return relativeDir;
 	}
 
+	private String getPreviousAbsoluteUri(Import previous, String basePath) {
+		String previousAbsoluteUri = previous.getAbsoluteUri().toString().replaceAll("file:/", "file:///");
+
+		if (!previousAbsoluteUri.equals("stdin")) {
+			if (basePath.startsWith("file") && !previousAbsoluteUri.startsWith("file")) {
+				return "file://" + previousAbsoluteUri;
+			}
+		}
+
+		return previousAbsoluteUri;
+	}
+
 	private Import createImport(String absoluteUrl, String absolutePartialUrl) {
 		try {
 			return doCreateImport(absoluteUrl);
@@ -53,7 +65,7 @@ public class SassCompiler {
 			try {
 				return doCreateImport(absolutePartialUrl);
 			} catch (IOException ex) {
-				throw new RuntimeException(e);
+				throw new RuntimeException(ex);
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
