@@ -24,7 +24,9 @@ public class PrismicFieldContainer implements FieldContainer {
 	}
 
 	public Boolean getBoolean(String fieldName) {
-		throw new UnsupportedOperationException();
+		Fragment fragment = withFragments.get(fieldName);
+
+		return fragment == null ? null : ((Fragment.Raw) fragment).getValue().asBoolean();
 	}
 
 	public RichTextField getRichText(String fieldName) {
