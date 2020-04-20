@@ -124,12 +124,10 @@ public class PageController {
 
 	private String getReferer(HttpServletRequest request) {
 		String referer = request.getHeader("Referer");
+		String host = request.getScheme() + "://" + request.getHeader("Host");
 
-		if (referer == null) {
-			String scheme = request.getScheme();
-			String host = request.getHeader("Host");
-
-			referer = scheme + "://" + host;
+		if (referer == null || !referer.startsWith(host)) {
+			return host;
 		}
 
 		return referer;
