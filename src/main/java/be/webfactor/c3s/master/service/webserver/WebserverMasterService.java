@@ -25,6 +25,7 @@ import be.webfactor.c3s.master.service.webserver.domain.WebserverSiteConfigurati
 import be.webfactor.c3s.master.service.webserver.domain.WebserverSiteContentRepositoryConnection;
 import be.webfactor.c3s.master.service.webserver.domain.WebserverSitePage;
 import be.webfactor.c3s.master.service.webserver.domain.WebserverSiteTemplate;
+import be.webfactor.c3s.master.service.webserver.i18n.UTF8Control;
 import be.webfactor.c3s.repository.RepositoryConnection;
 import be.webfactor.c3s.repository.RepositoryType;
 
@@ -59,7 +60,7 @@ public class WebserverMasterService implements MasterService {
 		ClassLoader classLoader = new URLClassLoader(new URL[] {i18nFolder});
 
 		try {
-			resourceBundle = ResourceBundle.getBundle(I18N_BASE_NAME, locale, classLoader);
+			resourceBundle = ResourceBundle.getBundle(I18N_BASE_NAME, locale, classLoader, new UTF8Control());
 		} catch (MissingResourceException e) {
 
 		}
