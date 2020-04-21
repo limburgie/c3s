@@ -2,6 +2,7 @@ package be.webfactor.c3s.content.service.prismic;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 import be.webfactor.c3s.content.service.domain.AssetLink;
 import io.prismic.Fragment;
@@ -24,7 +25,7 @@ public class PrismicAssetLink implements AssetLink {
 		}
 
 		try {
-			String url = URLDecoder.decode(getUrl(), "UTF-8");
+			String url = URLDecoder.decode(getUrl(), StandardCharsets.UTF_8.name());
 			url = url.substring(url.lastIndexOf('/') + 1);
 
 			return url.substring(url.indexOf('_') + 1) + "." + getExtension();

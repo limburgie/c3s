@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -21,8 +22,8 @@ public class FreemarkerTemplateParser implements TemplateParser {
 
 	public String parse(String templateName, String templateContents, Map<String, Object> context, String baseUrl) {
 		try {
-			Configuration configuration = new Configuration(Configuration.getVersion());
-			configuration.setDefaultEncoding("UTF-8");
+			Configuration configuration = new Configuration(Configuration.VERSION_2_3_30);
+			configuration.setDefaultEncoding(StandardCharsets.UTF_8.name());
 			configuration.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
 			configuration.setLocalizedLookup(false);
 
