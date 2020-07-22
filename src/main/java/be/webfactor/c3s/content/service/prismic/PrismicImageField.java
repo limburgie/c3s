@@ -1,7 +1,5 @@
 package be.webfactor.c3s.content.service.prismic;
 
-import com.sun.javafx.fxml.builder.URLBuilder;
-
 import be.webfactor.c3s.content.service.domain.ImageField;
 import io.prismic.Fragment;
 

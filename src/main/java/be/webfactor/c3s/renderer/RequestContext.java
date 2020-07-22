@@ -6,9 +6,9 @@ import be.webfactor.c3s.master.domain.Page;
 
 public class RequestContext {
 
-	private Page page;
-	private String[] params;
-	private Locale locale;
+	private final Page page;
+	private final String[] params;
+	private final Locale locale;
 
 	RequestContext(Page page, String[] params, Locale locale) {
 		this.page = page;

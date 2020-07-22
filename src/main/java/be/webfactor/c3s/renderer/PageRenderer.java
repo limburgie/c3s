@@ -3,6 +3,7 @@ package be.webfactor.c3s.renderer;
 import java.util.HashMap;
 import java.util.Map;
 
+import be.webfactor.c3s.shopping.ShoppingCartThreadLocal;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -21,6 +22,7 @@ public class PageRenderer {
 	private static final String REQUEST_TEMPLATE_VAR = "request";
 	private static final String INSERTS_TEMPLATE_VAR = "inserts";
 	private static final String I18N_TEMPLATE_VAR = "i18n";
+	private static final String SHOPPING_CART_VAR = "cart";
 
 	private MasterService masterService;
 	private TemplateParser templateParser;
@@ -48,6 +50,7 @@ public class PageRenderer {
 		context.put(SITE_TEMPLATE_VAR, new SiteContext(masterService.getSiteName(), masterService.getPages()));
 		context.put(REQUEST_TEMPLATE_VAR, new RequestContext(page, params, LocationThreadLocal.getLocale()));
 		context.put(I18N_TEMPLATE_VAR, new I18n(masterService.getResourceBundle()));
+		context.put(SHOPPING_CART_VAR, ShoppingCartThreadLocal.getShoppingCart());
 
 		if (page.isTemplated()) {
 			addParsedInsertsToContext(page.getName(), page.getInserts(), context);

@@ -2,14 +2,15 @@ package be.webfactor.c3s.controller;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import be.webfactor.c3s.shopping.ShoppingCart;
+import be.webfactor.c3s.shopping.ShoppingCartSerializer;
+import be.webfactor.c3s.shopping.ShoppingCartThreadLocal;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,12 +65,13 @@ public class PageController {
 	@Autowired private MasterServiceFactory masterServiceFactory;
 	@Autowired private PageRendererFactory pageRendererFactory;
 	@Autowired private ContentServiceFactory contentServiceFactory;
+	@Autowired private ShoppingCartSerializer shoppingCartSerializer;
 
 	@RequestMapping("/")
-	public String index(HttpServletRequest request, @CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale) {
-		setTransactionName(request);
-
-		LocationThreadLocal.setLocale(LocaleUtils.toLocale(locale));
+	public String index(HttpServletRequest request,
+						@CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale,
+						@CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded) {
+		preprocess(request, locale, shoppingCartEncoded);
 
 		return friendlyUrl(getMasterService(request).getIndexPage().getFriendlyUrl(), new String[0], getMasterService(request));
 	}
@@ -161,10 +163,11 @@ public class PageController {
 		}
 	}
 
-	@RequestMapping("/**")
-	public String friendlyUrl(HttpServletRequest request, @CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale) {
-		setTransactionName(request);
-		LocationThreadLocal.setLocale(LocaleUtils.toLocale(locale));
+	@RequestMapping("/{path:^(?!cart).*}**")
+	public String friendlyUrl(HttpServletRequest request,
+							  @CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale,
+							  @CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded) {
+		preprocess(request, locale, shoppingCartEncoded);
 
 		String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 		String friendlyUrl = path.substring(1);
@@ -178,6 +181,12 @@ public class PageController {
 		}
 
 		return friendlyUrl(friendlyUrl, params, getMasterService(request));
+	}
+
+	private void preprocess(HttpServletRequest request, String locale, String shoppingCartEncoded) {
+		setTransactionName(request);
+		LocationThreadLocal.setLocale(LocaleUtils.toLocale(locale));
+		ShoppingCartThreadLocal.setShoppingCart(shoppingCartSerializer.deserialize(shoppingCartEncoded));
 	}
 
 	private MediaType getContentType(byte[] content, String assetPath) throws IOException {
