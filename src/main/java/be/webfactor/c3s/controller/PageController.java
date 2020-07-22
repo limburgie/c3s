@@ -2,14 +2,15 @@ package be.webfactor.c3s.controller;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import be.webfactor.c3s.form.FormHandler;
+import be.webfactor.c3s.form.FormHandlerFactory;
+import be.webfactor.c3s.master.domain.Form;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
 
@@ -47,6 +49,7 @@ public class PageController {
 	public static final String ASSETS_PREFIX = "/assets/";
 	private static final String C3S_PREFIX = "/c3s/";
 	private static final String LANG_PREFIX = "/lang/";
+	private static final String SUBMIT_URI = "/submit";
 	private static final String LOCALE_COOKIE_NAME = "C3S_LOCALE";
 	private static final String EDIT_URL_JS_FILENAME = "c3s-edit-url.js";
 	public static final String EDIT_URL_JS_PATH = C3S_PREFIX + EDIT_URL_JS_FILENAME;
@@ -63,6 +66,7 @@ public class PageController {
 	@Autowired private RepositoryRegistryFactory repositoryRegistryFactory;
 	@Autowired private MasterServiceFactory masterServiceFactory;
 	@Autowired private PageRendererFactory pageRendererFactory;
+	@Autowired private FormHandlerFactory formHandlerFactory;
 	@Autowired private ContentServiceFactory contentServiceFactory;
 
 	@RequestMapping("/")
@@ -85,6 +89,18 @@ public class PageController {
 		byte[] content = getAssetBytes(basePath, assetPath);
 
 		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS)).contentType(getContentType(content, assetPath)).body(content);
+	}
+
+	@RequestMapping(value = SUBMIT_URI, method = RequestMethod.POST)
+	public void submitForm(HttpServletRequest request, HttpServletResponse response) {
+		MasterService masterService = getMasterService(request);
+		FormHandler formHandler = formHandlerFactory.forMasterService(masterService);
+		Form form = masterService.getForm(request.getParameter("form"));
+
+		formHandler.handleForm(form, request.getParameterMap());
+
+		response.setHeader("Location", request.getParameter("referer"));
+		response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 	}
 
 	private byte[] getAssetBytes(String basePath, String assetPath) throws IOException {

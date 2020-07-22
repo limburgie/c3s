@@ -3,6 +3,8 @@ package be.webfactor.c3s.master.service;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import be.webfactor.c3s.master.domain.Form;
+import be.webfactor.c3s.master.domain.MailSettings;
 import be.webfactor.c3s.master.domain.Page;
 import be.webfactor.c3s.master.domain.TemplateEngine;
 import be.webfactor.c3s.repository.RepositoryConnection;
@@ -42,6 +44,11 @@ public interface MasterService {
 	RepositoryConnection getRepositoryConnection();
 
 	/**
+	 * Retrieves the email configuration properties.
+	 */
+	MailSettings getMailSettings();
+
+	/**
 	 * Retrieves the page identified by the provided friendly URL, including its contents and its child pages.
 	 * The content of the child pages is not provided.
 	 */
@@ -63,6 +70,11 @@ public interface MasterService {
 	 * Retrieves the URL to the asset, identified by the given (relative) asset path.
 	 */
 	String getAssetUrl(String assetPath);
+
+	/**
+	 * Retrieves the form with the given name.
+	 */
+	Form getForm(String name);
 
 	/**
 	 * Retrieves the repository type of this master service.
