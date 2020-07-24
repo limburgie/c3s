@@ -13,11 +13,11 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class FormHandler {
 
 	private static final String API_TEMPLATE_VAR = "api";
+	private static final String FORM_PARAMS_VAR = "params";
 
 	private final MasterService masterService;
 	private final TemplateParser templateParser;
@@ -29,36 +29,50 @@ public class FormHandler {
 		this.templateParser = templateParser;
 	}
 
-	public void handleForm(Form form, Map<String, String[]> parameters) {
+	public void handleForm(Form form, FormParams formParams) {
 		MailSettings mailSettings = masterService.getMailSettings();
-		String subject = parameters.get("subject")[0];
-		String body = generateBody(form, parameters);
-		EmailAddress from = new EmailAddress(parameters.get("from")[0]);
-		List<EmailAddress> tos = getEmailAddressesFromParameter(parameters, "to");
-		List<EmailAddress> ccs = getEmailAddressesFromParameter(parameters, "cc");
-		List<EmailAddress> bccs = getEmailAddressesFromParameter(parameters, "bcc");
+		String subject = formParams.getValue("subject");
+		String body = generateBody(form, formParams);
+		EmailAddress from = new EmailAddress(formParams.getValue("fromName"), formParams.getValue("fromAddress"));
+		List<EmailAddress> tos = getEmailAddressesFromParameter(formParams, "toName", "toAddress");
+		List<EmailAddress> ccs = getEmailAddressesFromParameter(formParams, "ccName", "ccAddress");
+		List<EmailAddress> bccs = getEmailAddressesFromParameter(formParams, "bccName", "bccAddress");
 
 		sendEmail(mailSettings, subject, body, from, tos, ccs, bccs);
 	}
 
-	private String generateBody(Form form, Map<String, String[]> parameters) {
-		HashMap<String, Object> context = new HashMap<>(parameters);
+	private String generateBody(Form form, FormParams formParams) {
+		HashMap<String, Object> context = new HashMap<>();
+		context.put(FORM_PARAMS_VAR, formParams);
 		context.put(API_TEMPLATE_VAR, contentService == null ? null : contentService.getApi());
 
 		return templateParser.parse(form.getName(), form.getContents(), context, masterService.getBaseUrl());
 	}
 
-	private List<EmailAddress> getEmailAddressesFromParameter(Map<String, String[]> parameters, String param) {
-		if (!parameters.containsKey(param)) {
+	private List<EmailAddress> getEmailAddressesFromParameter(FormParams formParams, String nameParam, String addressParam) {
+		if (!formParams.containsKey(addressParam)) {
 			return Collections.emptyList();
 		}
 
-		return Arrays.stream(parameters.get(param)).map(EmailAddress::new).collect(Collectors.toList());
+		List<EmailAddress> result = new ArrayList<>();
+
+		List<String> names = formParams.getValues(nameParam);
+		List<String> addresses = formParams.getValues(addressParam);
+
+		for (int i = 0; i < addresses.size(); i++) {
+			String address = addresses.get(i);
+			String name = names.size() <= i ? null : names.get(i);
+
+			result.add(new EmailAddress(name, address));
+		}
+
+		return result;
 	}
 
 	private void sendEmail(MailSettings mailSettings, String subject, String body, EmailAddress from, List<EmailAddress> tos, List<EmailAddress> ccs, List<EmailAddress> bccs) {
 		MimeMessagePreparator mailMessage = mimeMessage -> {
 			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.name());
+
 			message.setFrom(from.getAddress(), from.getName());
 			for (EmailAddress to : tos) {
 				message.addTo(to.getAddress(), to.getName());

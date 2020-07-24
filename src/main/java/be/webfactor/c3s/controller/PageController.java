@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import be.webfactor.c3s.form.FormHandler;
 import be.webfactor.c3s.form.FormHandlerFactory;
+import be.webfactor.c3s.form.FormParams;
 import be.webfactor.c3s.master.domain.Form;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
@@ -97,7 +98,7 @@ public class PageController {
 		FormHandler formHandler = formHandlerFactory.forMasterService(masterService);
 		Form form = masterService.getForm(request.getParameter("form"));
 
-		formHandler.handleForm(form, request.getParameterMap());
+		formHandler.handleForm(form, new FormParams(request));
 
 		response.setHeader("Location", request.getParameter("referer"));
 		response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
