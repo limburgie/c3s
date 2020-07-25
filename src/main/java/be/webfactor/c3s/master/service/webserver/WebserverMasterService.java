@@ -8,6 +8,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import be.webfactor.c3s.master.domain.*;
+import be.webfactor.c3s.master.service.webserver.domain.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.springframework.context.annotation.Scope;
@@ -16,15 +18,7 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 
 import be.webfactor.c3s.controller.PageController;
-import be.webfactor.c3s.master.domain.LocationThreadLocal;
-import be.webfactor.c3s.master.domain.Page;
-import be.webfactor.c3s.master.domain.Template;
-import be.webfactor.c3s.master.domain.TemplateEngine;
 import be.webfactor.c3s.master.service.MasterService;
-import be.webfactor.c3s.master.service.webserver.domain.WebserverSiteConfiguration;
-import be.webfactor.c3s.master.service.webserver.domain.WebserverSiteContentRepositoryConnection;
-import be.webfactor.c3s.master.service.webserver.domain.WebserverSitePage;
-import be.webfactor.c3s.master.service.webserver.domain.WebserverSiteTemplate;
 import be.webfactor.c3s.master.service.webserver.i18n.UTF8Control;
 import be.webfactor.c3s.repository.RepositoryConnection;
 import be.webfactor.c3s.repository.RepositoryType;
@@ -90,6 +84,16 @@ public class WebserverMasterService implements MasterService {
 		String accessToken = repositoryConnection.getAccessToken();
 
 		return new RepositoryConnection(type, id, accessToken);
+	}
+
+	public MailSettings getMailSettings() {
+		WebserverSiteMailSettings settings = config.getMailSettings();
+
+		if (settings == null) {
+			return null;
+		}
+
+		return new MailSettings(settings.getHost(), settings.getPort(), settings.getUsername(), settings.getPassword());
 	}
 
 	public Page getPage(String friendlyUrl) {
@@ -172,6 +176,33 @@ public class WebserverMasterService implements MasterService {
 
 	public String getAssetUrl(String assetPath) {
 		return basePath + PageController.ASSETS_PREFIX + assetPath;
+	}
+
+	public Form getForm(String name) {
+		if (name == null) {
+			return getFirstForm();
+		}
+
+		return doGetForm(name).orElse(getFirstForm());
+	}
+
+	private Optional<Form> doGetForm(String name) {
+		return config.getForms().stream().filter(webserverSiteForm -> name.equals(webserverSiteForm.getName())).map(this::fromWebserverSiteForm).findFirst();
+	}
+
+	private Form getFirstForm() {
+		if (config.getForms().isEmpty()) {
+			return null;
+		}
+
+		return fromWebserverSiteForm(config.getForms().get(0));
+	}
+
+	private Form fromWebserverSiteForm(WebserverSiteForm webserverSiteForm) {
+		String formName = webserverSiteForm.getName();
+		String formContents = readFile(webserverSiteForm.getMailTemplate());
+
+		return new Form(formName, formContents);
 	}
 
 	private String readFile(String path) {

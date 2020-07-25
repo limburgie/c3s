@@ -11,6 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 import be.webfactor.c3s.shopping.ShoppingCart;
 import be.webfactor.c3s.shopping.ShoppingCartSerializer;
 import be.webfactor.c3s.shopping.ShoppingCartThreadLocal;
+import be.webfactor.c3s.form.FormHandler;
+import be.webfactor.c3s.form.FormHandlerFactory;
+import be.webfactor.c3s.form.FormParams;
+import be.webfactor.c3s.master.domain.Form;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +30,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
 
@@ -87,6 +92,19 @@ public class PageController {
 		byte[] content = getAssetBytes(basePath, assetPath);
 
 		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS)).contentType(getContentType(content, assetPath)).body(content);
+	}
+
+	@RequestMapping(value = SUBMIT_URI, method = RequestMethod.POST)
+	public void submitForm(HttpServletRequest request, HttpServletResponse response) {
+		MasterService masterService = getMasterService(request);
+		FormHandler formHandler = formHandlerFactory.forMasterService(masterService);
+		Form form = masterService.getForm(request.getParameter("form"));
+
+		formHandler.handleForm(form, new FormParams(request));
+
+		String referer = request.getParameter("referer");
+		response.setHeader("Location", referer == null ? "/" : referer);
+		response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 	}
 
 	private byte[] getAssetBytes(String basePath, String assetPath) throws IOException {

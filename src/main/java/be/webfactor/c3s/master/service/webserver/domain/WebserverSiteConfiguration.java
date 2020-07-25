@@ -10,9 +10,11 @@ public class WebserverSiteConfiguration {
 	private String templateEngine;
 	private WebserverSiteContentRepositoryConnection contentRepositoryConnection;
 	private WebserverSiteLocationSettings locationSettings;
+	private WebserverSiteMailSettings mailSettings;
 	private WebserverSitePage errorPage;
 	private List<WebserverSiteTemplate> templates;
 	private List<WebserverSitePage> pages;
+	private List<WebserverSiteForm> forms;
 
 	public List<WebserverSitePage> getAllPages() {
 		return getDescendantsOf(pages);
@@ -69,6 +71,14 @@ public class WebserverSiteConfiguration {
 		this.locationSettings = locationSettings;
 	}
 
+	public WebserverSiteMailSettings getMailSettings() {
+		return mailSettings;
+	}
+
+	public void setMailSettings(WebserverSiteMailSettings mailSettings) {
+		this.mailSettings = mailSettings;
+	}
+
 	public WebserverSitePage getErrorPage() {
 		return errorPage;
 	}
@@ -91,5 +101,13 @@ public class WebserverSiteConfiguration {
 
 	public void setPages(List<WebserverSitePage> pages) {
 		this.pages = pages;
+	}
+
+	public List<WebserverSiteForm> getForms() {
+		return forms;
+	}
+
+	public void setForms(List<WebserverSiteForm> forms) {
+		this.forms = forms;
 	}
 }
