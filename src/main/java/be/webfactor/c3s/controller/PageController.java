@@ -53,6 +53,7 @@ public class PageController {
 	public static final String ASSETS_PREFIX = "/assets/";
 	private static final String C3S_PREFIX = "/c3s/";
 	private static final String LANG_PREFIX = "/lang/";
+	private static final String SUBMIT_URI = "/submit";
 	private static final String LOCALE_COOKIE_NAME = "C3S_LOCALE";
 	private static final String EDIT_URL_JS_FILENAME = "c3s-edit-url.js";
 	public static final String EDIT_URL_JS_PATH = C3S_PREFIX + EDIT_URL_JS_FILENAME;
@@ -69,6 +70,7 @@ public class PageController {
 	@Autowired private RepositoryRegistryFactory repositoryRegistryFactory;
 	@Autowired private MasterServiceFactory masterServiceFactory;
 	@Autowired private PageRendererFactory pageRendererFactory;
+	@Autowired private FormHandlerFactory formHandlerFactory;
 	@Autowired private ContentServiceFactory contentServiceFactory;
 	@Autowired private ShoppingCartSerializer shoppingCartSerializer;
 
@@ -95,7 +97,11 @@ public class PageController {
 	}
 
 	@RequestMapping(value = SUBMIT_URI, method = RequestMethod.POST)
-	public void submitForm(HttpServletRequest request, HttpServletResponse response) {
+	public void submitForm(HttpServletRequest request, HttpServletResponse response,
+						   @CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale,
+						   @CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded) {
+		preprocess(request, locale, shoppingCartEncoded);
+
 		MasterService masterService = getMasterService(request);
 		FormHandler formHandler = formHandlerFactory.forMasterService(masterService);
 		Form form = masterService.getForm(request.getParameter("form"));
