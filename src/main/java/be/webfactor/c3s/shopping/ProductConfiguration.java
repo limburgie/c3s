@@ -39,12 +39,11 @@ public class ProductConfiguration implements Serializable {
 		if (o == null || getClass() != o.getClass()) return false;
 		ProductConfiguration that = (ProductConfiguration) o;
 		return productId.equals(that.productId) &&
-				getOptions().equals(that.options) &&
-				price == that.price;
+				getOptions().equals(that.options);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(productId, options, price);
+		return Objects.hash(productId, options);
 	}
 }
