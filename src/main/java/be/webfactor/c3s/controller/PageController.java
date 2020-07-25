@@ -100,7 +100,8 @@ public class PageController {
 
 		formHandler.handleForm(form, new FormParams(request));
 
-		response.setHeader("Location", request.getParameter("referer"));
+		String referer = request.getParameter("referer");
+		response.setHeader("Location", referer == null ? "/" : referer);
 		response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 	}
 

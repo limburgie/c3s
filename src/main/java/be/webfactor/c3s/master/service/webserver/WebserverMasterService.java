@@ -179,12 +179,30 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	public Form getForm(String name) {
-		return config.getForms().stream().filter(webserverSiteForm -> name.equals(webserverSiteForm.getName())).map(webserverSiteForm -> {
-			String formName = webserverSiteForm.getName();
-			String formContents = readFile(webserverSiteForm.getMailTemplate());
+		if (name == null) {
+			return getFirstForm();
+		}
 
-			return new Form(formName, formContents);
-		}).findFirst().get();
+		return doGetForm(name).orElse(getFirstForm());
+	}
+
+	private Optional<Form> doGetForm(String name) {
+		return config.getForms().stream().filter(webserverSiteForm -> name.equals(webserverSiteForm.getName())).map(this::fromWebserverSiteForm).findFirst();
+	}
+
+	private Form getFirstForm() {
+		if (config.getForms().isEmpty()) {
+			return null;
+		}
+
+		return fromWebserverSiteForm(config.getForms().get(0));
+	}
+
+	private Form fromWebserverSiteForm(WebserverSiteForm webserverSiteForm) {
+		String formName = webserverSiteForm.getName();
+		String formContents = readFile(webserverSiteForm.getMailTemplate());
+
+		return new Form(formName, formContents);
 	}
 
 	private String readFile(String path) {

@@ -31,14 +31,23 @@ public class FormHandler {
 
 	public void handleForm(Form form, FormParams formParams) {
 		MailSettings mailSettings = masterService.getMailSettings();
-		String subject = formParams.getValue("subject");
+		String subject = buildSubject(form, formParams);
 		String body = generateBody(form, formParams);
-		EmailAddress from = new EmailAddress(formParams.getValue("fromName"), formParams.getValue("fromAddress"));
-		List<EmailAddress> tos = getEmailAddressesFromParameter(formParams, "toName", "toAddress");
+		EmailAddress fromAndTo = new EmailAddress(masterService.getSiteName(), mailSettings.getUsername());
 		List<EmailAddress> ccs = getEmailAddressesFromParameter(formParams, "ccName", "ccAddress");
 		List<EmailAddress> bccs = getEmailAddressesFromParameter(formParams, "bccName", "bccAddress");
 
-		sendEmail(mailSettings, subject, body, from, tos, ccs, bccs);
+		sendEmail(mailSettings, subject, body, fromAndTo, ccs, bccs);
+	}
+
+	private String buildSubject(Form form, FormParams formParams) {
+		String result = formParams.getValue("subject");
+
+		if (result == null) {
+			result = String.format("Form %s was submitted", form.getName());
+		}
+
+		return result;
 	}
 
 	private String generateBody(Form form, FormParams formParams) {
@@ -69,20 +78,21 @@ public class FormHandler {
 		return result;
 	}
 
-	private void sendEmail(MailSettings mailSettings, String subject, String body, EmailAddress from, List<EmailAddress> tos, List<EmailAddress> ccs, List<EmailAddress> bccs) {
+	private void sendEmail(MailSettings mailSettings, String subject, String body, EmailAddress fromAndTo, List<EmailAddress> ccs, List<EmailAddress> bccs) {
 		MimeMessagePreparator mailMessage = mimeMessage -> {
 			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.name());
 
-			message.setFrom(from.getAddress(), from.getName());
-			for (EmailAddress to : tos) {
-				message.addTo(to.getAddress(), to.getName());
-			}
+			message.setFrom(fromAndTo.getAddress(), fromAndTo.getName());
+			message.addTo(fromAndTo.getAddress(), fromAndTo.getName());
+
 			for (EmailAddress cc : ccs) {
 				message.addCc(cc.getAddress(), cc.getName());
 			}
+
 			for (EmailAddress bcc : bccs) {
 				message.addBcc(bcc.getAddress(), bcc.getName());
 			}
+
 			message.setSubject(subject);
 			message.setText(body, true);
 		};
