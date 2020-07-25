@@ -25,6 +25,7 @@ import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.glowroot.agent.api.Glowroot;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +49,7 @@ import be.webfactor.c3s.registry.service.RepositoryRegistryFactory;
 import be.webfactor.c3s.repository.RepositoryConnection;
 
 @RestController
+@Order(2)
 public class PageController {
 
 	public static final String ASSETS_PREFIX = "/assets/";
@@ -187,7 +189,7 @@ public class PageController {
 		}
 	}
 
-	@RequestMapping("/{path:^(?!cart).*}**")
+	@RequestMapping("/**")
 	public String friendlyUrl(HttpServletRequest request,
 							  @CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale,
 							  @CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded) {

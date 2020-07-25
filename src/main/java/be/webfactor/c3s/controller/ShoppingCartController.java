@@ -4,6 +4,7 @@ import be.webfactor.c3s.shopping.ProductConfiguration;
 import be.webfactor.c3s.shopping.ShoppingCart;
 import be.webfactor.c3s.shopping.ShoppingCartSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/cart")
+@Order(1)
 public class ShoppingCartController {
 
 	private static final String OPTION_PREFIX = "option_";
