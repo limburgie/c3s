@@ -54,7 +54,8 @@ public class ShoppingCartController {
 		}
 
 		String productId = request.getParameter("productId");
-		double price = Double.parseDouble(request.getParameter("price"));
+		String priceStr = request.getParameter("price");
+		double price = (priceStr == null) ? 0 : Double.parseDouble(priceStr);
 
 		return new ProductConfiguration(productId, options, price);
 	}
@@ -76,6 +77,12 @@ public class ShoppingCartController {
 	}
 
 	private String getReferer(HttpServletRequest request) {
+		String refererParam = request.getParameter("referer");
+
+		if (refererParam != null) {
+			return refererParam;
+		}
+
 		String referer = request.getHeader("Referer");
 		String host = request.getScheme() + "://" + request.getHeader("Host");
 
