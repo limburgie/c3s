@@ -51,7 +51,7 @@ public class ShoppingCart implements Serializable {
 		return items;
 	}
 
-	public double getTotalPrice() {
+	public double getTotalPrice(boolean shipmentIncluded) {
 		double total = 0;
 
 		for (LineItem item : items) {
@@ -59,5 +59,13 @@ public class ShoppingCart implements Serializable {
 		}
 
 		return total;
+	}
+
+	public boolean isEmpty() {
+		return getTotalItemCount() == 0;
+	}
+
+	public int getTotalItemCount() {
+		return getLineItems().stream().mapToInt(LineItem::getAmount).sum();
 	}
 }

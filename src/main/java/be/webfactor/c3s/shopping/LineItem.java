@@ -21,4 +21,8 @@ public class LineItem {
 	public void setAmount(int amount) {
 		this.amount = amount;
 	}
+
+	public double getPrice() {
+		return productConfiguration.getPrice() * amount;
+	}
 }
