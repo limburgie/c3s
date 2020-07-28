@@ -6,6 +6,7 @@ import be.webfactor.c3s.master.domain.Form;
 import be.webfactor.c3s.master.domain.MailSettings;
 import be.webfactor.c3s.master.service.MasterService;
 import be.webfactor.c3s.master.templateparser.TemplateParser;
+import be.webfactor.c3s.renderer.I18n;
 import be.webfactor.c3s.shopping.ShoppingCartThreadLocal;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -20,6 +21,7 @@ public class FormHandler {
 	private static final String API_TEMPLATE_VAR = "api";
 	private static final String FORM_PARAMS_VAR = "params";
 	private static final String CART_PARAM = "cart";
+	private static final String I18N_TEMPLATE_VAR = "i18n";
 
 	private final MasterService masterService;
 	private final TemplateParser templateParser;
@@ -70,6 +72,7 @@ public class FormHandler {
 		context.put(FORM_PARAMS_VAR, formParams);
 		context.put(API_TEMPLATE_VAR, contentService == null ? null : contentService.getApi());
 		context.put(CART_PARAM, ShoppingCartThreadLocal.getShoppingCart());
+		context.put(I18N_TEMPLATE_VAR, new I18n(masterService.getResourceBundle()));
 
 		return templateParser.parse(templateName, templateContents, context, masterService.getBaseUrl());
 	}

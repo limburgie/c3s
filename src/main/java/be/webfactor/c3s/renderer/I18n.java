@@ -8,7 +8,7 @@ public class I18n {
 
 	private ResourceBundle resourceBundle;
 
-	I18n(ResourceBundle resourceBundle) {
+	public I18n(ResourceBundle resourceBundle) {
 		this.resourceBundle = resourceBundle;
 	}
 
