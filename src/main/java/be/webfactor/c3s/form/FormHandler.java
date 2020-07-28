@@ -32,14 +32,27 @@ public class FormHandler {
 	}
 
 	public void handleForm(Form form, FormParams formParams) {
-		MailSettings mailSettings = masterService.getMailSettings();
-		String subject = buildSubject(form, formParams);
-		String body = generateBody(form, formParams);
-		EmailAddress fromAndTo = new EmailAddress(masterService.getSiteName(), mailSettings.getUsername());
-		List<EmailAddress> ccs = getEmailAddressesFromParameter(formParams, "ccName", "ccAddress");
-		List<EmailAddress> bccs = getEmailAddressesFromParameter(formParams, "bccName", "bccAddress");
+		sendVisitorEmail(form, formParams);
+		sendManagerEmail(form, formParams);
+	}
 
-		sendEmail(mailSettings, subject, body, fromAndTo, ccs, bccs);
+	private void sendVisitorEmail(Form form, FormParams formParams) {
+		EmailAddress from = new EmailAddress(masterService.getSiteName(), masterService.getMailSettings().getUsername());
+		EmailAddress to = new EmailAddress(formParams.getValue("name"), formParams.getValue("email"));
+
+		String subject = form.getVisitorEmail().getSubject();
+		String body = parseTemplate(form.getName() + (" (Visitor)"), form.getVisitorEmail().getContents(), formParams);
+
+		sendEmail(from, to, subject, body);
+	}
+
+	private void sendManagerEmail(Form form, FormParams formParams) {
+		EmailAddress fromAndTo = new EmailAddress(masterService.getSiteName(), masterService.getMailSettings().getUsername());
+
+		String subject = form.getManagerEmail().getSubject();
+		String body = parseTemplate(form.getName() + (" (Manager)"), form.getManagerEmail().getContents(), formParams);
+
+		sendEmail(fromAndTo, fromAndTo, subject, body);
 	}
 
 	private String buildSubject(Form form, FormParams formParams) {
@@ -52,55 +65,27 @@ public class FormHandler {
 		return result;
 	}
 
-	private String generateBody(Form form, FormParams formParams) {
+	private String parseTemplate(String templateName, String templateContents, FormParams formParams) {
 		HashMap<String, Object> context = new HashMap<>();
 		context.put(FORM_PARAMS_VAR, formParams);
 		context.put(API_TEMPLATE_VAR, contentService == null ? null : contentService.getApi());
 		context.put(CART_PARAM, ShoppingCartThreadLocal.getShoppingCart());
 
-		return templateParser.parse(form.getName(), form.getContents(), context, masterService.getBaseUrl());
+		return templateParser.parse(templateName, templateContents, context, masterService.getBaseUrl());
 	}
 
-	private List<EmailAddress> getEmailAddressesFromParameter(FormParams formParams, String nameParam, String addressParam) {
-		if (!formParams.containsKey(addressParam)) {
-			return Collections.emptyList();
-		}
-
-		List<EmailAddress> result = new ArrayList<>();
-
-		List<String> names = formParams.getValues(nameParam);
-		List<String> addresses = formParams.getValues(addressParam);
-
-		for (int i = 0; i < addresses.size(); i++) {
-			String address = addresses.get(i);
-			String name = names.size() <= i ? null : names.get(i);
-
-			result.add(new EmailAddress(name, address));
-		}
-
-		return result;
-	}
-
-	private void sendEmail(MailSettings mailSettings, String subject, String body, EmailAddress fromAndTo, List<EmailAddress> ccs, List<EmailAddress> bccs) {
+	private void sendEmail(EmailAddress from, EmailAddress to, String subject, String body) {
 		MimeMessagePreparator mailMessage = mimeMessage -> {
 			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.name());
 
-			message.setFrom(fromAndTo.getAddress(), fromAndTo.getName());
-			message.addTo(fromAndTo.getAddress(), fromAndTo.getName());
-
-			for (EmailAddress cc : ccs) {
-				message.addCc(cc.getAddress(), cc.getName());
-			}
-
-			for (EmailAddress bcc : bccs) {
-				message.addBcc(bcc.getAddress(), bcc.getName());
-			}
+			message.setFrom(from.getAddress(), from.getName());
+			message.addTo(to.getAddress(), to.getName());
 
 			message.setSubject(subject);
 			message.setText(body, true);
 		};
 
-		createJavaMailSender(mailSettings).send(mailMessage);
+		createJavaMailSender(masterService.getMailSettings()).send(mailMessage);
 	}
 
 	private JavaMailSender createJavaMailSender(MailSettings mailSettings) {

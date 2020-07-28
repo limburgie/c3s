@@ -3,7 +3,8 @@ package be.webfactor.c3s.master.service.webserver.domain;
 public class WebserverSiteForm {
 
 	private String name;
-	private String mailTemplate;
+	private WebserverSiteEmail visitorEmail;
+	private WebserverSiteEmail managerEmail;
 
 	public String getName() {
 		return name;
@@ -13,11 +14,19 @@ public class WebserverSiteForm {
 		this.name = name;
 	}
 
-	public String getMailTemplate() {
-		return mailTemplate;
+	public WebserverSiteEmail getVisitorEmail() {
+		return visitorEmail;
 	}
 
-	public void setMailTemplate(String mailTemplate) {
-		this.mailTemplate = mailTemplate;
+	public void setVisitorEmail(WebserverSiteEmail visitorEmail) {
+		this.visitorEmail = visitorEmail;
+	}
+
+	public WebserverSiteEmail getManagerEmail() {
+		return managerEmail;
+	}
+
+	public void setManagerEmail(WebserverSiteEmail managerEmail) {
+		this.managerEmail = managerEmail;
 	}
 }

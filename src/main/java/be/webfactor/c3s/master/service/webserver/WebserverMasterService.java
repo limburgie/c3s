@@ -87,13 +87,13 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	public MailSettings getMailSettings() {
-		WebserverSiteMailSettings settings = config.getMailSettings();
+		WebserverSiteMailSettings s = config.getMailSettings();
 
-		if (settings == null) {
+		if (s == null) {
 			return null;
 		}
 
-		return new MailSettings(settings.getHost(), settings.getPort(), settings.getUsername(), settings.getPassword());
+		return new MailSettings(s.getHost(), s.getPort(), s.getUsername(), s.getPassword());
 	}
 
 	public Page getPage(String friendlyUrl) {
@@ -200,9 +200,18 @@ public class WebserverMasterService implements MasterService {
 
 	private Form fromWebserverSiteForm(WebserverSiteForm webserverSiteForm) {
 		String formName = webserverSiteForm.getName();
-		String formContents = readFile(webserverSiteForm.getMailTemplate());
+		Email visitorEmail = fromWebserverSiteEmail(webserverSiteForm.getVisitorEmail());
+		Email managerEmail = fromWebserverSiteEmail(webserverSiteForm.getManagerEmail());
 
-		return new Form(formName, formContents);
+		return new Form(formName, visitorEmail, managerEmail);
+	}
+
+	private Email fromWebserverSiteEmail(WebserverSiteEmail webserverSiteEmail) {
+		String subject = webserverSiteEmail.getSubject();
+		subject = resourceBundle == null ? subject : resourceBundle.getString(subject);
+		String contents = readFile(webserverSiteEmail.getContents());
+
+		return new Email(subject, contents);
 	}
 
 	private String readFile(String path) {

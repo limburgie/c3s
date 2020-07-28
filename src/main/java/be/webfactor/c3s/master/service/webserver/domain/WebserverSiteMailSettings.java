@@ -6,6 +6,7 @@ public class WebserverSiteMailSettings {
 	private int port;
 	private String username;
 	private String password;
+	private String displayName;
 
 	public String getHost() {
 		return host;
@@ -37,5 +38,13 @@ public class WebserverSiteMailSettings {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
 }
