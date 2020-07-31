@@ -9,9 +9,16 @@ public class ShoppingCart implements Serializable {
 	public static final String COOKIE_NAME = "C3S_CART";
 
 	private final List<LineItem> items;
+	private PaymentType paymentType;
+	private ShipmentType shipmentType;
+	private PersonalDetails personalDetails = new PersonalDetails();
+	private ShippingAddress shippingAddress = new ShippingAddress();
+	private String remarks;
 
 	public ShoppingCart() {
 		items = new ArrayList<>();
+		setPaymentType(PaymentType.TRANSFER);
+		setShipmentType(ShipmentType.SHIPMENT);
 	}
 
 	public void add(ProductConfiguration productConfiguration) {
@@ -58,6 +65,10 @@ public class ShoppingCart implements Serializable {
 			total += item.getProductConfiguration().getPrice() * item.getAmount();
 		}
 
+		if (shipmentIncluded) {
+			total += shippingAddress.getShipmentCost();
+		}
+
 		return total;
 	}
 
@@ -67,5 +78,49 @@ public class ShoppingCart implements Serializable {
 
 	public int getTotalItemCount() {
 		return getLineItems().stream().mapToInt(LineItem::getAmount).sum();
+	}
+
+	public PaymentType getPaymentType() {
+		return paymentType;
+	}
+
+	public void setPaymentType(PaymentType paymentType) {
+		this.paymentType = paymentType;
+
+		if (paymentType == PaymentType.CASH_UPON_COLLECTION) {
+			shipmentType = ShipmentType.COLLECTION;
+		}
+	}
+
+	public ShipmentType getShipmentType() {
+		return shipmentType;
+	}
+
+	public void setShipmentType(ShipmentType shipmentType) {
+		this.shipmentType = shipmentType;
+	}
+
+	public PersonalDetails getPersonalDetails() {
+		return personalDetails;
+	}
+
+	public void setPersonalDetails(PersonalDetails personalDetails) {
+		this.personalDetails = personalDetails;
+	}
+
+	public ShippingAddress getShippingAddress() {
+		return shippingAddress;
+	}
+
+	public void setShippingAddress(ShippingAddress shippingAddress) {
+		this.shippingAddress = shippingAddress;
+	}
+
+	public String getRemarks() {
+		return remarks;
+	}
+
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
 	}
 }

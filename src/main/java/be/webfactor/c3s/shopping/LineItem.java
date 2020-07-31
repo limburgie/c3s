@@ -1,6 +1,8 @@
 package be.webfactor.c3s.shopping;
 
-public class LineItem {
+import java.io.Serializable;
+
+public class LineItem implements Serializable {
 
 	private final ProductConfiguration productConfiguration;
 	private int amount;

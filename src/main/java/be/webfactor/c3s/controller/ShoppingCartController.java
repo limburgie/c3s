@@ -1,8 +1,6 @@
 package be.webfactor.c3s.controller;
 
-import be.webfactor.c3s.shopping.ProductConfiguration;
-import be.webfactor.c3s.shopping.ShoppingCart;
-import be.webfactor.c3s.shopping.ShoppingCartSerializer;
+import be.webfactor.c3s.shopping.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.*;
@@ -38,10 +36,43 @@ public class ShoppingCartController {
 		setCookieAndRedirect(shoppingCart, request, response);
 	}
 
-	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/update/amount", method = RequestMethod.POST)
 	public void updateLineItem(@RequestParam("amount") int amount, @CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded, HttpServletRequest request, HttpServletResponse response) {
 		ShoppingCart shoppingCart = shoppingCartSerializer.deserialize(shoppingCartEncoded);
 		shoppingCart.updateAmount(parseProductConfig(request), amount);
+
+		setCookieAndRedirect(shoppingCart, request, response);
+	}
+
+	@RequestMapping(value = "/update/payment", method = RequestMethod.POST)
+	public void updatePaymentType(@RequestParam("paymentType") String paymentType, @CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded, HttpServletRequest request, HttpServletResponse response) {
+		ShoppingCart shoppingCart = shoppingCartSerializer.deserialize(shoppingCartEncoded);
+		shoppingCart.setPaymentType(PaymentType.valueOf(paymentType));
+
+		setCookieAndRedirect(shoppingCart, request, response);
+	}
+
+	@RequestMapping(value = "/update/shipment", method = RequestMethod.POST)
+	public void updateShipmentType(@RequestParam("shipmentType") String shipmentType, @CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded, HttpServletRequest request, HttpServletResponse response) {
+		ShoppingCart shoppingCart = shoppingCartSerializer.deserialize(shoppingCartEncoded);
+		shoppingCart.setShipmentType(ShipmentType.valueOf(shipmentType));
+
+		setCookieAndRedirect(shoppingCart, request, response);
+	}
+
+	@RequestMapping(value = "/update/details", method = RequestMethod.POST)
+	public void updateDetails(@RequestParam("name") String name, @RequestParam("email") String email, @RequestParam("street") String street,
+							  @RequestParam("postalCode") String postalCode, @RequestParam("place") String place, @RequestParam("countryAndShipmentCost") String countryAndShipmentCost,
+							  @RequestParam("remarks") String remarks, @CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded, HttpServletRequest request, HttpServletResponse response) {
+		ShoppingCart shoppingCart = shoppingCartSerializer.deserialize(shoppingCartEncoded);
+		shoppingCart.setPersonalDetails(new PersonalDetails(name, email));
+
+		String[] countryAndShipmentCostParts = countryAndShipmentCost.split("_");
+		String country = countryAndShipmentCostParts[0];
+		double shipmentCost = Double.parseDouble(countryAndShipmentCostParts[1]);
+
+		shoppingCart.setShippingAddress(new ShippingAddress(street, postalCode, place, country, shipmentCost));
+		shoppingCart.setRemarks(remarks);
 
 		setCookieAndRedirect(shoppingCart, request, response);
 	}

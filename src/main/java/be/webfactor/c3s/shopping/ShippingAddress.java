@@ -4,37 +4,41 @@ import java.io.Serializable;
 
 public class ShippingAddress implements Serializable {
 
-	private final String name;
 	private final String street;
-	private final String city;
-	private final String postCode;
+	private final String postalCode;
+	private final String place;
 	private final String country;
+	private final double shipmentCost;
 
-	public ShippingAddress(String name, String street, String city, String postCode, String country) {
-		this.name = name;
-		this.street = street;
-		this.city = city;
-		this.postCode = postCode;
-		this.country = country;
+	public ShippingAddress() {
+		this("", "", "", "", 0.0);
 	}
 
-	public String getName() {
-		return name;
+	public ShippingAddress(String street, String postalCode, String place, String country, double shipmentCost) {
+		this.street = street;
+		this.place = place;
+		this.postalCode = postalCode;
+		this.country = country;
+		this.shipmentCost = shipmentCost;
 	}
 
 	public String getStreet() {
 		return street;
 	}
 
-	public String getCity() {
-		return city;
+	public String getPostalCode() {
+		return postalCode;
 	}
 
-	public String getPostCode() {
-		return postCode;
+	public String getPlace() {
+		return place;
 	}
 
 	public String getCountry() {
 		return country;
+	}
+
+	public double getShipmentCost() {
+		return shipmentCost;
 	}
 }
