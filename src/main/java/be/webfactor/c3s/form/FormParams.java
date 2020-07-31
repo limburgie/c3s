@@ -1,35 +1,39 @@
 package be.webfactor.c3s.form;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class FormParams extends HashMap<String, Object> {
 
 	private final HttpServletRequest request;
+	private final Map<String, Object> additionalValues = new HashMap<>();
 
 	public FormParams(HttpServletRequest request) {
 		this.request = request;
 	}
 
 	public String getValue(String paramName) {
-		return request.getParameter(paramName);
-	}
+		String result = request.getParameter(paramName);
 
-	public List<String> getValues(String paramName) {
-		String[] values = request.getParameterValues(paramName);
-
-		if (values == null) {
-			return Collections.emptyList();
+		if (result == null) {
+			return (String) additionalValues.get(paramName);
 		}
 
-		return Arrays.asList(values);
+		return result;
 	}
 
-	public Object get(Object key) {
-		String[] values = request.getParameterValues((String) key);
+	public Object get(Object paramName) {
+		Object result = getFromRequest((String) paramName);
+
+		if (result == null) {
+			return additionalValues.get(paramName);
+		}
+
+		return result;
+	}
+
+	private Object getFromRequest(String paramName) {
+		String[] values = request.getParameterValues(paramName);
 
 		if (values == null) {
 			return null;
@@ -40,6 +44,10 @@ public class FormParams extends HashMap<String, Object> {
 		}
 
 		return values[0];
+	}
+
+	public Object put(String paramName, Object value) {
+		return additionalValues.put(paramName, value);
 	}
 
 	public boolean containsKey(Object key) {

@@ -1,5 +1,13 @@
 package be.webfactor.c3s.controller;
 
+import be.webfactor.c3s.form.FormHandler;
+import be.webfactor.c3s.form.FormHandlerFactory;
+import be.webfactor.c3s.form.FormParams;
+import be.webfactor.c3s.master.domain.Form;
+import be.webfactor.c3s.master.service.MasterService;
+import be.webfactor.c3s.master.service.MasterServiceFactory;
+import be.webfactor.c3s.registry.domain.MasterRepository;
+import be.webfactor.c3s.registry.service.RepositoryRegistryFactory;
 import be.webfactor.c3s.shopping.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -19,6 +27,9 @@ public class ShoppingCartController {
 	private static final String OPTION_PREFIX = "option_";
 
 	@Autowired private ShoppingCartSerializer shoppingCartSerializer;
+	@Autowired private RepositoryRegistryFactory repositoryRegistryFactory;
+	@Autowired private MasterServiceFactory masterServiceFactory;
+	@Autowired private FormHandlerFactory formHandlerFactory;
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public void addLineItem(@CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded, HttpServletRequest request, HttpServletResponse response) {
@@ -75,6 +86,31 @@ public class ShoppingCartController {
 		shoppingCart.setRemarks(remarks);
 
 		setCookieAndRedirect(shoppingCart, request, response);
+	}
+
+	@RequestMapping(value = "/order", method = RequestMethod.POST)
+	public void order(@CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded, HttpServletRequest request, HttpServletResponse response) {
+		ShoppingCart shoppingCart = shoppingCartSerializer.deserialize(shoppingCartEncoded);
+		ShoppingCartThreadLocal.setShoppingCart(shoppingCart);
+
+		MasterService masterService = getMasterService(request);
+		FormHandler formHandler = formHandlerFactory.forMasterService(masterService);
+		Form form = masterService.getForm(request.getParameter("form"));
+
+		FormParams formParams = new FormParams(request);
+		formParams.put("name", shoppingCart.getPersonalDetails().getName());
+		formParams.put("email", shoppingCart.getPersonalDetails().getEmail());
+
+		formHandler.handleForm(form, formParams);
+
+		shoppingCart.reset();
+		setCookieAndRedirect(shoppingCart, request, response);
+	}
+
+	private MasterService getMasterService(HttpServletRequest request) {
+		MasterRepository repository = repositoryRegistryFactory.getRegistry().findMasterRepository(request.getServerName());
+
+		return masterServiceFactory.forRepositoryConnection(repository.getConnection());
 	}
 
 	private ProductConfiguration parseProductConfig(HttpServletRequest request) {

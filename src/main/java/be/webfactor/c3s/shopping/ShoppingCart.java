@@ -8,7 +8,7 @@ public class ShoppingCart implements Serializable {
 
 	public static final String COOKIE_NAME = "C3S_CART";
 
-	private final List<LineItem> items;
+	private List<LineItem> items;
 	private PaymentType paymentType;
 	private ShipmentType shipmentType;
 	private PersonalDetails personalDetails = new PersonalDetails();
@@ -122,5 +122,10 @@ public class ShoppingCart implements Serializable {
 
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
+	}
+
+	public void reset() {
+		items = new ArrayList<>();
+		setRemarks("");
 	}
 }
