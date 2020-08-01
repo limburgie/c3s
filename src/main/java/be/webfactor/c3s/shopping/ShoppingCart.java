@@ -1,5 +1,7 @@
 package be.webfactor.c3s.shopping;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +16,10 @@ public class ShoppingCart implements Serializable {
 	private PersonalDetails personalDetails = new PersonalDetails();
 	private ShippingAddress shippingAddress = new ShippingAddress();
 	private String remarks;
+	private String orderNumber;
 
 	public ShoppingCart() {
-		items = new ArrayList<>();
+		reset();
 		setPaymentType(PaymentType.TRANSFER);
 		setShipmentType(ShipmentType.SHIPMENT);
 	}
@@ -124,8 +127,17 @@ public class ShoppingCart implements Serializable {
 		this.remarks = remarks;
 	}
 
+	public String getOrderNumber() {
+		return orderNumber;
+	}
+
+	public void setOrderNumber(String orderNumber) {
+		this.orderNumber = orderNumber;
+	}
+
 	public void reset() {
 		items = new ArrayList<>();
+		orderNumber = RandomStringUtils.randomAlphanumeric(6).toUpperCase();
 		setRemarks("");
 	}
 }

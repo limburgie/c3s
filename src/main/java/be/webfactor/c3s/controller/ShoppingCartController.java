@@ -72,15 +72,21 @@ public class ShoppingCartController {
 	}
 
 	@RequestMapping(value = "/update/details", method = RequestMethod.POST)
-	public void updateDetails(@RequestParam("name") String name, @RequestParam("email") String email, @RequestParam("street") String street,
-							  @RequestParam("postalCode") String postalCode, @RequestParam("place") String place, @RequestParam("countryAndShipmentCost") String countryAndShipmentCost,
+	public void updateDetails(@RequestParam("name") String name, @RequestParam("email") String email, @RequestParam(value = "street", required = false) String street,
+							  @RequestParam(value = "postalCode", required = false) String postalCode, @RequestParam(value = "place", required = false) String place,
+							  @RequestParam(value = "countryAndShipmentCost", required = false) String countryAndShipmentCost,
 							  @RequestParam("remarks") String remarks, @CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded, HttpServletRequest request, HttpServletResponse response) {
 		ShoppingCart shoppingCart = shoppingCartSerializer.deserialize(shoppingCartEncoded);
 		shoppingCart.setPersonalDetails(new PersonalDetails(name, email));
 
-		String[] countryAndShipmentCostParts = countryAndShipmentCost.split("_");
-		String country = countryAndShipmentCostParts[0];
-		double shipmentCost = Double.parseDouble(countryAndShipmentCostParts[1]);
+		String country = null;
+		double shipmentCost = 0.0;
+
+		if (countryAndShipmentCost != null) {
+			String[] countryAndShipmentCostParts = countryAndShipmentCost.split("_");
+			country = countryAndShipmentCostParts[0];
+			shipmentCost = Double.parseDouble(countryAndShipmentCostParts[1]);
+		}
 
 		shoppingCart.setShippingAddress(new ShippingAddress(street, postalCode, place, country, shipmentCost));
 		shoppingCart.setRemarks(remarks);

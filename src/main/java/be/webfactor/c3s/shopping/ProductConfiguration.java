@@ -29,6 +29,10 @@ public class ProductConfiguration implements Serializable {
 		return options;
 	}
 
+	public String getOptionsDescription() {
+		return String.join(", ", getOptions().values());
+	}
+
 	public double getPrice() {
 		return price;
 	}
