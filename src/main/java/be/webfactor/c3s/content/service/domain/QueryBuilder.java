@@ -15,6 +15,11 @@ public interface QueryBuilder {
 	QueryBuilder with(String field, ContentItem value);
 
 	/**
+	 * Only return content items which contain the following keyword.
+	 */
+	QueryBuilder search(String keyword);
+
+	/**
 	 * Only return content items with a date value, specified by the given field name, in the past.
 	 */
 	QueryBuilder withDateInPast(String field);

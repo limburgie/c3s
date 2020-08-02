@@ -44,6 +44,12 @@ public class PrismicQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
+	public QueryBuilder search(String keyword) {
+		predicates.add(Predicates.fulltext("document", keyword));
+
+		return this;
+	}
+
 	public QueryBuilder withDateInPast(String field) {
 		return withDateInPast(field, true);
 	}

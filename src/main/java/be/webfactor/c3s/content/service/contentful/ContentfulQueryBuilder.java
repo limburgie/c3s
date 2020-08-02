@@ -36,6 +36,10 @@ public class ContentfulQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
+	public QueryBuilder search(String keyword) {
+		throw new UnsupportedOperationException();
+	}
+
 	public QueryBuilder withDateInPast(String field) {
 		return withDateInPast(field, true);
 	}

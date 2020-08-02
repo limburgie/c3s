@@ -38,6 +38,10 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
+	public QueryBuilder search(String keyword) {
+		throw new UnsupportedOperationException();
+	}
+
 	public QueryBuilder withDateInPast(String field) {
 		throw new UnsupportedOperationException();
 	}
