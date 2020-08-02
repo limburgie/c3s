@@ -25,6 +25,10 @@ public class MockQueryBuilder implements QueryBuilder {
 		return this;
 	}
 
+	public QueryBuilder withTag(String tag) {
+		return this;
+	}
+
 	public QueryBuilder withDateInPast(String field) {
 		return this;
 	}

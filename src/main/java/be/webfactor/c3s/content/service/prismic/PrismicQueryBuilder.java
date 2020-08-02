@@ -3,10 +3,7 @@ package be.webfactor.c3s.content.service.prismic;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +43,12 @@ public class PrismicQueryBuilder implements QueryBuilder {
 
 	public QueryBuilder search(String keyword) {
 		predicates.add(Predicates.fulltext("document", keyword));
+
+		return this;
+	}
+
+	public QueryBuilder withTag(String tag) {
+		predicates.add(Predicates.any("document.tags", Arrays.asList(tag, tag.toLowerCase())));
 
 		return this;
 	}

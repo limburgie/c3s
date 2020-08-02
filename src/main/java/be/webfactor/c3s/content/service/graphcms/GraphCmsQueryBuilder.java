@@ -42,6 +42,10 @@ public class GraphCmsQueryBuilder implements QueryBuilder {
 		throw new UnsupportedOperationException();
 	}
 
+	public QueryBuilder withTag(String tag) {
+		throw new UnsupportedOperationException();
+	}
+
 	public QueryBuilder withDateInPast(String field) {
 		throw new UnsupportedOperationException();
 	}

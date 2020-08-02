@@ -20,6 +20,11 @@ public interface QueryBuilder {
 	QueryBuilder search(String keyword);
 
 	/**
+	 * Only return content items which have the following tag.
+	 */
+	QueryBuilder withTag(String tag);
+
+	/**
 	 * Only return content items with a date value, specified by the given field name, in the past.
 	 */
 	QueryBuilder withDateInPast(String field);
