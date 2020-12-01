@@ -16,6 +16,10 @@ public class ContentfulImageField implements ImageField {
 		return cdaAsset.url();
 	}
 
+	public String getFinalUrl() {
+		return getUrl();
+	}
+
 	public String getAlt() {
 		return cdaAsset.title();
 	}

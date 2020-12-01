@@ -8,6 +8,7 @@ import java.util.Objects;
 public class Page {
 
 	private String friendlyUrl;
+	private boolean hidden;
 	private String name;
 	private String contents;
 	private Template template;
@@ -17,40 +18,41 @@ public class Page {
 	/**
 	 * Creates a new page that only cares about its URL, name and children (for navigation purposes)
 	 */
-	public Page(String friendlyUrl, String name, List<Page> children) {
-		this(friendlyUrl, name, null, null, null, children);
+	public Page(String friendlyUrl, boolean hidden, String name, List<Page> children) {
+		this(friendlyUrl, hidden, name, null, null, null, children);
 	}
 
 	/**
 	 * Creates a new page that has contents on its own and doesn't depend on a page template, without URL. Children are ignored.
 	 */
 	public Page(String name, String contents) {
-		this(null, name, contents);
+		this(null, true, name, contents);
 	}
 
 	/**
 	 * Creates a new page that has contents on its own and doesn't depend on a page template. Children are ignored.
 	 */
-	public Page(String friendlyUrl, String name, String contents) {
-		this(friendlyUrl, name, contents, null, null, Collections.emptyList());
+	public Page(String friendlyUrl, boolean hidden, String name, String contents) {
+		this(friendlyUrl, hidden, name, contents, null, null, Collections.emptyList());
 	}
 
 	/**
 	 * Creates a new page that extends from a page template, without URL. Children are ignored.
 	 */
 	public Page(String name, Template template, Map<String, String> inserts) {
-		this(null, name, template, inserts);
+		this(null, true, name, template, inserts);
 	}
 
 	/**
 	 * Creates a new page that extends from a page template. Children are ignored.
 	 */
-	public Page(String friendlyUrl, String name, Template template, Map<String, String> inserts) {
-		this(friendlyUrl, name, null, template, inserts, Collections.emptyList());
+	public Page(String friendlyUrl, boolean hidden, String name, Template template, Map<String, String> inserts) {
+		this(friendlyUrl, hidden, name, null, template, inserts, Collections.emptyList());
 	}
 
-	private Page(String friendlyUrl, String name, String contents, Template template, Map<String, String> inserts, List<Page> children) {
+	private Page(String friendlyUrl, boolean hidden, String name, String contents, Template template, Map<String, String> inserts, List<Page> children) {
 		this.friendlyUrl = friendlyUrl;
+		this.hidden = hidden;
 		this.name = name;
 		this.contents = contents;
 		this.template = template;
@@ -64,6 +66,10 @@ public class Page {
 
 	public String getFriendlyUrl() {
 		return friendlyUrl;
+	}
+
+	public boolean isHidden() {
+		return hidden;
 	}
 
 	public String getName() {

@@ -1,6 +1,7 @@
 package be.webfactor.c3s.controller;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
@@ -8,6 +9,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import be.webfactor.c3s.controller.sitemap.SitemapGenerator;
 import be.webfactor.c3s.shopping.ShoppingCart;
 import be.webfactor.c3s.shopping.ShoppingCartSerializer;
 import be.webfactor.c3s.shopping.ShoppingCartThreadLocal;
@@ -59,6 +61,7 @@ public class PageController {
 	private static final String LOCALE_COOKIE_NAME = "C3S_LOCALE";
 	private static final String EDIT_URL_JS_FILENAME = "c3s-edit-url.js";
 	public static final String EDIT_URL_JS_PATH = C3S_PREFIX + EDIT_URL_JS_FILENAME;
+	public static final String SITEMAP_PATH = "/sitemap.xml";
 	private static final TikaConfig TIKA_CONFIG;
 
 	static {
@@ -75,6 +78,7 @@ public class PageController {
 	@Autowired private FormHandlerFactory formHandlerFactory;
 	@Autowired private ContentServiceFactory contentServiceFactory;
 	@Autowired private ShoppingCartSerializer shoppingCartSerializer;
+	@Autowired private SitemapGenerator sitemapGenerator;
 
 	@RequestMapping("/")
 	public String index(HttpServletRequest request,
@@ -138,6 +142,14 @@ public class PageController {
 		byte[] content = IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream(EDIT_URL_JS_FILENAME));
 
 		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).contentType(MediaType.valueOf("application/javascript")).body(content);
+	}
+
+	@RequestMapping(SITEMAP_PATH)
+	public ResponseEntity<String> sitemap(HttpServletRequest request) throws MalformedURLException {
+		MasterService masterService = getMasterService(request);
+		String sitemapXml = sitemapGenerator.generate(request, masterService.getPages(true));
+
+		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).contentType(MediaType.TEXT_XML).body(sitemapXml);
 	}
 
 	@RequestMapping(LANG_PREFIX + "**")

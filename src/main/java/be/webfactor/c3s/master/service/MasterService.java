@@ -31,7 +31,7 @@ public interface MasterService {
 	 * Retrieves all root pages that are stored inside this master service.
 	 * Each root page contains information about its children but the content inside the page is not retrieved (use getPage(String) for that purpose).
 	 */
-	List<Page> getPages();
+	List<Page> getPages(boolean all);
 
 	/**
 	 * Retrieves the template engine in which the templates in this master service are written.

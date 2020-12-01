@@ -34,37 +34,25 @@ public class FormHandler {
 	}
 
 	public void handleForm(Form form, FormParams formParams) {
-		sendVisitorEmail(form, formParams);
-		sendManagerEmail(form, formParams);
+		EmailAddress managerEmail = new EmailAddress(masterService.getSiteName(), masterService.getMailSettings().getUsername());
+		EmailAddress visitorEmail = new EmailAddress(formParams.getValue("name"), formParams.getValue("email"));
+
+		sendVisitorEmail(managerEmail, visitorEmail, form, formParams);
+		sendManagerEmail(managerEmail, visitorEmail, form, formParams);
 	}
 
-	private void sendVisitorEmail(Form form, FormParams formParams) {
-		EmailAddress from = new EmailAddress(masterService.getSiteName(), masterService.getMailSettings().getUsername());
-		EmailAddress to = new EmailAddress(formParams.getValue("name"), formParams.getValue("email"));
-
+	private void sendVisitorEmail(EmailAddress managerEmail, EmailAddress visitorEmail, Form form, FormParams formParams) {
 		String subject = form.getVisitorEmail().getSubject();
 		String body = parseTemplate(form.getName() + (" (Visitor)"), form.getVisitorEmail().getContents(), formParams);
 
-		sendEmail(from, to, subject, body);
+		sendEmail(managerEmail, visitorEmail, managerEmail, subject, body);
 	}
 
-	private void sendManagerEmail(Form form, FormParams formParams) {
-		EmailAddress fromAndTo = new EmailAddress(masterService.getSiteName(), masterService.getMailSettings().getUsername());
-
+	private void sendManagerEmail(EmailAddress managerEmail, EmailAddress visitorEmail, Form form, FormParams formParams) {
 		String subject = form.getManagerEmail().getSubject();
 		String body = parseTemplate(form.getName() + (" (Manager)"), form.getManagerEmail().getContents(), formParams);
 
-		sendEmail(fromAndTo, fromAndTo, subject, body);
-	}
-
-	private String buildSubject(Form form, FormParams formParams) {
-		String result = formParams.getValue("subject");
-
-		if (result == null) {
-			result = String.format("Form %s was submitted", form.getName());
-		}
-
-		return result;
+		sendEmail(managerEmail, managerEmail, visitorEmail, subject, body);
 	}
 
 	private String parseTemplate(String templateName, String templateContents, FormParams formParams) {
@@ -77,12 +65,16 @@ public class FormHandler {
 		return templateParser.parse(templateName, templateContents, context, masterService.getBaseUrl());
 	}
 
-	private void sendEmail(EmailAddress from, EmailAddress to, String subject, String body) {
+	private void sendEmail(EmailAddress from, EmailAddress to, EmailAddress replyTo, String subject, String body) {
 		MimeMessagePreparator mailMessage = mimeMessage -> {
 			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.name());
 
 			message.setFrom(from.getAddress(), from.getName());
 			message.addTo(to.getAddress(), to.getName());
+
+			if (replyTo != null) {
+				message.setReplyTo(replyTo.getAddress(), replyTo.getName());
+			}
 
 			message.setSubject(subject);
 			message.setText(body, true);

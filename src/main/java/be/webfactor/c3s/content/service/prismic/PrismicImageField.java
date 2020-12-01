@@ -12,7 +12,7 @@ public class PrismicImageField implements ImageField {
 	}
 
 	public String getUrl() {
-		String baseUrl = imageFragment.getUrl();
+		String baseUrl = getFinalUrl();
 
 		if (baseUrl == null) {
 			return null;
@@ -25,6 +25,10 @@ public class PrismicImageField implements ImageField {
 		}
 
 		return baseUrl;
+	}
+
+	public String getFinalUrl() {
+		return imageFragment.getUrl();
 	}
 
 	public String getAlt() {
