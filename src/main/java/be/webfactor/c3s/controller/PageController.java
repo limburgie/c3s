@@ -60,9 +60,8 @@ public class PageController {
 	private static final String SUBMIT_URI = "/submit";
 	private static final String LOCALE_COOKIE_NAME = "C3S_LOCALE";
 	private static final String EDIT_URL_JS_FILENAME = "c3s-edit-url.js";
-	private static final String SITEMAP_FILENAME = "sitemap.xml";
 	public static final String EDIT_URL_JS_PATH = C3S_PREFIX + EDIT_URL_JS_FILENAME;
-	public static final String SITEMAP_PATH = C3S_PREFIX + SITEMAP_FILENAME;
+	public static final String SITEMAP_PATH = "/sitemap.xml";
 	private static final TikaConfig TIKA_CONFIG;
 
 	static {
