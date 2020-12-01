@@ -64,8 +64,8 @@ public class WebserverMasterService implements MasterService {
 		return config.getName();
 	}
 
-	public List<Page> getPages() {
-		return config.getPages().stream().filter(page -> !page.isHidden()).map(pageMapper(false)).collect(Collectors.toList());
+	public List<Page> getPages(boolean all) {
+		return config.getPages().stream().filter(page -> all || !page.isHidden()).map(pageMapper(false)).collect(Collectors.toList());
 	}
 
 	public TemplateEngine getTemplateEngine() {
