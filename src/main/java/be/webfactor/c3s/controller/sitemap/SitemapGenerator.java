@@ -16,14 +16,19 @@ public class SitemapGenerator {
 
 	public String generate(HttpServletRequest request, List<Page> pages) throws MalformedURLException {
 		String baseUrl = getBaseUrl(request);
+		List<Page> sitemapPages = getSitemapPages(pages);
 
 		return cz.jiripinkas.jsitemapgenerator.generator.SitemapGenerator.of(baseUrl)
-				.addPages(pages.stream().map(page -> WebPage.builder()
+				.addPages(sitemapPages.stream().map(page -> WebPage.builder()
 						.name(page.getFriendlyUrl())
 						.changeFreq(ChangeFreq.MONTHLY)
-						.priority(getPagePriority(pages, page))
+						.priority(getPagePriority(sitemapPages, page))
 						.build()).collect(Collectors.toList()))
 				.toString();
+	}
+
+	private List<Page> getSitemapPages(List<Page> pages) {
+		return pages.stream().filter(page -> pages.indexOf(page) == 0 || !page.isHidden()).collect(Collectors.toList());
 	}
 
 	private Double getPagePriority(List<Page> pages, Page page) {

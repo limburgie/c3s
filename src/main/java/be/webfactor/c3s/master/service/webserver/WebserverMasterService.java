@@ -126,21 +126,22 @@ public class WebserverMasterService implements MasterService {
 		return webserverSitePage -> {
 			String friendlyUrl = webserverSitePage.getFriendlyUrl();
 			String name = webserverSitePage.getName();
+			boolean hidden = webserverSitePage.isHidden();
 
 			if (!withContents) {
 				List<Page> children = webserverSitePage.getChildren().stream().filter(page -> !page.isHidden()).map(pageMapper(false)).collect(Collectors.toList());
 
-				return new Page(friendlyUrl, name, children);
+				return new Page(friendlyUrl, hidden, name, children);
 			}
 
 			if (webserverSitePage.isTemplated()) {
 				Template template = getTemplate(webserverSitePage.getTemplate());
 				Map<String, String> inserts = readInserts(webserverSitePage.getInserts());
 
-				return new Page(friendlyUrl, name, template, inserts);
+				return new Page(friendlyUrl, hidden, name, template, inserts);
 			}
 
-			return new Page(friendlyUrl, name, readFile(webserverSitePage.getContents()));
+			return new Page(friendlyUrl, hidden, name, readFile(webserverSitePage.getContents()));
 		};
 	}
 
