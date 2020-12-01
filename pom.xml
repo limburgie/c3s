@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.2.6.RELEASE</version>
+		<version>2.4.0</version>
 	</parent>
 
 	<groupId>be.webfactor.c3s</groupId>
@@ -55,12 +55,12 @@
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-core</artifactId>
-			<version>1.24</version>
+			<version>1.25</version>
 		</dependency>
 		<dependency>
 			<groupId>com.atlassian.commonmark</groupId>
 			<artifactId>commonmark</artifactId>
-			<version>0.14.0</version>
+			<version>0.15.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jsoup</groupId>
@@ -85,7 +85,7 @@
 		<dependency>
 			<groupId>io.bit3</groupId>
 			<artifactId>jsass</artifactId>
-			<version>5.10.3</version>
+			<version>5.10.4</version>
 		</dependency>
 		<dependency>
 			<groupId>cz.jiripinkas</groupId>
@@ -116,7 +116,7 @@
 		<dependency>
 			<groupId>ognl</groupId>
 			<artifactId>ognl</artifactId>
-			<version>3.2.14</version>
+			<version>3.2.16</version>
 		</dependency>
 
 		<!-- Content API's -->
@@ -128,7 +128,7 @@
 		<dependency>
 			<groupId>com.contentful.java</groupId>
 			<artifactId>java-sdk</artifactId>
-			<version>10.4.2</version>
+			<version>10.4.4</version>
 		</dependency>
 
 		<!-- Database -->
