@@ -5,7 +5,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -56,9 +55,7 @@ public class PageController {
 
 	public static final String ASSETS_PREFIX = "/assets/";
 	private static final String C3S_PREFIX = "/c3s/";
-	private static final String LANG_PREFIX = "/lang/";
 	private static final String SUBMIT_URI = "/submit";
-	private static final String LOCALE_COOKIE_NAME = "C3S_LOCALE";
 	private static final String EDIT_URL_JS_FILENAME = "c3s-edit-url.js";
 	public static final String EDIT_URL_JS_PATH = C3S_PREFIX + EDIT_URL_JS_FILENAME;
 	public static final String SITEMAP_PATH = "/sitemap.xml";
@@ -82,9 +79,8 @@ public class PageController {
 
 	@RequestMapping("/")
 	public String index(HttpServletRequest request,
-						@CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale,
 						@CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded) {
-		preprocess(request, locale, shoppingCartEncoded);
+		preprocess(request, shoppingCartEncoded);
 
 		return friendlyUrl(getMasterService(request).getIndexPage().getFriendlyUrl(), new String[0], getMasterService(request));
 	}
@@ -104,9 +100,8 @@ public class PageController {
 
 	@RequestMapping(value = SUBMIT_URI, method = RequestMethod.POST)
 	public void submitForm(HttpServletRequest request, HttpServletResponse response,
-						   @CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale,
 						   @CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded) {
-		preprocess(request, locale, shoppingCartEncoded);
+		preprocess(request, shoppingCartEncoded);
 
 		MasterService masterService = getMasterService(request);
 		FormHandler formHandler = formHandlerFactory.forMasterService(masterService);
@@ -152,16 +147,6 @@ public class PageController {
 		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).contentType(MediaType.TEXT_XML).body(sitemapXml);
 	}
 
-	@RequestMapping(LANG_PREFIX + "**")
-	public void changeLanguageUrl(HttpServletRequest request, HttpServletResponse response) {
-		String requestUri = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-		String newLocale = StringUtils.removeStart(requestUri, LANG_PREFIX);
-
-		response.addCookie(createLocaleCookie(newLocale));
-		response.setHeader("Location", getReferer(request));
-		response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-	}
-
 	private String getReferer(HttpServletRequest request) {
 		String referer = request.getHeader("Referer");
 		String host = request.getScheme() + "://" + request.getHeader("Host");
@@ -171,16 +156,6 @@ public class PageController {
 		}
 
 		return referer;
-	}
-
-	private Cookie createLocaleCookie(String newLocale) {
-		Cookie cookie = new Cookie(LOCALE_COOKIE_NAME, newLocale);
-
-		cookie.setMaxAge(Integer.MAX_VALUE);
-		cookie.setHttpOnly(true);
-		cookie.setPath("/");
-
-		return cookie;
 	}
 
 	@RequestMapping(C3S_PREFIX + "**")
@@ -203,9 +178,8 @@ public class PageController {
 
 	@RequestMapping("/**")
 	public String friendlyUrl(HttpServletRequest request,
-							  @CookieValue(value = LOCALE_COOKIE_NAME, required = false) String locale,
 							  @CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded) {
-		preprocess(request, locale, shoppingCartEncoded);
+		preprocess(request, shoppingCartEncoded);
 
 		String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 		String friendlyUrl = path.substring(1);
@@ -221,9 +195,8 @@ public class PageController {
 		return friendlyUrl(friendlyUrl, params, getMasterService(request));
 	}
 
-	private void preprocess(HttpServletRequest request, String locale, String shoppingCartEncoded) {
+	private void preprocess(HttpServletRequest request, String shoppingCartEncoded) {
 		setTransactionName(request);
-		LocationThreadLocal.setLocale(LocaleUtils.toLocale(locale));
 		ShoppingCartThreadLocal.setShoppingCart(shoppingCartSerializer.deserialize(shoppingCartEncoded));
 	}
 
