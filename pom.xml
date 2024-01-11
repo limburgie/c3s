@@ -92,6 +92,10 @@
 			<artifactId>jsitemapgenerator</artifactId>
 			<version>4.5</version>
 		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
 
 		<!-- Templating engines -->
 		<dependency>

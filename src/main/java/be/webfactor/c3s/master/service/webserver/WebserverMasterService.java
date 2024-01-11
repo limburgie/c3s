@@ -40,7 +40,7 @@ public class WebserverMasterService implements MasterService {
 
 		if (config.getLocationSettings() != null) {
 			if (!LocationThreadLocal.hasLocale()) {
-				LocationThreadLocal.setLocale(LocaleUtils.toLocale(config.getLocationSettings().getLocale()));
+				LocationThreadLocal.setLocale(LocaleUtils.toLocale(config.getLocationSettings().getDefaultLocale()));
 			}
 			LocationThreadLocal.setTimeZone(ZoneId.of(config.getLocationSettings().getTimeZone()));
 		}
