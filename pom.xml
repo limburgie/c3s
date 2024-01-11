@@ -85,7 +85,7 @@
 		<dependency>
 			<groupId>io.bit3</groupId>
 			<artifactId>jsass</artifactId>
-			<version>5.10.4</version>
+			<version>5.11.0</version>
 		</dependency>
 		<dependency>
 			<groupId>cz.jiripinkas</groupId>
