@@ -133,6 +133,6 @@ public class ContentfulContentItem implements ContentItem {
 	}
 
 	private String getLocale() {
-		return LocationThreadLocal.getLocale().toString().replace('_', '-');
+		return LocationThreadLocal.getLocaleContext().getLocale().toString().replace('_', '-');
 	}
 }

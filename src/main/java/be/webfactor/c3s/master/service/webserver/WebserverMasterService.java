@@ -13,6 +13,7 @@ import be.webfactor.c3s.master.service.webserver.domain.*;
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -234,7 +235,7 @@ public class WebserverMasterService implements MasterService {
 
 	@SneakyThrows
 	public ResourceBundle getResourceBundle() {
-		Locale locale = LocationThreadLocal.getLocale();
+		Locale locale = LocationThreadLocal.getLocaleContext().getLocale();
 		URL i18nFolder = getURL(I18N_BASE_NAME + "/");
 		ClassLoader classLoader = new URLClassLoader(new URL[] {i18nFolder});
 

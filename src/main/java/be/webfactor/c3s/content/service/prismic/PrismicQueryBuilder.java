@@ -150,7 +150,7 @@ public class PrismicQueryBuilder implements QueryBuilder {
 	}
 
 	private String getLanguage() {
-		Locale locale = LocationThreadLocal.getLocale();
+		Locale locale = LocationThreadLocal.getLocaleContext().getLocale();
 
 		String language = locale.getLanguage();
 		String country = locale.getCountry().toLowerCase();

@@ -1,5 +1,6 @@
 package be.webfactor.c3s.controller.helper.uri;
 
+import be.webfactor.c3s.master.domain.LocaleContext;
 import be.webfactor.c3s.master.domain.LocationThreadLocal;
 import be.webfactor.c3s.master.domain.Page;
 import be.webfactor.c3s.master.service.MasterService;
@@ -26,7 +27,7 @@ public class RequestUri {
 
         initLocale();
 
-        LocationThreadLocal.setLocale(requestLocale);
+        LocationThreadLocal.setLocaleContext(new LocaleContext(requestLocale, hasLocalePrefix));
     }
 
     private void initLocale() {
@@ -52,19 +53,11 @@ public class RequestUri {
     }
 
     public String[] getParams() {
-        if (path.isEmpty()) {
-            return new String[0];
-        }
-
         return getUriParts(hasLocalePrefix ? 2 : 1).toArray(String[]::new);
     }
 
     public String getFriendlyUrl() {
-        if (path.isEmpty()) {
-            return indexPage.getFriendlyUrl();
-        }
-
-        return getUriParts(hasLocalePrefix ? 1 : 0).findFirst().get();
+        return getUriParts(hasLocalePrefix ? 1 : 0).findFirst().orElse("/");
     }
 
     private Stream<String> getUriParts(int skip) {
