@@ -1,7 +1,7 @@
 package be.webfactor.c3s.controller.sitemap;
 
 import be.webfactor.c3s.master.domain.Page;
-import cz.jiripinkas.jsitemapgenerator.ChangeFreq;
+import be.webfactor.c3s.master.service.MasterService;
 import cz.jiripinkas.jsitemapgenerator.WebPage;
 import org.springframework.stereotype.Service;
 
@@ -9,36 +9,32 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
 public class SitemapGenerator {
 
-	public String generate(HttpServletRequest request, List<Page> pages) throws MalformedURLException {
+	public String generate(HttpServletRequest request, MasterService masterService) throws MalformedURLException {
 		String baseUrl = getBaseUrl(request);
-		List<Page> sitemapPages = getSitemapPages(pages);
+		List<Page> sitemapPages = getSitemapPages(masterService.getPages(true));
 
 		return cz.jiripinkas.jsitemapgenerator.generator.SitemapGenerator.of(baseUrl)
-				.addPages(sitemapPages.stream().map(page -> WebPage.builder()
-						.name(page.getFriendlyUrl())
-						.changeFreq(ChangeFreq.MONTHLY)
-						.priority(getPagePriority(sitemapPages, page))
-						.build()).collect(Collectors.toList()))
+				.addPage(WebPage.builder().maxPriorityRoot().build())
+				.addPages(sitemapPages.stream().map(page -> {
+                    WebPage.WebPageBuilder builder = WebPage.builder().name(page.getFriendlyUrl());
+					if (masterService.getLocales().size() > 1) {
+						for (Locale locale : masterService.getLocales()) {
+							builder.alternateName(locale.getLanguage(), page.getFriendlyUrl() + "/" + locale.getLanguage());
+						}
+					}
+					return builder.build();
+                }).collect(Collectors.toList()))
 				.toString();
 	}
 
 	private List<Page> getSitemapPages(List<Page> pages) {
 		return pages.stream().filter(page -> pages.indexOf(page) == 0 || !page.isHidden()).collect(Collectors.toList());
-	}
-
-	private Double getPagePriority(List<Page> pages, Page page) {
-		if (pages.indexOf(page) == 0) {
-			return 1.0;
-		}
-
-		int position = pages.indexOf(page);
-
-		return 1.0 - (double) position / pages.size();
 	}
 
 	private String getBaseUrl(HttpServletRequest request) throws MalformedURLException {
