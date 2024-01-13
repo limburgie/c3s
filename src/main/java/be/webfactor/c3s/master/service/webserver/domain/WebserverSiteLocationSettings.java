@@ -1,23 +1,16 @@
 package be.webfactor.c3s.master.service.webserver.domain;
 
+import lombok.Data;
+
+import java.util.List;
+
+@Data
 public class WebserverSiteLocationSettings {
 
-	private String locale;
+	private List<String> locales;
 	private String timeZone;
 
-	public String getLocale() {
-		return locale;
-	}
-
-	public void setLocale(String locale) {
-		this.locale = locale;
-	}
-
-	public String getTimeZone() {
-		return timeZone;
-	}
-
-	public void setTimeZone(String timeZone) {
-		this.timeZone = timeZone;
+	public String getDefaultLocale() {
+		return (locales == null || locales.isEmpty()) ? null : locales.get(0);
 	}
 }

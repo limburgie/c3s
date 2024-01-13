@@ -10,8 +10,10 @@ import java.util.stream.Collectors;
 
 import be.webfactor.c3s.master.domain.*;
 import be.webfactor.c3s.master.service.webserver.domain.*;
+import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -32,31 +34,13 @@ public class WebserverMasterService implements MasterService {
 
 	private String basePath;
 	private WebserverSiteConfiguration config;
-	private ResourceBundle resourceBundle;
 
 	public void initialize(RepositoryConnection connection) {
 		basePath = connection.getRepositoryId();
 		config = new Gson().fromJson(readFile(CONFIG_FILE), WebserverSiteConfiguration.class);
 
 		if (config.getLocationSettings() != null) {
-			if (!LocationThreadLocal.hasLocale()) {
-				LocationThreadLocal.setLocale(LocaleUtils.toLocale(config.getLocationSettings().getLocale()));
-			}
 			LocationThreadLocal.setTimeZone(ZoneId.of(config.getLocationSettings().getTimeZone()));
-		}
-
-		initResourceBundle();
-	}
-
-	private void initResourceBundle() {
-		Locale locale = LocationThreadLocal.getLocale();
-		URL i18nFolder = getURL(I18N_BASE_NAME + "/");
-		ClassLoader classLoader = new URLClassLoader(new URL[] {i18nFolder});
-
-		try {
-			resourceBundle = ResourceBundle.getBundle(I18N_BASE_NAME, locale, classLoader, new UTF8Control());
-		} catch (MissingResourceException e) {
-
 		}
 	}
 
@@ -208,6 +192,8 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	private Email fromWebserverSiteEmail(WebserverSiteEmail webserverSiteEmail) {
+		ResourceBundle resourceBundle = getResourceBundle();
+
 		String subject = webserverSiteEmail.getSubject();
 		subject = resourceBundle == null ? subject : resourceBundle.getString(subject);
 		String contents = readFile(webserverSiteEmail.getContents());
@@ -247,7 +233,23 @@ public class WebserverMasterService implements MasterService {
 		return basePath;
 	}
 
+	@SneakyThrows
 	public ResourceBundle getResourceBundle() {
-		return resourceBundle;
+		Locale locale = LocationThreadLocal.getLocaleContext().getLocale();
+		URL i18nFolder = getURL(I18N_BASE_NAME + "/");
+		ClassLoader classLoader = new URLClassLoader(new URL[] {i18nFolder});
+
+		return ResourceBundle.getBundle(I18N_BASE_NAME, locale, classLoader, new UTF8Control());
+	}
+
+	public List<Locale> getLocales() {
+		if (config.getLocationSettings() == null || config.getLocationSettings().getLocales() == null) {
+			return Collections.emptyList();
+		}
+
+		return config.getLocationSettings().getLocales().stream()
+				.map(LocaleUtils::toLocale)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
 	}
 }

@@ -20,8 +20,8 @@ public class SassCompiler {
 
 	private static final String ENCODING = StandardCharsets.UTF_8.toString();
 
-	private Compiler compiler = new Compiler();
-	private Options options = new Options();
+	private final Compiler compiler = new Compiler();
+	private final Options options = new Options();
 
 	public SassCompiler(String basePath, String originalRelativeDirectory) {
 		options.setOutputStyle(OutputStyle.COMPRESSED);

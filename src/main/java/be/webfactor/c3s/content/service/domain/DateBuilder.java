@@ -22,7 +22,7 @@ public class DateBuilder {
 	public DateBuilder(TemporalAccessor temporalAccessor, String pattern) {
 		this.temporalAccessor = temporalAccessor;
 		this.pattern = pattern;
-		this.locale = LocationThreadLocal.getLocale();
+		this.locale = LocationThreadLocal.getLocaleContext().getLocale();
 		this.timeZone = LocationThreadLocal.getTimeZone();
 	}
 

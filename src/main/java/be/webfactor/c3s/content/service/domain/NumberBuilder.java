@@ -20,7 +20,7 @@ public class NumberBuilder {
 	public NumberBuilder(Double number, String pattern) {
 		this.number = number;
 		this.pattern = pattern;
-		this.locale = LocationThreadLocal.getLocale();
+		this.locale = LocationThreadLocal.getLocaleContext().getLocale();
 	}
 
 	/**

@@ -22,6 +22,6 @@ public class PageRendererFactory {
 		RepositoryConnection repoConnection = masterService.getRepositoryConnection();
 		ContentService contentService = repoConnection == null ? null : contentServiceFactory.forRepositoryConnection(repoConnection);
 
-		return new PageRenderer(masterService, contentService, templateParser);
+		return new PageRenderer(masterService, templateParser, contentService);
 	}
 }
