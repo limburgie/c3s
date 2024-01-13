@@ -60,7 +60,7 @@ public class RequestUri {
     }
 
     public String getFriendlyUrl() {
-        return getUriParts(hasLocalePrefix ? 1 : 0).findFirst().orElse(indexPage.getFriendlyUrl());
+        return getUriParts(hasLocalePrefix ? 1 : 0).findFirst().filter(s -> !s.isEmpty()).orElse(indexPage.getFriendlyUrl());
     }
 
     private Stream<String> getUriParts(int skip) {

@@ -44,7 +44,7 @@ public class PageRenderer {
 		Map<String, Object> context = new HashMap<>();
 
 		context.put(API_TEMPLATE_VAR, contentService == null ? null : contentService.getApi());
-		context.put(SITE_TEMPLATE_VAR, new SiteContext(masterService.getSiteName(), masterService.getPages(false)));
+		context.put(SITE_TEMPLATE_VAR, new SiteContext(masterService.getSiteName(), masterService.getPages(false), masterService.getLocales()));
 		context.put(REQUEST_TEMPLATE_VAR, new RequestContext(page, params, LocationThreadLocal.getLocaleContext().getLocale()));
 		context.put(URI_TEMPLATE_VAR, new UriHelper());
 		context.put(I18N_TEMPLATE_VAR, new I18n(masterService.getResourceBundle()));
