@@ -2,7 +2,9 @@ package be.webfactor.c3s.controller;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -134,13 +136,21 @@ public class PageController {
 		LocaleContext localeContext = requestUri.getLocaleContext();
 
 		if (!localeContext.isUriLocalePrefixed() && masterService.getLocales().size() > 1) {
-			response.setHeader("Location", "/" + masterService.getLocales().get(0).getLanguage() + "/" + requestUri.getFriendlyUrl());
+			String language = getBestMatchingLanguage(request, masterService.getLocales());
+			response.setHeader("Location", "/" + language + "/" + requestUri.getFriendlyUrl());
 			response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 			return null;
 		}
 
 		LocationThreadLocal.setLocaleContext(localeContext);
 		return friendlyUrl(requestUri.getFriendlyUrl(), requestUri.getParams(), masterService);
+	}
+
+	private String getBestMatchingLanguage(HttpServletRequest request, List<Locale> siteLocales) {
+		List<String> siteLanguages = siteLocales.stream().map(Locale::getLanguage).distinct().collect(Collectors.toList());
+		return Collections.list(request.getLocales()).stream()
+				.filter(locale -> siteLanguages.contains(locale.getLanguage()))
+				.findFirst().orElse(siteLocales.get(0)).getLanguage();
 	}
 
 	private MasterService getMasterService(HttpServletRequest request) {
