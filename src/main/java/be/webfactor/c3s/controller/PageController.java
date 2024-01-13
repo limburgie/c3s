@@ -12,6 +12,8 @@ import be.webfactor.c3s.controller.helper.asset.Asset;
 import be.webfactor.c3s.controller.helper.asset.AssetService;
 import be.webfactor.c3s.controller.helper.uri.RequestUri;
 import be.webfactor.c3s.controller.sitemap.SitemapGenerator;
+import be.webfactor.c3s.master.domain.LocaleContext;
+import be.webfactor.c3s.master.domain.LocationThreadLocal;
 import be.webfactor.c3s.shopping.ShoppingCart;
 import be.webfactor.c3s.shopping.ShoppingCartService;
 import be.webfactor.c3s.form.FormHandler;
@@ -122,13 +124,22 @@ public class PageController {
 	}
 
 	@RequestMapping("/**")
-	public String friendlyUrl(HttpServletRequest request, @CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded) {
+	public String friendlyUrl(HttpServletRequest request, HttpServletResponse response, @CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded) {
 		apmTrackerService.setTransactionName(request);
 		shoppingCartService.initializeShoppingCart(shoppingCartEncoded);
 
 		MasterService masterService = getMasterService(request);
 		RequestUri requestUri = new RequestUri(request, masterService);
 
+		LocaleContext localeContext = requestUri.getLocaleContext();
+
+		if (!localeContext.isUriLocalePrefixed() && masterService.getLocales().size() > 1) {
+			response.setHeader("Location", "/" + masterService.getLocales().get(0).getLanguage() + "/" + requestUri.getFriendlyUrl());
+			response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+			return null;
+		}
+
+		LocationThreadLocal.setLocaleContext(localeContext);
 		return friendlyUrl(requestUri.getFriendlyUrl(), requestUri.getParams(), masterService);
 	}
 
