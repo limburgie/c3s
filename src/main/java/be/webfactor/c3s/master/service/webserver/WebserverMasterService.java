@@ -243,6 +243,10 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	public List<Locale> getLocales() {
+		if (config.getLocationSettings() == null || config.getLocationSettings().getLocales() == null) {
+			return Collections.emptyList();
+		}
+
 		return config.getLocationSettings().getLocales().stream()
 				.map(LocaleUtils::toLocale)
 				.filter(Objects::nonNull)

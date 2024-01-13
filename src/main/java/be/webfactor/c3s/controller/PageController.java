@@ -135,7 +135,7 @@ public class PageController {
 
 		if (!localeContext.isUriLocalePrefixed() && masterService.getLocales().size() > 1) {
 			response.setHeader("Location", "/" + masterService.getLocales().get(0).getLanguage() + "/" + requestUri.getFriendlyUrl());
-			response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+			response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 			return null;
 		}
 

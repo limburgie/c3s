@@ -30,7 +30,7 @@ public class RequestUri {
 
         initLocale();
 
-        localeContext = new LocaleContext(requestLocale, hasLocalePrefix);
+        localeContext = new LocaleContext(requestLocale, requestLocale == null, hasLocalePrefix);
     }
 
     private void initLocale() {

@@ -12,10 +12,11 @@ public class LocaleContext {
     public static final Locale DEFAULT_LOCALE = new Locale("en", "US");
 
     Locale locale;
+    boolean defaultLocale;
     boolean uriLocalePrefixed;
 
     public LocaleContext() {
-        this(DEFAULT_LOCALE, false);
+        this(DEFAULT_LOCALE, true, false);
     }
 
     public Locale getLocale() {
