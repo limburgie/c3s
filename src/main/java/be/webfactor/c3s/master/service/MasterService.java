@@ -1,6 +1,7 @@
 package be.webfactor.c3s.master.service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import be.webfactor.c3s.master.domain.Form;
@@ -90,4 +91,9 @@ public interface MasterService {
 	 * Returns the resource bundle containing resource keys for the currently active locale.
 	 */
 	ResourceBundle getResourceBundle();
+
+	/**
+	 * Returns the supported locales for this service.
+	 */
+	List<Locale> getLocales();
 }

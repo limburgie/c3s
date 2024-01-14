@@ -23,12 +23,9 @@ public class MasterServiceFactory {
 	}
 
 	private MasterService getMasterService(RepositoryConnection connection) {
-		for (MasterService masterService : masterServices) {
-			if (connection.getType() == masterService.getType()) {
-				return masterService;
-			}
-		}
-
-		throw new MasterServiceNotFoundException(connection);
+		return masterServices.stream()
+				.filter(ms -> ms.getType() == connection.getType())
+				.findFirst()
+				.orElseThrow(() -> new MasterServiceNotFoundException(connection));
 	}
 }

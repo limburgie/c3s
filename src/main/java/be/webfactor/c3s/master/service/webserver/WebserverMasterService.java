@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import be.webfactor.c3s.controller.exception.PageNotFoundException;
 import be.webfactor.c3s.master.domain.*;
 import be.webfactor.c3s.master.service.webserver.domain.*;
 import org.apache.commons.io.IOUtils;
@@ -32,31 +33,13 @@ public class WebserverMasterService implements MasterService {
 
 	private String basePath;
 	private WebserverSiteConfiguration config;
-	private ResourceBundle resourceBundle;
 
 	public void initialize(RepositoryConnection connection) {
 		basePath = connection.getRepositoryId();
 		config = new Gson().fromJson(readFile(CONFIG_FILE), WebserverSiteConfiguration.class);
 
 		if (config.getLocationSettings() != null) {
-			if (!LocationThreadLocal.hasLocale()) {
-				LocationThreadLocal.setLocale(LocaleUtils.toLocale(config.getLocationSettings().getLocale()));
-			}
 			LocationThreadLocal.setTimeZone(ZoneId.of(config.getLocationSettings().getTimeZone()));
-		}
-
-		initResourceBundle();
-	}
-
-	private void initResourceBundle() {
-		Locale locale = LocationThreadLocal.getLocale();
-		URL i18nFolder = getURL(I18N_BASE_NAME + "/");
-		ClassLoader classLoader = new URLClassLoader(new URL[] {i18nFolder});
-
-		try {
-			resourceBundle = ResourceBundle.getBundle(I18N_BASE_NAME, locale, classLoader, new UTF8Control());
-		} catch (MissingResourceException e) {
-
 		}
 	}
 
@@ -97,9 +80,19 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	public Page getPage(String friendlyUrl) {
-		return friendlyUrl == null ?
-				null :
-				config.getAllPages().stream().filter(webserverSitePage -> friendlyUrl.equals(webserverSitePage.getFriendlyUrl())).map(pageMapper(true)).collect(Collectors.toList()).get(0);
+		if (friendlyUrl == null) {
+			throw new PageNotFoundException();
+		}
+
+		List<Page> pages = config.getAllPages().stream()
+				.filter(webserverSitePage -> friendlyUrl.equals(webserverSitePage.getFriendlyUrl()))
+				.map(pageMapper(true)).collect(Collectors.toList());
+
+		if (pages.isEmpty()) {
+			throw new PageNotFoundException();
+		}
+
+		return pages.get(0);
 	}
 
 	public Page getIndexPage() {
@@ -115,11 +108,15 @@ public class WebserverMasterService implements MasterService {
 	public Page getErrorPage() {
 		WebserverSitePage errorPage = config.getErrorPage();
 
+		Page.PageBuilder pageBuilder = Page.builder().name(errorPage.getName()).hidden(true).indexPage(false);
+
 		if (errorPage.isTemplated()) {
-			return new Page(errorPage.getName(), getTemplate(errorPage.getTemplate()), readInserts(errorPage.getInserts()));
+			pageBuilder = pageBuilder.template(getTemplate(errorPage.getTemplate())).inserts(readInserts(errorPage.getInserts()));
+		} else {
+			pageBuilder.contents(readFile(errorPage.getContents()));
 		}
 
-		return new Page(errorPage.getName(), readFile(errorPage.getContents()));
+		return pageBuilder.build();
 	}
 
 	private Function<WebserverSitePage, Page> pageMapper(boolean withContents) {
@@ -128,20 +125,26 @@ public class WebserverMasterService implements MasterService {
 			String name = webserverSitePage.getName();
 			boolean hidden = webserverSitePage.isHidden();
 
+			Page.PageBuilder pageBuilder = Page.builder()
+					.friendlyUrl(friendlyUrl)
+					.name(name)
+					.hidden(hidden)
+					.indexPage(friendlyUrl.equals(config.getIndexPage()));
+
 			if (!withContents) {
 				List<Page> children = webserverSitePage.getChildren().stream().filter(page -> !page.isHidden()).map(pageMapper(false)).collect(Collectors.toList());
 
-				return new Page(friendlyUrl, hidden, name, children);
-			}
-
-			if (webserverSitePage.isTemplated()) {
+				pageBuilder = pageBuilder.children(children);
+			} else if (webserverSitePage.isTemplated()) {
 				Template template = getTemplate(webserverSitePage.getTemplate());
 				Map<String, String> inserts = readInserts(webserverSitePage.getInserts());
 
-				return new Page(friendlyUrl, hidden, name, template, inserts);
+				pageBuilder = pageBuilder.template(template).inserts(inserts);
+			} else {
+				pageBuilder = pageBuilder.contents(readFile(webserverSitePage.getContents()));
 			}
 
-			return new Page(friendlyUrl, hidden, name, readFile(webserverSitePage.getContents()));
+			return pageBuilder.build();
 		};
 	}
 
@@ -208,6 +211,8 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	private Email fromWebserverSiteEmail(WebserverSiteEmail webserverSiteEmail) {
+		ResourceBundle resourceBundle = getResourceBundle();
+
 		String subject = webserverSiteEmail.getSubject();
 		subject = resourceBundle == null ? subject : resourceBundle.getString(subject);
 		String contents = readFile(webserverSiteEmail.getContents());
@@ -248,6 +253,25 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	public ResourceBundle getResourceBundle() {
-		return resourceBundle;
+		Locale locale = LocationThreadLocal.getLocaleContext().getLocale();
+		URL i18nFolder = getURL(I18N_BASE_NAME + "/");
+		ClassLoader classLoader = new URLClassLoader(new URL[] {i18nFolder});
+
+		try {
+			return ResourceBundle.getBundle(I18N_BASE_NAME, locale, classLoader, new UTF8Control());
+		} catch (MissingResourceException e) {
+			return null;
+		}
+	}
+
+	public List<Locale> getLocales() {
+		if (config.getLocationSettings() == null || config.getLocationSettings().getLocales() == null) {
+			return Collections.emptyList();
+		}
+
+		return config.getLocationSettings().getLocales().stream()
+				.map(LocaleUtils::toLocale)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
 	}
 }

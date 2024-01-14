@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
+import be.webfactor.c3s.master.domain.LocaleContext;
 import com.contentful.java.cda.CDAAsset;
 import com.contentful.java.cda.CDAEntry;
 import com.google.gson.Gson;
@@ -26,33 +27,33 @@ public class ContentfulContentItem implements ContentItem {
 	}
 
 	public String getText(String fieldName) {
-		return cdaEntry.getField(getLocale(), fieldName);
+		return getLocale() == null ? cdaEntry.getField(fieldName) : cdaEntry.getField(getLocale(), fieldName);
 	}
 
 	public Boolean getBoolean(String fieldName) {
-		return cdaEntry.getField(getLocale(), fieldName);
+		return getLocale() == null ? cdaEntry.getField(fieldName) : cdaEntry.getField(getLocale(), fieldName);
 	}
 
 	public RichTextField getRichText(String fieldName) {
-		String value = cdaEntry.getField(getLocale(), fieldName);
+		String value = getLocale() == null ? cdaEntry.getField(fieldName) : cdaEntry.getField(getLocale(), fieldName);
 
 		return value == null ? null : new ContentfulRichTextField(value);
 	}
 
 	public ImageField getImage(String fieldName) {
-		CDAAsset asset = cdaEntry.getField(getLocale(), fieldName);
+		CDAAsset asset = getLocale() == null ? cdaEntry.getField(fieldName) : cdaEntry.getField(getLocale(), fieldName);
 
 		return asset == null ? null : new ContentfulImageField(asset);
 	}
 
 	public DateField getDate(String fieldName) {
-		String value = cdaEntry.getField(getLocale(), fieldName);
+		String value = getLocale() == null ? cdaEntry.getField(fieldName) : cdaEntry.getField(getLocale(), fieldName);
 
 		return value == null ? null : new ContentfulDateField(value);
 	}
 
 	public NumberField getNumber(String fieldName) {
-		Double value = cdaEntry.getField(getLocale(), fieldName);
+		Double value = getLocale() == null ? cdaEntry.getField(fieldName) : cdaEntry.getField(getLocale(), fieldName);
 
 		return value == null ? null : new ContentfulNumberField(value);
 	}
@@ -62,25 +63,25 @@ public class ContentfulContentItem implements ContentItem {
 	}
 
 	public GeolocationField getGeolocation(String fieldName) {
-		LinkedTreeMap<String, Double> value = cdaEntry.getField(getLocale(), fieldName);
+		LinkedTreeMap<String, Double> value = getLocale() == null ? cdaEntry.getField(fieldName) : cdaEntry.getField(getLocale(), fieldName);
 
 		return value == null ? null : new ContentfulGeolocationField(value);
 	}
 
 	public AssetLink getAsset(String fieldName) {
-		CDAAsset asset = cdaEntry.getField(getLocale(), fieldName);
+		CDAAsset asset = getLocale() == null ? cdaEntry.getField(fieldName) : cdaEntry.getField(getLocale(), fieldName);
 
 		return asset == null ? null : new ContentfulAssetLink(asset);
 	}
 
 	public JsonObject getJson(String fieldName) {
-		LinkedTreeMap<String, Object> value = cdaEntry.getField(getLocale(), fieldName);
+		LinkedTreeMap<String, Object> value = getLocale() == null ? cdaEntry.getField(fieldName) : cdaEntry.getField(getLocale(), fieldName);
 
 		return value == null ? null : new Gson().toJsonTree(value).getAsJsonObject();
 	}
 
 	public ContentItem getReference(String fieldName) {
-		CDAEntry referencedEntry = cdaEntry.getField(getLocale(), fieldName);
+		CDAEntry referencedEntry = getLocale() == null ? cdaEntry.getField(fieldName) : cdaEntry.getField(getLocale(), fieldName);
 
 		return referencedEntry == null ? null : new ContentfulContentItem(referencedEntry);
 	}
@@ -133,6 +134,8 @@ public class ContentfulContentItem implements ContentItem {
 	}
 
 	private String getLocale() {
-		return LocationThreadLocal.getLocale().toString().replace('_', '-');
+		LocaleContext localeContext = LocationThreadLocal.getLocaleContext();
+
+		return localeContext.isDefaultLocale() ? null : localeContext.getLocale().toString().replace("_", "-");
 	}
 }
