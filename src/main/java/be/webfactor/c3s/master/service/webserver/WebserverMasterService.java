@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import be.webfactor.c3s.controller.exception.PageNotFoundException;
 import be.webfactor.c3s.master.domain.*;
 import be.webfactor.c3s.master.service.webserver.domain.*;
 import lombok.SneakyThrows;
@@ -81,9 +82,19 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	public Page getPage(String friendlyUrl) {
-		return friendlyUrl == null ?
-				null :
-				config.getAllPages().stream().filter(webserverSitePage -> friendlyUrl.equals(webserverSitePage.getFriendlyUrl())).map(pageMapper(true)).collect(Collectors.toList()).get(0);
+		if (friendlyUrl == null) {
+			throw new PageNotFoundException();
+		}
+
+		List<Page> pages = config.getAllPages().stream()
+				.filter(webserverSitePage -> friendlyUrl.equals(webserverSitePage.getFriendlyUrl()))
+				.map(pageMapper(true)).collect(Collectors.toList());
+
+		if (pages.isEmpty()) {
+			throw new PageNotFoundException();
+		}
+
+		return pages.get(0);
 	}
 
 	public Page getIndexPage() {

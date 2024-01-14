@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import be.webfactor.c3s.controller.exception.PageNotFoundException;
 import be.webfactor.c3s.controller.helper.apm.ApmTrackerService;
 import be.webfactor.c3s.controller.helper.asset.Asset;
 import be.webfactor.c3s.controller.helper.asset.AssetService;
@@ -135,6 +136,10 @@ public class PageController {
 
 		LocaleContext localeContext = requestUri.getLocaleContext();
 
+		if (isLocale(requestUri.getFriendlyUrl())) {
+			return errorPage(masterService, null, response, HttpServletResponse.SC_NOT_FOUND);
+		}
+
 		if (!localeContext.isUriLocalePrefixed() && masterService.getLocales().size() > 1) {
 			String language = getBestMatchingLanguage(request, masterService.getLocales());
 			response.setHeader("Location", "/" + language + "/" + requestUri.getFriendlyUrl());
@@ -143,7 +148,11 @@ public class PageController {
 		}
 
 		LocationThreadLocal.setLocaleContext(localeContext);
-		return friendlyUrl(requestUri.getFriendlyUrl(), requestUri.getParams(), masterService);
+		return friendlyUrl(requestUri.getFriendlyUrl(), requestUri.getParams(), masterService, response);
+	}
+
+	private boolean isLocale(String friendlyUrl) {
+		return Arrays.stream(Locale.getAvailableLocales()).map(Locale::getLanguage).distinct().anyMatch(lang -> lang.equals(friendlyUrl));
 	}
 
 	private String getBestMatchingLanguage(HttpServletRequest request, List<Locale> siteLocales) {
@@ -159,13 +168,25 @@ public class PageController {
 		return masterServiceFactory.forRepositoryConnection(repository.getConnection());
 	}
 
-	private String friendlyUrl(String friendlyUrl, String[] params, MasterService masterService) {
+	private String friendlyUrl(String friendlyUrl, String[] params, MasterService masterService, HttpServletResponse response) {
 		PageRenderer pageRenderer = pageRendererFactory.forMasterService(masterService);
 
 		try {
 			return pageRenderer.render(masterService.getPage(friendlyUrl), params);
+		} catch (PageNotFoundException e) {
+			return errorPage(masterService, e, response, HttpServletResponse.SC_NOT_FOUND);
+		} catch (Throwable e) {
+			return errorPage(masterService, e, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	private String errorPage(MasterService masterService, Throwable exception, HttpServletResponse response, int status) {
+		response.setStatus(status);
+		try {
+			return pageRendererFactory.forMasterService(masterService).render(
+					masterService.getErrorPage(), exception == null ? new String[] { "Page not found" } : new String[] { ExceptionUtils.getStackTrace(exception) });
 		} catch (Throwable t) {
-			return pageRenderer.render(masterService.getErrorPage(), new String[] { ExceptionUtils.getStackTrace(t) });
+			return null;
 		}
 	}
 }
