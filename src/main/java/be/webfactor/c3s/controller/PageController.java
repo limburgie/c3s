@@ -26,6 +26,7 @@ import be.webfactor.c3s.master.domain.Form;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.CacheControl;
@@ -186,7 +187,7 @@ public class PageController {
 			return pageRendererFactory.forMasterService(masterService).render(
 					masterService.getErrorPage(), exception == null ? new String[] { "Page not found" } : new String[] { ExceptionUtils.getStackTrace(exception) });
 		} catch (Throwable t) {
-			t.printStackTrace();
+			LogFactory.getLog(PageController.class).error(t);
 			return null;
 		}
 	}
