@@ -11,10 +11,8 @@ import java.util.stream.Collectors;
 import be.webfactor.c3s.controller.exception.PageNotFoundException;
 import be.webfactor.c3s.master.domain.*;
 import be.webfactor.c3s.master.service.webserver.domain.*;
-import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -110,11 +108,15 @@ public class WebserverMasterService implements MasterService {
 	public Page getErrorPage() {
 		WebserverSitePage errorPage = config.getErrorPage();
 
+		Page.PageBuilder pageBuilder = Page.builder().name(errorPage.getName()).hidden(true).indexPage(false);
+
 		if (errorPage.isTemplated()) {
-			return new Page(errorPage.getName(), getTemplate(errorPage.getTemplate()), readInserts(errorPage.getInserts()));
+			pageBuilder = pageBuilder.template(getTemplate(errorPage.getTemplate())).inserts(readInserts(errorPage.getInserts()));
+		} else {
+			pageBuilder.contents(readFile(errorPage.getContents()));
 		}
 
-		return new Page(errorPage.getName(), readFile(errorPage.getContents()));
+		return pageBuilder.build();
 	}
 
 	private Function<WebserverSitePage, Page> pageMapper(boolean withContents) {
@@ -123,20 +125,26 @@ public class WebserverMasterService implements MasterService {
 			String name = webserverSitePage.getName();
 			boolean hidden = webserverSitePage.isHidden();
 
+			Page.PageBuilder pageBuilder = Page.builder()
+					.friendlyUrl(friendlyUrl)
+					.name(name)
+					.hidden(hidden)
+					.indexPage(friendlyUrl.equals(config.getIndexPage()));
+
 			if (!withContents) {
 				List<Page> children = webserverSitePage.getChildren().stream().filter(page -> !page.isHidden()).map(pageMapper(false)).collect(Collectors.toList());
 
-				return new Page(friendlyUrl, hidden, name, children);
-			}
-
-			if (webserverSitePage.isTemplated()) {
+				pageBuilder = pageBuilder.children(children);
+			} else if (webserverSitePage.isTemplated()) {
 				Template template = getTemplate(webserverSitePage.getTemplate());
 				Map<String, String> inserts = readInserts(webserverSitePage.getInserts());
 
-				return new Page(friendlyUrl, hidden, name, template, inserts);
+				pageBuilder = pageBuilder.template(template).inserts(inserts);
+			} else {
+				pageBuilder = pageBuilder.contents(readFile(webserverSitePage.getContents()));
 			}
 
-			return new Page(friendlyUrl, hidden, name, readFile(webserverSitePage.getContents()));
+			return pageBuilder.build();
 		};
 	}
 

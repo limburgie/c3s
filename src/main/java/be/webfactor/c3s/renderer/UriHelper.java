@@ -1,5 +1,6 @@
 package be.webfactor.c3s.renderer;
 
+import be.webfactor.c3s.controller.helper.uri.RequestUriThreadLocal;
 import be.webfactor.c3s.master.domain.LocationThreadLocal;
 import be.webfactor.c3s.master.domain.Page;
 
@@ -17,6 +18,14 @@ public class UriHelper {
         }
 
         return sb.toString();
+    }
+
+    public String ofCurrent() {
+        return of(RequestUriThreadLocal.getCurrentUri());
+    }
+
+    public String ofCurrent(String language) {
+        return of(RequestUriThreadLocal.getCurrentUri(), language);
     }
 
     public String of(Page page) {

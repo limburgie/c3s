@@ -14,6 +14,7 @@ import be.webfactor.c3s.controller.helper.apm.ApmTrackerService;
 import be.webfactor.c3s.controller.helper.asset.Asset;
 import be.webfactor.c3s.controller.helper.asset.AssetService;
 import be.webfactor.c3s.controller.helper.uri.RequestUri;
+import be.webfactor.c3s.controller.helper.uri.RequestUriThreadLocal;
 import be.webfactor.c3s.controller.sitemap.SitemapGenerator;
 import be.webfactor.c3s.master.domain.LocaleContext;
 import be.webfactor.c3s.master.domain.LocationThreadLocal;
@@ -148,6 +149,7 @@ public class PageController {
 			return null;
 		}
 
+		RequestUriThreadLocal.setCurrentUri(requestUri.getPathWithoutLocalePrefix());
 		LocationThreadLocal.setLocaleContext(localeContext);
 		return friendlyUrl(requestUri.getFriendlyUrl(), requestUri.getParams(), masterService, response);
 	}

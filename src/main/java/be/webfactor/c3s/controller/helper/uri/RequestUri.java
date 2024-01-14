@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RequestUri {
@@ -65,6 +66,10 @@ public class RequestUri {
 
     public String getRedirectUrl() {
         return getFriendlyUrl("");
+    }
+
+    public String getPathWithoutLocalePrefix() {
+        return getUriParts(hasLocalePrefix ? 1 : 0).collect(Collectors.joining("/"));
     }
 
     private String getFriendlyUrl(String fallback) {
