@@ -142,7 +142,7 @@ public class PageController {
 
 		if (!localeContext.isUriLocalePrefixed() && masterService.getLocales().size() > 1) {
 			String language = getBestMatchingLanguage(request, masterService.getLocales());
-			response.setHeader("Location", "/" + language + "/" + requestUri.getFriendlyUrl());
+			response.setHeader("Location", "/" + language + "/" + requestUri.getRedirectUrl());
 			response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 			return null;
 		}
@@ -186,6 +186,7 @@ public class PageController {
 			return pageRendererFactory.forMasterService(masterService).render(
 					masterService.getErrorPage(), exception == null ? new String[] { "Page not found" } : new String[] { ExceptionUtils.getStackTrace(exception) });
 		} catch (Throwable t) {
+			t.printStackTrace();
 			return null;
 		}
 	}

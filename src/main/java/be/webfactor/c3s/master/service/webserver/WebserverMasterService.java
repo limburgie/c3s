@@ -244,13 +244,16 @@ public class WebserverMasterService implements MasterService {
 		return basePath;
 	}
 
-	@SneakyThrows
 	public ResourceBundle getResourceBundle() {
 		Locale locale = LocationThreadLocal.getLocaleContext().getLocale();
 		URL i18nFolder = getURL(I18N_BASE_NAME + "/");
 		ClassLoader classLoader = new URLClassLoader(new URL[] {i18nFolder});
 
-		return ResourceBundle.getBundle(I18N_BASE_NAME, locale, classLoader, new UTF8Control());
+		try {
+			return ResourceBundle.getBundle(I18N_BASE_NAME, locale, classLoader, new UTF8Control());
+		} catch (MissingResourceException e) {
+			return null;
+		}
 	}
 
 	public List<Locale> getLocales() {

@@ -24,13 +24,21 @@ public class UriHelper {
     }
 
     public String of(Page page, String language) {
+        return of(page.getFriendlyUrl(), language);
+    }
+
+    public String of(String friendlyUrl) {
+        return of(friendlyUrl, LocationThreadLocal.getLocaleContext().getLocale().getLanguage());
+    }
+
+    private String of(String friendlyUrl, String language) {
         StringBuilder sb = new StringBuilder("/");
 
         if (LocationThreadLocal.getLocaleContext().isUriLocalePrefixed()) {
             sb.append(language).append("/");
         }
 
-        sb.append(page.getFriendlyUrl());
+        sb.append(friendlyUrl);
 
         return sb.toString();
     }

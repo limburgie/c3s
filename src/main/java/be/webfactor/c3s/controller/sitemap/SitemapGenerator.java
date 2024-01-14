@@ -19,18 +19,30 @@ public class SitemapGenerator {
 		String baseUrl = getBaseUrl(request);
 		List<Page> sitemapPages = getSitemapPages(masterService.getPages(true));
 
-		return cz.jiripinkas.jsitemapgenerator.generator.SitemapGenerator.of(baseUrl)
-				.addPage(WebPage.builder().maxPriorityRoot().build())
-				.addPages(sitemapPages.stream().map(page -> {
-                    WebPage.WebPageBuilder builder = WebPage.builder().name(page.getFriendlyUrl());
-					if (masterService.getLocales().size() > 1) {
-						for (Locale locale : masterService.getLocales()) {
-							builder.alternateName(locale.getLanguage(), page.getFriendlyUrl() + "/" + locale.getLanguage());
-						}
-					}
-					return builder.build();
-                }).collect(Collectors.toList()))
+        return cz.jiripinkas.jsitemapgenerator.generator.SitemapGenerator.of(baseUrl)
+				.addPage(buildRootPage(masterService))
+				.addPages(sitemapPages.stream().map(page -> buildPage(masterService, page)).collect(Collectors.toList()))
 				.toString();
+	}
+
+	private WebPage buildPage(MasterService masterService, Page page) {
+		WebPage.WebPageBuilder builder = WebPage.builder().name(page.getFriendlyUrl());
+		addLocaleAlternates(builder, masterService, page.getFriendlyUrl());
+		return builder.build();
+	}
+
+	private WebPage buildRootPage(MasterService masterService) {
+		WebPage.WebPageBuilder builder = WebPage.builder().maxPriorityRoot();
+		addLocaleAlternates(builder, masterService, null);
+		return builder.build();
+	}
+
+	private void addLocaleAlternates(WebPage.WebPageBuilder builder, MasterService masterService, String friendlyUrl) {
+		if (masterService.getLocales().size() > 1) {
+			for (Locale locale : masterService.getLocales()) {
+				builder.alternateName(locale.getLanguage(), locale.getLanguage() + (friendlyUrl == null ? "" : "/" + friendlyUrl));
+			}
+		}
 	}
 
 	private List<Page> getSitemapPages(List<Page> pages) {

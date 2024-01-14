@@ -60,7 +60,15 @@ public class RequestUri {
     }
 
     public String getFriendlyUrl() {
-        return getUriParts(hasLocalePrefix ? 1 : 0).findFirst().filter(s -> !s.isEmpty()).orElse(indexPage.getFriendlyUrl());
+        return getFriendlyUrl(indexPage.getFriendlyUrl());
+    }
+
+    public String getRedirectUrl() {
+        return getFriendlyUrl("");
+    }
+
+    private String getFriendlyUrl(String fallback) {
+        return getUriParts(hasLocalePrefix ? 1 : 0).findFirst().filter(s -> !s.isEmpty()).orElse(fallback);
     }
 
     private Stream<String> getUriParts(int skip) {
