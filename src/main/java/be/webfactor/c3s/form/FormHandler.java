@@ -42,6 +42,10 @@ public class FormHandler {
 	}
 
 	private void sendVisitorEmail(EmailAddress managerEmail, EmailAddress visitorEmail, Form form, FormParams formParams) {
+		if (form.getVisitorEmail() == null) {
+			return;
+		}
+
 		String subject = form.getVisitorEmail().getSubject();
 		String body = parseTemplate(form.getName() + (" (Visitor)"), form.getVisitorEmail().getContents(), formParams);
 
@@ -49,6 +53,10 @@ public class FormHandler {
 	}
 
 	private void sendManagerEmail(EmailAddress managerEmail, EmailAddress visitorEmail, Form form, FormParams formParams) {
+		if (form.getManagerEmail() == null) {
+			return;
+		}
+
 		String subject = form.getManagerEmail().getSubject();
 		String body = parseTemplate(form.getName() + (" (Manager)"), form.getManagerEmail().getContents(), formParams);
 
