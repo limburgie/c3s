@@ -2,17 +2,18 @@ package be.webfactor.c3s.controller.helper.asset;
 
 import be.webfactor.c3s.controller.PageController;
 import be.webfactor.c3s.controller.sass.SassCompiler;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerMapping;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URL;
 
@@ -36,7 +37,7 @@ public class AssetService {
         byte[] data = getAssetData(basePath, assetUrl, assetPath);
 
         Metadata metadata = new Metadata();
-        metadata.set(Metadata.RESOURCE_NAME_KEY, assetPath);
+        metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, assetPath);
         MediaType contentType = MediaType.valueOf(TIKA_CONFIG.getDetector().detect(TikaInputStream.get(data), metadata).toString());
 
         return new Asset(data, contentType);

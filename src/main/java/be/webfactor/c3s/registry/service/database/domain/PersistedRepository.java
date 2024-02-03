@@ -2,12 +2,11 @@ package be.webfactor.c3s.registry.service.database.domain;
 
 import java.util.Objects;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-
 import be.webfactor.c3s.repository.RepositoryType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
 
 @Entity
 public class PersistedRepository {

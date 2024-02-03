@@ -3,9 +3,9 @@ package be.webfactor.c3s.controller.sitemap;
 import be.webfactor.c3s.master.domain.Page;
 import be.webfactor.c3s.master.service.MasterService;
 import cz.jiripinkas.jsitemapgenerator.WebPage;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;

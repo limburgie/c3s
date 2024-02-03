@@ -35,6 +35,6 @@ public class GraphCmsClient {
 		ResponseEntity<String> responseEntity = restTemplate.exchange("/", HttpMethod.POST, requestEntity, String.class);
 		String response = responseEntity.getBody();
 
-		return response == null ? new JsonObject() : new JsonParser().parse(response).getAsJsonObject();
+		return response == null ? new JsonObject() : JsonParser.parseString(response).getAsJsonObject();
 	}
 }
