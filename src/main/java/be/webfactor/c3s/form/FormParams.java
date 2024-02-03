@@ -1,6 +1,7 @@
 package be.webfactor.c3s.form;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.*;
 
 public class FormParams extends HashMap<String, Object> {

@@ -9,13 +9,13 @@ import be.webfactor.c3s.master.service.MasterServiceFactory;
 import be.webfactor.c3s.registry.domain.MasterRepository;
 import be.webfactor.c3s.registry.service.RepositoryRegistryFactory;
 import be.webfactor.c3s.shopping.*;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
