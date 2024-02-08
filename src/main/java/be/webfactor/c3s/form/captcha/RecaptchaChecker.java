@@ -2,6 +2,7 @@ package be.webfactor.c3s.form.captcha;
 
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -15,7 +16,9 @@ import java.net.URL;
 public class RecaptchaChecker {
 
     private static final String RECAPTCHA_SERVICE_URL = "https://www.google.com/recaptcha/api/siteverify";
-    private static final String SECRET_KEY = "6LfqjWspAAAAAEcaZklQUxHIQRM1T6pdBdiqqWpx";
+
+    @Value("${c3s.recaptcha}")
+    private String recaptchaSecretKey;
 
     public void validate(String captcha) {
         if (StringUtils.isBlank(captcha)) {
@@ -44,7 +47,7 @@ public class RecaptchaChecker {
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
             con.setDoOutput(true);
             DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-            wr.writeBytes("secret=" + SECRET_KEY + "&response=" + captcha);
+            wr.writeBytes("secret=" + recaptchaSecretKey + "&response=" + captcha);
             wr.flush();
             wr.close();
 
@@ -59,7 +62,7 @@ public class RecaptchaChecker {
 
             return new Gson().fromJson(response.toString(), RecaptchaResult.class);
         } catch(IOException e) {
-            throw new RuntimeException(e);
+            throw new RecaptchaException(e);
         }
     }
 }
