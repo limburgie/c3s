@@ -1,6 +1,7 @@
 package be.webfactor.c3s.form;
 
 import be.webfactor.c3s.content.service.ContentService;
+import be.webfactor.c3s.form.captcha.RecaptchaChecker;
 import be.webfactor.c3s.master.domain.EmailAddress;
 import be.webfactor.c3s.master.domain.Form;
 import be.webfactor.c3s.master.domain.MailSettings;
@@ -26,14 +27,18 @@ public class FormHandler {
 	private final MasterService masterService;
 	private final TemplateParser templateParser;
 	private final ContentService contentService;
+	private final RecaptchaChecker recaptchaChecker;
 
-	FormHandler(MasterService masterService, ContentService contentService, TemplateParser templateParser) {
+	FormHandler(MasterService masterService, ContentService contentService, TemplateParser templateParser, RecaptchaChecker recaptchaChecker) {
 		this.masterService = masterService;
 		this.contentService = contentService;
 		this.templateParser = templateParser;
+		this.recaptchaChecker = recaptchaChecker;
 	}
 
 	public void handleForm(Form form, FormParams formParams) {
+		recaptchaChecker.validate(formParams.getValue("captcha"));
+
 		EmailAddress managerEmail = new EmailAddress(masterService.getSiteName(), masterService.getMailSettings().getUsername());
 		EmailAddress visitorEmail = new EmailAddress(formParams.getValue("name"), formParams.getValue("email"));
 

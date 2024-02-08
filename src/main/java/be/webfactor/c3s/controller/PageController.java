@@ -11,7 +11,7 @@ import be.webfactor.c3s.controller.helper.asset.Asset;
 import be.webfactor.c3s.controller.helper.asset.AssetService;
 import be.webfactor.c3s.controller.helper.uri.RequestUri;
 import be.webfactor.c3s.controller.helper.uri.RequestUriThreadLocal;
-import be.webfactor.c3s.controller.sitemap.SitemapGenerator;
+import be.webfactor.c3s.controller.sitemap.SitemapBuilder;
 import be.webfactor.c3s.master.domain.LocaleContext;
 import be.webfactor.c3s.master.domain.LocationThreadLocal;
 import be.webfactor.c3s.shopping.ShoppingCart;
@@ -64,7 +64,7 @@ public class PageController {
 	@Autowired private PageRendererFactory pageRendererFactory;
 	@Autowired private FormHandlerFactory formHandlerFactory;
 	@Autowired private ContentServiceFactory contentServiceFactory;
-	@Autowired private SitemapGenerator sitemapGenerator;
+	@Autowired private SitemapBuilder sitemapBuilder;
 	@Autowired private ApmTrackerService apmTrackerService;
 	@Autowired private ShoppingCartService shoppingCartService;
 	@Autowired private AssetService assetService;
@@ -100,10 +100,10 @@ public class PageController {
 		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).contentType(MediaType.valueOf("application/javascript")).body(content);
 	}
 
-	@RequestMapping(SITEMAP_PATH)
+	@RequestMapping(value = SITEMAP_PATH, produces = MediaType.APPLICATION_XML_VALUE)
 	public ResponseEntity<String> sitemap(HttpServletRequest request) throws MalformedURLException {
 		MasterService masterService = getMasterService(request);
-		String sitemapXml = sitemapGenerator.generate(request, masterService);
+		String sitemapXml = sitemapBuilder.generate(request, masterService);
 
 		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).contentType(MediaType.TEXT_XML).body(sitemapXml);
 	}
