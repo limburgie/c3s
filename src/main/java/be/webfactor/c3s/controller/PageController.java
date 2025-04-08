@@ -83,6 +83,13 @@ public class PageController {
 		shoppingCartService.initializeShoppingCart(shoppingCartEncoded);
 
 		MasterService masterService = getMasterService(request);
+
+		String locale = request.getParameter("locale");
+		if (locale != null) {
+			masterService.getLocales().stream().filter(l -> l.toString().equals(locale)).findFirst()
+					.ifPresent(l -> LocationThreadLocal.setLocaleContext(new LocaleContext(l)));
+		}
+
 		FormHandler formHandler = formHandlerFactory.forMasterService(masterService);
 		Form form = masterService.getForm(request.getParameter("form"));
 

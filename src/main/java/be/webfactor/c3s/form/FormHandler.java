@@ -4,6 +4,7 @@ import be.webfactor.c3s.content.service.ContentService;
 import be.webfactor.c3s.form.captcha.RecaptchaChecker;
 import be.webfactor.c3s.master.domain.EmailAddress;
 import be.webfactor.c3s.master.domain.Form;
+import be.webfactor.c3s.master.domain.LocationThreadLocal;
 import be.webfactor.c3s.master.domain.MailSettings;
 import be.webfactor.c3s.master.service.MasterService;
 import be.webfactor.c3s.master.templateparser.TemplateParser;
@@ -23,6 +24,7 @@ public class FormHandler {
 	private static final String FORM_PARAMS_VAR = "params";
 	private static final String CART_PARAM = "cart";
 	private static final String I18N_TEMPLATE_VAR = "i18n";
+	private static final String LANGUAGE_VAR = "language";
 
 	private final MasterService masterService;
 	private final TemplateParser templateParser;
@@ -39,14 +41,14 @@ public class FormHandler {
 	public void handleForm(Form form, FormParams formParams) {
 		recaptchaChecker.validate(formParams.getValue("captcha"));
 
-		EmailAddress managerEmail = new EmailAddress(masterService.getSiteName(), masterService.getMailSettings().getUsername());
-		EmailAddress visitorEmail = new EmailAddress(formParams.getValue("name"), formParams.getValue("email"));
+		EmailAddress managerEmailAddress = new EmailAddress(masterService.getSiteName(), masterService.getMailSettings().getUsername());
+		EmailAddress visitorEmailAddress = new EmailAddress(formParams.getValue("name"), formParams.getValue("email"));
 
-		sendVisitorEmail(managerEmail, visitorEmail, form, formParams);
-		sendManagerEmail(managerEmail, visitorEmail, form, formParams);
+		sendVisitorEmail(managerEmailAddress, visitorEmailAddress, form, formParams);
+		sendManagerEmail(managerEmailAddress, visitorEmailAddress, form, formParams);
 	}
 
-	private void sendVisitorEmail(EmailAddress managerEmail, EmailAddress visitorEmail, Form form, FormParams formParams) {
+	private void sendVisitorEmail(EmailAddress managerEmailAddress, EmailAddress visitorEmailAddress, Form form, FormParams formParams) {
 		if (form.getVisitorEmail() == null) {
 			return;
 		}
@@ -54,10 +56,10 @@ public class FormHandler {
 		String subject = form.getVisitorEmail().getSubject();
 		String body = parseTemplate(form.getName() + (" (Visitor)"), form.getVisitorEmail().getContents(), formParams);
 
-		sendEmail(managerEmail, visitorEmail, managerEmail, subject, body);
+		sendEmail(managerEmailAddress, visitorEmailAddress, managerEmailAddress, subject, body);
 	}
 
-	private void sendManagerEmail(EmailAddress managerEmail, EmailAddress visitorEmail, Form form, FormParams formParams) {
+	private void sendManagerEmail(EmailAddress managerEmailAddress, EmailAddress visitorEmailAddress, Form form, FormParams formParams) {
 		if (form.getManagerEmail() == null) {
 			return;
 		}
@@ -65,7 +67,7 @@ public class FormHandler {
 		String subject = form.getManagerEmail().getSubject();
 		String body = parseTemplate(form.getName() + (" (Manager)"), form.getManagerEmail().getContents(), formParams);
 
-		sendEmail(managerEmail, managerEmail, visitorEmail, subject, body);
+		sendEmail(managerEmailAddress, managerEmailAddress, visitorEmailAddress, subject, body);
 	}
 
 	private String parseTemplate(String templateName, String templateContents, FormParams formParams) {
@@ -74,6 +76,7 @@ public class FormHandler {
 		context.put(API_TEMPLATE_VAR, contentService == null ? null : contentService.getApi());
 		context.put(CART_PARAM, ShoppingCartThreadLocal.getShoppingCart());
 		context.put(I18N_TEMPLATE_VAR, new I18n(masterService.getResourceBundle()));
+		context.put(LANGUAGE_VAR, LocationThreadLocal.getLocaleContext().getLocale().getLanguage());
 
 		return templateParser.parse(templateName, templateContents, context, masterService.getBaseUrl());
 	}

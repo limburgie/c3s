@@ -19,6 +19,10 @@ public class LocaleContext {
         this(DEFAULT_LOCALE, true, false);
     }
 
+    public LocaleContext(Locale locale) {
+        this(locale, false, false);
+    }
+
     public Locale getLocale() {
         return locale == null ? DEFAULT_LOCALE : locale;
     }
