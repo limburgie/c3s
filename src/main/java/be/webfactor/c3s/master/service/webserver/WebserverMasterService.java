@@ -258,7 +258,7 @@ public class WebserverMasterService implements MasterService {
 		ClassLoader classLoader = new URLClassLoader(new URL[] {i18nFolder});
 
 		try {
-			return ResourceBundle.getBundle(I18N_BASE_NAME, locale, classLoader, new UTF8Control());
+			return ResourceBundle.getBundle(I18N_BASE_NAME, locale, classLoader);
 		} catch (MissingResourceException e) {
 			return null;
 		}

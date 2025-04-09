@@ -4,10 +4,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import be.webfactor.c3s.controller.exception.PageNotFoundException;
 import be.webfactor.c3s.controller.helper.apm.ApmTrackerService;
@@ -15,7 +11,7 @@ import be.webfactor.c3s.controller.helper.asset.Asset;
 import be.webfactor.c3s.controller.helper.asset.AssetService;
 import be.webfactor.c3s.controller.helper.uri.RequestUri;
 import be.webfactor.c3s.controller.helper.uri.RequestUriThreadLocal;
-import be.webfactor.c3s.controller.sitemap.SitemapGenerator;
+import be.webfactor.c3s.controller.sitemap.SitemapBuilder;
 import be.webfactor.c3s.master.domain.LocaleContext;
 import be.webfactor.c3s.master.domain.LocationThreadLocal;
 import be.webfactor.c3s.shopping.ShoppingCart;
@@ -24,6 +20,8 @@ import be.webfactor.c3s.form.FormHandler;
 import be.webfactor.c3s.form.FormHandlerFactory;
 import be.webfactor.c3s.form.FormParams;
 import be.webfactor.c3s.master.domain.Form;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -66,7 +64,7 @@ public class PageController {
 	@Autowired private PageRendererFactory pageRendererFactory;
 	@Autowired private FormHandlerFactory formHandlerFactory;
 	@Autowired private ContentServiceFactory contentServiceFactory;
-	@Autowired private SitemapGenerator sitemapGenerator;
+	@Autowired private SitemapBuilder sitemapBuilder;
 	@Autowired private ApmTrackerService apmTrackerService;
 	@Autowired private ShoppingCartService shoppingCartService;
 	@Autowired private AssetService assetService;
@@ -85,6 +83,13 @@ public class PageController {
 		shoppingCartService.initializeShoppingCart(shoppingCartEncoded);
 
 		MasterService masterService = getMasterService(request);
+
+		String locale = request.getParameter("locale");
+		if (locale != null) {
+			masterService.getLocales().stream().filter(l -> l.toString().equals(locale)).findFirst()
+					.ifPresent(l -> LocationThreadLocal.setLocaleContext(new LocaleContext(l)));
+		}
+
 		FormHandler formHandler = formHandlerFactory.forMasterService(masterService);
 		Form form = masterService.getForm(request.getParameter("form"));
 
@@ -102,10 +107,10 @@ public class PageController {
 		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).contentType(MediaType.valueOf("application/javascript")).body(content);
 	}
 
-	@RequestMapping(SITEMAP_PATH)
+	@RequestMapping(value = SITEMAP_PATH, produces = MediaType.APPLICATION_XML_VALUE)
 	public ResponseEntity<String> sitemap(HttpServletRequest request) throws MalformedURLException {
 		MasterService masterService = getMasterService(request);
-		String sitemapXml = sitemapGenerator.generate(request, masterService);
+		String sitemapXml = sitemapBuilder.generate(request, masterService);
 
 		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).contentType(MediaType.TEXT_XML).body(sitemapXml);
 	}
@@ -159,7 +164,8 @@ public class PageController {
 	}
 
 	private String getBestMatchingLanguage(HttpServletRequest request, List<Locale> siteLocales) {
-		List<String> siteLanguages = siteLocales.stream().map(Locale::getLanguage).distinct().collect(Collectors.toList());
+		List<String> siteLanguages = siteLocales.stream().map(Locale::getLanguage).distinct().toList();
+
 		return Collections.list(request.getLocales()).stream()
 				.filter(locale -> siteLanguages.contains(locale.getLanguage()))
 				.findFirst().orElse(siteLocales.get(0)).getLanguage();

@@ -88,6 +88,6 @@ public final class MockRandomGenerator {
 	}
 
 	static JsonObject json() {
-		return new JsonParser().parse("{ \"name\": \"Peter\", \"age\": 33 }").getAsJsonObject();
+		return JsonParser.parseString("{ \"name\": \"Peter\", \"age\": 33 }").getAsJsonObject();
 	}
 }

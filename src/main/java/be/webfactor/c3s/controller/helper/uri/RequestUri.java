@@ -3,10 +3,10 @@ package be.webfactor.c3s.controller.helper.uri;
 import be.webfactor.c3s.master.domain.LocaleContext;
 import be.webfactor.c3s.master.domain.Page;
 import be.webfactor.c3s.master.service.MasterService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import org.springframework.web.servlet.HandlerMapping;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
