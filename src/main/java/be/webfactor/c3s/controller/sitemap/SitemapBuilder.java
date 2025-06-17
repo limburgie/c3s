@@ -22,7 +22,7 @@ public class SitemapBuilder {
 
 	private List<WebPage> createWebPages(MasterService masterService) {
 		List<Locale> locales = masterService.getLocales();
-		List<Page> pages = masterService.getPages(true);
+		List<Page> pages = masterService.getPages(false).stream().skip(1).toList();
 
 		List<WebPage> webPages = new ArrayList<>();
 
@@ -45,9 +45,8 @@ public class SitemapBuilder {
 
 	private WebPage buildWebPage(String friendlyUrl, Locale mainLocale, List<Locale> allLocales) {
         WebPage.WebPageBuilder webPageBuilder = WebPage.builder().name(mainLocale.getLanguage() + "/" + friendlyUrl);
-		for (Locale otherLocale : allLocales.stream().filter(l -> !l.equals(mainLocale)).toList()) {
-			webPageBuilder.alternateName(otherLocale.getLanguage(), otherLocale.getLanguage() + "/" + friendlyUrl);
-		}
+		allLocales.forEach(locale -> webPageBuilder.alternateName(locale.getLanguage(), locale.getLanguage() + "/" + friendlyUrl));
+		webPageBuilder.alternateName("x-default", "/" + friendlyUrl);
 		return webPageBuilder.build();
 	}
 
