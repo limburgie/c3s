@@ -107,7 +107,7 @@ public class PageController {
 		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).contentType(MediaType.valueOf("application/javascript")).body(content);
 	}
 
-	@RequestMapping(value = SITEMAP_PATH, produces = MediaType.APPLICATION_XML_VALUE)
+	@RequestMapping(value = SITEMAP_PATH, produces = MediaType.TEXT_XML_VALUE)
 	public ResponseEntity<String> sitemap(HttpServletRequest request) throws MalformedURLException {
 		MasterService masterService = getMasterService(request);
 		String sitemapXml = sitemapBuilder.generate(request, masterService);
