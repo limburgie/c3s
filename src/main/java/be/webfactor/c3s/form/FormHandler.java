@@ -39,7 +39,7 @@ public class FormHandler {
 	}
 
 	public void handleForm(Form form, FormParams formParams) {
-		recaptchaChecker.validate(formParams.getValue("captcha"));
+		recaptchaChecker.validate(formParams.getValue("captcha"), formParams.getHostname());
 
 		EmailAddress managerEmailAddress = new EmailAddress(masterService.getSiteName(), masterService.getMailSettings().getUsername());
 		EmailAddress visitorEmailAddress = new EmailAddress(formParams.getValue("name"), formParams.getValue("email"));
