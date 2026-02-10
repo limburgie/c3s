@@ -54,4 +54,8 @@ public class FormParams extends HashMap<String, Object> {
 	public boolean containsKey(Object key) {
 		return request.getParameterMap().containsKey(key);
 	}
+
+	public String getHostname() {
+		return request.getServerName();
+	}
 }
