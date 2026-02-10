@@ -214,7 +214,9 @@ public class WebserverMasterService implements MasterService {
 		ResourceBundle resourceBundle = getResourceBundle();
 
 		String subject = webserverSiteEmail.getSubject();
-		subject = resourceBundle == null ? subject : resourceBundle.getString(subject);
+		try {
+			subject = resourceBundle == null ? subject : resourceBundle.getString(subject);
+		} catch(MissingResourceException ignored) {}
 		String contents = readFile(webserverSiteEmail.getContents());
 
 		return new Email(subject, contents);
