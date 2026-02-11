@@ -10,7 +10,7 @@ import java.util.List;
 public class RecaptchaResult {
 
     private static final String DEFAULT_ACTION = "submit";
-    private static final double SCORE_THRESHOLD = 0.6;
+    private static final double SCORE_THRESHOLD = 0.7;
 
     @SerializedName("challenge_ts")
     private Instant challengeTs;

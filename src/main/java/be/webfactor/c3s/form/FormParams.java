@@ -6,6 +6,8 @@ import java.util.*;
 
 public class FormParams extends HashMap<String, Object> {
 
+	public static final String CAPTCHA_INPUT = "captcha";
+	public static final String BOGUS_INPUT = "instrument";
 	private final HttpServletRequest request;
 	private final Map<String, Object> additionalValues = new HashMap<>();
 
@@ -57,5 +59,13 @@ public class FormParams extends HashMap<String, Object> {
 
 	public String getHostname() {
 		return request.getServerName();
+	}
+
+    public String getCaptcha() {
+        return getValue(CAPTCHA_INPUT);
+    }
+
+	public String getBogus() {
+		return getValue(BOGUS_INPUT);
 	}
 }
