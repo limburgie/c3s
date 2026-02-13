@@ -1,6 +1,11 @@
 package be.webfactor.c3s.form.captcha;
 
+import be.webfactor.c3s.form.FormParams;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,31 +16,51 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.time.Instant;
 
+@Slf4j
 @Service
 public class RecaptchaChecker {
 
     private static final String RECAPTCHA_SERVICE_URL = "https://www.google.com/recaptcha/api/siteverify";
 
+    private Gson gson;
+
     @Value("${c3s.recaptcha}")
     private String recaptchaSecretKey;
 
-    public void validate(String captcha) {
+    @PostConstruct
+    public void init() {
+        gson = new GsonBuilder()
+                .registerTypeAdapter(Instant.class,
+                        (JsonDeserializer<Instant>) (json, type, ctx) ->
+                                Instant.parse(json.getAsString()))
+                .create();
+    }
+
+    public boolean validate(FormParams formParams) {
+        if (StringUtils.isNotBlank(formParams.getBogus())) {
+            log.error("Bogus input fail check: " + formParams.getBogus());
+            return false;
+        }
+
+        String captcha = formParams.getCaptcha();
+
         if (StringUtils.isBlank(captcha)) {
-            throw new RecaptchaException();
+            log.error("No captcha provided");
+            return false;
         }
 
         RecaptchaResult result = verify(captcha);
 
-        boolean success = result.isSuccess();
-        double score = result.getScore();
+        log.info("Captcha check result: " + result);
 
-        System.out.println("success : " + success);
-        System.out.println("score : " + score);
-
-        if (!success || score < 0.5) {
-            throw new RecaptchaException();
+        if (!result.isValid(formParams.getHostname())) {
+            log.error("Captcha check failed");
+            return false;
         }
+
+        return true;
     }
 
     private RecaptchaResult verify(String captcha) {
@@ -60,8 +85,8 @@ public class RecaptchaChecker {
             }
             in.close();
 
-            return new Gson().fromJson(response.toString(), RecaptchaResult.class);
-        } catch(IOException e) {
+            return gson.fromJson(response.toString(), RecaptchaResult.class);
+        } catch (IOException e) {
             throw new RecaptchaException(e);
         }
     }

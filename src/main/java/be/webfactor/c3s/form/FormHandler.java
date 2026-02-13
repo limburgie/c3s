@@ -39,13 +39,13 @@ public class FormHandler {
 	}
 
 	public void handleForm(Form form, FormParams formParams) {
-		recaptchaChecker.validate(formParams.getValue("captcha"));
+        if (recaptchaChecker.validate(formParams)) {
+			EmailAddress managerEmailAddress = new EmailAddress(masterService.getSiteName(), masterService.getMailSettings().getUsername());
+			EmailAddress visitorEmailAddress = new EmailAddress(formParams.getValue("name"), formParams.getValue("email"));
 
-		EmailAddress managerEmailAddress = new EmailAddress(masterService.getSiteName(), masterService.getMailSettings().getUsername());
-		EmailAddress visitorEmailAddress = new EmailAddress(formParams.getValue("name"), formParams.getValue("email"));
-
-		sendVisitorEmail(managerEmailAddress, visitorEmailAddress, form, formParams);
-		sendManagerEmail(managerEmailAddress, visitorEmailAddress, form, formParams);
+			sendVisitorEmail(managerEmailAddress, visitorEmailAddress, form, formParams);
+			sendManagerEmail(managerEmailAddress, visitorEmailAddress, form, formParams);
+		}
 	}
 
 	private void sendVisitorEmail(EmailAddress managerEmailAddress, EmailAddress visitorEmailAddress, Form form, FormParams formParams) {
