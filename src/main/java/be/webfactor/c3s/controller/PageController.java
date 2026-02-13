@@ -2,6 +2,7 @@ package be.webfactor.c3s.controller;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -68,6 +69,13 @@ public class PageController {
 	@Autowired private ApmTrackerService apmTrackerService;
 	@Autowired private ShoppingCartService shoppingCartService;
 	@Autowired private AssetService assetService;
+
+	@RequestMapping("/favicon.ico")
+	public ResponseEntity<byte[]> favicon(HttpServletRequest request) throws IOException {
+		String basePath = getMasterService(request).getBaseUrl();
+		String assetUrl = basePath + ASSETS_PREFIX + "img/favicon/favicon.ico";
+		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS)).contentType(MediaType.parseMediaType("image/x-icon")).body(IOUtils.toByteArray(new URL(assetUrl)));
+	}
 
 	@RequestMapping(ASSETS_PREFIX + "**")
 	public ResponseEntity<byte[]> asset(HttpServletRequest request) throws IOException {
