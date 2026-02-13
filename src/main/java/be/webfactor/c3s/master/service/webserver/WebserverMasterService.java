@@ -11,8 +11,10 @@ import java.util.stream.Collectors;
 import be.webfactor.c3s.controller.exception.PageNotFoundException;
 import be.webfactor.c3s.master.domain.*;
 import be.webfactor.c3s.master.service.webserver.domain.*;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -211,15 +213,38 @@ public class WebserverMasterService implements MasterService {
 	}
 
 	private Email fromWebserverSiteEmail(WebserverSiteEmail webserverSiteEmail) {
-		ResourceBundle resourceBundle = getResourceBundle();
+		String subject = getEmailSubject(webserverSiteEmail);
+		String contents = getEmailContents(webserverSiteEmail);
 
+		return new Email(subject, contents);
+	}
+
+	private String getEmailContents(WebserverSiteEmail webserverSiteEmail) {
+		Locale locale = LocationThreadLocal.getLocaleContext().getLocale();
+
+		if (locale == null) {
+			return readFile(webserverSiteEmail.getContents());
+		} else {
+			String contentsWithoutExtension = FilenameUtils.removeExtension(webserverSiteEmail.getContents());
+			String contentsExtension = FilenameUtils.getExtension(webserverSiteEmail.getContents());
+
+			try {
+				return readFile(contentsWithoutExtension + "_" + locale.getLanguage() + "." + contentsExtension);
+			} catch (Exception e) {
+				return readFile(webserverSiteEmail.getContents());
+			}
+		}
+	}
+
+	private String getEmailSubject(WebserverSiteEmail webserverSiteEmail) {
+		ResourceBundle resourceBundle = getResourceBundle();
 		String subject = webserverSiteEmail.getSubject();
+
 		try {
 			subject = resourceBundle == null ? subject : resourceBundle.getString(subject);
 		} catch(MissingResourceException ignored) {}
-		String contents = readFile(webserverSiteEmail.getContents());
 
-		return new Email(subject, contents);
+		return subject;
 	}
 
 	private String readFile(String path) {
