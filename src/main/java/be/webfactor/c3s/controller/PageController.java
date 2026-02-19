@@ -59,6 +59,9 @@ public class PageController {
 	private static final String EDIT_URL_JS_FILENAME = "c3s-edit-url.js";
 	public static final String EDIT_URL_JS_PATH = C3S_PREFIX + EDIT_URL_JS_FILENAME;
 	public static final String SITEMAP_PATH = "/sitemap.xml";
+	public static final String FAVICON_FOLDER = ASSETS_PREFIX + "img/favicon";
+	public static final String FAVICON_ICO_FILENAME = "favicon.ico";
+	public static final String FAVICON_SVG_FILENAME = "favicon.svg";
 
 	@Autowired private RepositoryRegistryFactory repositoryRegistryFactory;
 	@Autowired private MasterServiceFactory masterServiceFactory;
@@ -70,11 +73,23 @@ public class PageController {
 	@Autowired private ShoppingCartService shoppingCartService;
 	@Autowired private AssetService assetService;
 
-	@RequestMapping("/favicon.ico")
-	public ResponseEntity<byte[]> favicon(HttpServletRequest request) throws IOException {
+	@RequestMapping("/" + FAVICON_ICO_FILENAME)
+	public ResponseEntity<byte[]> faviconIco(HttpServletRequest request) throws IOException {
+		return favicon(request, FAVICON_ICO_FILENAME, "image/x-icon");
+	}
+
+	@RequestMapping("/" + FAVICON_SVG_FILENAME)
+	public ResponseEntity<byte[]> faviconSvg(HttpServletRequest request) throws IOException {
+		return favicon(request, FAVICON_SVG_FILENAME, "image/svg+xml");
+	}
+
+	private ResponseEntity<byte[]> favicon(HttpServletRequest request, String fileName, String mediaType) throws IOException {
 		String basePath = getMasterService(request).getBaseUrl();
-		String assetUrl = basePath + ASSETS_PREFIX + "img/favicon/favicon.ico";
-		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS)).contentType(MediaType.parseMediaType("image/x-icon")).body(IOUtils.toByteArray(new URL(assetUrl)));
+		String assetUrl = basePath + FAVICON_FOLDER + "/" + fileName;
+		return ResponseEntity.ok()
+				.cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
+				.contentType(MediaType.parseMediaType(mediaType))
+				.body(IOUtils.toByteArray(new URL(assetUrl)));
 	}
 
 	@RequestMapping(ASSETS_PREFIX + "**")
