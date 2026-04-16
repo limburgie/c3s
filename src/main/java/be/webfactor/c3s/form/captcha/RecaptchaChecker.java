@@ -1,9 +1,11 @@
 package be.webfactor.c3s.form.captcha;
 
+import be.webfactor.c3s.form.FormParams;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.Instant;
 
+@Slf4j
 @Service
 public class RecaptchaChecker {
 
@@ -35,16 +38,29 @@ public class RecaptchaChecker {
                 .create();
     }
 
-    public void validate(String captcha, String hostname) {
+    public boolean validate(FormParams formParams) {
+        if (StringUtils.isNotBlank(formParams.getBogus())) {
+            log.error("Bogus input fail check: " + formParams.getBogus());
+            return false;
+        }
+
+        String captcha = formParams.getCaptcha();
+
         if (StringUtils.isBlank(captcha)) {
-            throw new RecaptchaException("No captcha provided");
+            log.error("No captcha provided");
+            return false;
         }
 
         RecaptchaResult result = verify(captcha);
 
-        if (!result.isValid(hostname)) {
-            throw new RecaptchaException("Captcha check failed: " + result);
+        log.info("Captcha check result: " + result);
+
+        if (!result.isValid(formParams.getHostname())) {
+            log.error("Captcha check failed");
+            return false;
         }
+
+        return true;
     }
 
     private RecaptchaResult verify(String captcha) {
