@@ -27,7 +27,6 @@ public class RecaptchaResult {
         return success &&
                 score >= SCORE_THRESHOLD &&
                 DEFAULT_ACTION.equals(action) &&
-                challengeTs.isAfter(Instant.now().minusSeconds(120)) &&
                 this.hostname.equalsIgnoreCase(hostname);
     }
 }
