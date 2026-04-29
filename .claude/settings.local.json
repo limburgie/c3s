@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./mvnw generate-sources *)",
+      "Bash(mvn generate-sources *)",
+      "Bash(mvn compile *)",
+      "Bash(git stash *)",
+      "Bash(mvn -q compile)",
+      "Bash(mvn -q dependency:tree)",
+      "Bash(mvn dependency:tree)",
+      "Bash(mvn clean *)",
+      "Bash(./mvnw compile *)",
+      "Bash(mvn -v)",
+      "Bash(mvn dependency:tree -pl .)"
+    ]
+  }
+}
