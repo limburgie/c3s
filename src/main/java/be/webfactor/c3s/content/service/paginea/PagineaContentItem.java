@@ -1,12 +1,11 @@
 package be.webfactor.c3s.content.service.paginea;
 
 import be.webfactor.c3s.content.service.domain.*;
-import be.webfactor.c3s.content.service.paginea.model.*;
+import be.webfactor.c3s.content.service.paginea.model.PagineaContentItemDto;
+import be.webfactor.c3s.content.service.paginea.model.PagineaGroupFieldDto;
 import com.google.gson.JsonObject;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class PagineaContentItem extends PagineaFieldContainer implements ContentItem {
@@ -39,17 +38,17 @@ public class PagineaContentItem extends PagineaFieldContainer implements Content
 
     @Override
     public String getEditUrl() {
-        return "";
+        return item.getEditUrl();
     }
 
     @Override
     public DateBuilder getCreated(String pattern) {
-        return null;
+        return new DateBuilder(item.getCreatedAt(), pattern);
     }
 
     @Override
     public DateBuilder getModified(String pattern) {
-        return null;
+        return new DateBuilder(item.getLastModifiedAt(), pattern);
     }
 
     @Override

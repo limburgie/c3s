@@ -17,7 +17,8 @@
         "tags": [
           "Content Items"
         ],
-        "summary": "Get all content items of the given type within the given site",
+        "summary": "Get content items of the given type, with optional filtering, sorting and pagination",
+        "description": "Filter values use exact match against the field's text representation. Comparison follows the database collation (the default MySQL collation is case-insensitive). DATE fields additionally accept the operator prefixes `<`, `<=`, `>`, `>=`, `=` combined with the keyword `today` (e.g. `publishDate:<=today`, `publishDate:>today`); bare `today` and explicit `yyyy-MM-dd` values are also supported. Composite field types (REPEATABLE_GROUP, MIXED_CONTENT) and unknown field keys yield a 400 response.",
         "operationId": "getContentItems",
         "parameters": [
           {
@@ -35,6 +36,57 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "Repeated filter entries in the form `key:value`. Multiple filters are AND'ed. Inner colons in values must be URL-encoded as %3A. For DATE fields, `value` may be `yyyy-MM-dd`, `today`, or an operator prefix (`<`, `<=`, `>`, `>=`, `=`) followed by `today` — e.g. `publishDate:<=today`.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort expression in the form `key` or `key,asc` / `key,desc`. Defaults to lastModifiedAt DESC when omitted. Pass the reserved keyword `random` (no direction) for random ordering; in that case `page` and `size` are not allowed and only `limit` applies.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index. Ignored when `limit` is supplied.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Page size. Ignored when `limit` is supplied.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Top-N cap. When supplied, returns the first N items and `page`/`size` are ignored.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "responses": {
@@ -47,6 +99,57 @@
                   "items": {
                     "$ref": "#/components/schemas/ContentItem"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/site/{site}/content/types/{type}/items/count": {
+      "get": {
+        "tags": [
+          "Content Items"
+        ],
+        "summary": "Count content items of the given type matching the supplied filters",
+        "operationId": "getContentItemCount",
+        "parameters": [
+          {
+            "name": "site",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "Repeated filter entries in the form `key:value`. Multiple filters are AND'ed. Inner colons in values must be URL-encoded as %3A. For DATE fields, `value` may be `yyyy-MM-dd`, `today`, or an operator prefix (`<`, `<=`, `>`, `>=`, `=`) followed by `today` — e.g. `publishDate:<=today`.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentItemCount"
                 }
               }
             }
@@ -111,6 +214,9 @@
             }
           }
         ],
+        "required": [
+          "textValue"
+        ],
         "x-discriminator-value": "boolean"
       },
       "ContentItem": {
@@ -126,11 +232,25 @@
               "$ref": "#/components/schemas/Field"
             },
             "description": "The content item's values"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastModifiedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "editUrl": {
+            "type": "string"
           }
         },
         "required": [
+          "createdAt",
+          "editUrl",
           "fields",
-          "id"
+          "id",
+          "lastModifiedAt"
         ]
       },
       "DateField": {
@@ -149,6 +269,9 @@
             }
           }
         ],
+        "required": [
+          "textValue"
+        ],
         "x-discriminator-value": "date"
       },
       "Field": {
@@ -157,13 +280,23 @@
           "propertyName": "type",
           "mapping": {
             "text": "#/components/schemas/TextField",
+            "rich-text": "#/components/schemas/RichTextField",
             "number": "#/components/schemas/NumberField",
+            "image": "#/components/schemas/ImageField",
+            "media-link": "#/components/schemas/MediaLinkField",
             "date": "#/components/schemas/DateField",
             "boolean": "#/components/schemas/BooleanField",
-            "group": "#/components/schemas/GroupField"
+            "group": "#/components/schemas/GroupField",
+            "mixed-content": "#/components/schemas/MixedContentField"
           }
         },
         "properties": {
+          "key": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "textValue": {
             "type": "string",
             "description": "Textual value"
@@ -173,6 +306,7 @@
           }
         },
         "required": [
+          "textValue",
           "type"
         ]
       },
@@ -198,9 +332,123 @@
           }
         ],
         "required": [
-          "fields"
+          "fields",
+          "textValue"
         ],
         "x-discriminator-value": "group"
+      },
+      "ImageField": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Field"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "URL of the image"
+              },
+              "alt": {
+                "type": "string",
+                "description": "Alternative text for the image"
+              }
+            }
+          }
+        ],
+        "required": [
+          "textValue"
+        ],
+        "x-discriminator-value": "image"
+      },
+      "MediaLinkField": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Field"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "URL of the media file"
+              },
+              "name": {
+                "type": "string",
+                "description": "Filename of the media file"
+              },
+              "mimeType": {
+                "type": "string",
+                "description": "MIME type of the media file"
+              },
+              "fileType": {
+                "type": "string",
+                "description": "File type of the media file"
+              },
+              "fileSize": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Size of the media file in bytes"
+              }
+            }
+          }
+        ],
+        "required": [
+          "textValue"
+        ],
+        "x-discriminator-value": "media-link"
+      },
+      "MixedContentField": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Field"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "description": "Items contained in this mixed content field",
+                "items": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/BooleanField"
+                    },
+                    {
+                      "$ref": "#/components/schemas/DateField"
+                    },
+                    {
+                      "$ref": "#/components/schemas/GroupField"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ImageField"
+                    },
+                    {
+                      "$ref": "#/components/schemas/MediaLinkField"
+                    },
+                    {
+                      "$ref": "#/components/schemas/MixedContentField"
+                    },
+                    {
+                      "$ref": "#/components/schemas/NumberField"
+                    },
+                    {
+                      "$ref": "#/components/schemas/RichTextField"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TextField"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "required": [
+          "items",
+          "textValue"
+        ],
+        "x-discriminator-value": "mixed-content"
       },
       "NumberField": {
         "allOf": [
@@ -218,7 +466,21 @@
             }
           }
         ],
+        "required": [
+          "textValue"
+        ],
         "x-discriminator-value": "number"
+      },
+      "RichTextField": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Field"
+          }
+        ],
+        "required": [
+          "textValue"
+        ],
+        "x-discriminator-value": "rich-text"
       },
       "TextField": {
         "allOf": [
@@ -226,7 +488,23 @@
             "$ref": "#/components/schemas/Field"
           }
         ],
+        "required": [
+          "textValue"
+        ],
         "x-discriminator-value": "text"
+      },
+      "ContentItemCount": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The number of content items matching the filter"
+          }
+        },
+        "required": [
+          "count"
+        ]
       }
     }
   }

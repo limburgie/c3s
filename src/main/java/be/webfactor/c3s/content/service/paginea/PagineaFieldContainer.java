@@ -15,7 +15,7 @@ public class PagineaFieldContainer implements FieldContainer {
 
     @Override
     public String getText(String fieldName) {
-        return getFieldAs(fieldName, PagineaTextFieldDto.class).map(PagineaFieldDto::getTextValue).orElse(null);
+        return getFieldAs(fieldName, PagineaFieldDto.class).map(PagineaFieldDto::getTextValue).orElse(null);
     }
 
     @Override
@@ -25,12 +25,12 @@ public class PagineaFieldContainer implements FieldContainer {
 
     @Override
     public RichTextField getRichText(String fieldName) {
-        throw new UnsupportedOperationException();
+        return getFieldAs(fieldName, PagineaRichTextFieldDto.class).map(PagineaRichTextField::new).orElse(null);
     }
 
     @Override
     public ImageField getImage(String fieldName) {
-        throw new UnsupportedOperationException();
+        return getFieldAs(fieldName, PagineaImageFieldDto.class).map(PagineaImageField::new).orElse(null);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class PagineaFieldContainer implements FieldContainer {
 
     @Override
     public AssetLink getAsset(String fieldName) {
-        throw new UnsupportedOperationException();
+        return getFieldAs(fieldName, PagineaMediaLinkFieldDto.class).map(PagineaAssetLink::new).orElse(null);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class PagineaFieldContainer implements FieldContainer {
 
     protected <T extends PagineaFieldDto> Optional<T> getFieldAs(String fieldName, Class<T> fieldClass) {
         return Optional.ofNullable(fields.get(fieldName))
-                .filter(field -> field.getClass().isAssignableFrom(fieldClass))
+                .filter(field -> fieldClass.isAssignableFrom(field.getClass()))
                 .map(fieldClass::cast);
     }
 }
