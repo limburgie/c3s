@@ -41,27 +41,27 @@ public class PagineaQueryBuilder implements QueryBuilder {
 
     @Override
     public QueryBuilder withDateInPast(String field) {
-        throw new UnsupportedOperationException("Date filtering is not supported by the Paginea API");
+        return with(field, "<=today");
     }
 
     @Override
     public QueryBuilder withDateBeforeToday(String field) {
-        throw new UnsupportedOperationException("Date filtering is not supported by the Paginea API");
+        return with(field, "<today");
     }
 
     @Override
     public QueryBuilder withDateInFuture(String field) {
-        throw new UnsupportedOperationException("Date filtering is not supported by the Paginea API");
+        return with(field, ">=today");
     }
 
     @Override
     public QueryBuilder withDateAfterToday(String field) {
-        throw new UnsupportedOperationException("Date filtering is not supported by the Paginea API");
+        return with(field, ">today");
     }
 
     @Override
     public QueryBuilder withDateToday(String field) {
-        throw new UnsupportedOperationException("Date filtering is not supported by the Paginea API");
+        return with(field, "today");
     }
 
     @Override

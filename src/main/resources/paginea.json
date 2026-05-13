@@ -18,7 +18,7 @@
           "Content Items"
         ],
         "summary": "Get content items of the given type, with optional filtering, sorting and pagination",
-        "description": "Filter values use exact match against the field's text representation. Comparison follows the database collation (the default MySQL collation is case-insensitive). Composite field types (REPEATABLE_GROUP, MIXED_CONTENT) and unknown field keys yield a 400 response.",
+        "description": "Filter values use exact match against the field's text representation. Comparison follows the database collation (the default MySQL collation is case-insensitive). DATE fields additionally accept the operator prefixes `<`, `<=`, `>`, `>=`, `=` combined with the keyword `today` (e.g. `publishDate:<=today`, `publishDate:>today`); bare `today` and explicit `yyyy-MM-dd` values are also supported. Composite field types (REPEATABLE_GROUP, MIXED_CONTENT) and unknown field keys yield a 400 response.",
         "operationId": "getContentItems",
         "parameters": [
           {
@@ -40,7 +40,7 @@
           {
             "name": "filter",
             "in": "query",
-            "description": "Repeated filter entries in the form `key:value`. Multiple filters are AND'ed. Inner colons in values must be URL-encoded as %3A.",
+            "description": "Repeated filter entries in the form `key:value`. Multiple filters are AND'ed. Inner colons in values must be URL-encoded as %3A. For DATE fields, `value` may be `yyyy-MM-dd`, `today`, or an operator prefix (`<`, `<=`, `>`, `>=`, `=`) followed by `today` — e.g. `publishDate:<=today`.",
             "required": false,
             "schema": {
               "type": "array",
@@ -133,7 +133,7 @@
           {
             "name": "filter",
             "in": "query",
-            "description": "Repeated filter entries in the form `key:value`. Multiple filters are AND'ed. Inner colons in values must be URL-encoded as %3A.",
+            "description": "Repeated filter entries in the form `key:value`. Multiple filters are AND'ed. Inner colons in values must be URL-encoded as %3A. For DATE fields, `value` may be `yyyy-MM-dd`, `today`, or an operator prefix (`<`, `<=`, `>`, `>=`, `=`) followed by `today` — e.g. `publishDate:<=today`.",
             "required": false,
             "schema": {
               "type": "array",
