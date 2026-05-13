@@ -104,12 +104,17 @@ public class PagineaQueryBuilder implements QueryBuilder {
 
     @Override
     public List<? extends ContentItem> findRandom() {
-        throw new UnsupportedOperationException("Random ordering is not supported by the Paginea API");
+        return findRandom(null);
     }
 
     @Override
     public List<? extends ContentItem> findRandom(int limit) {
-        throw new UnsupportedOperationException("Random ordering is not supported by the Paginea API");
+        return findRandom(Integer.valueOf(limit));
+    }
+
+    private List<PagineaContentItem> findRandom(Integer limit) {
+        sort = "random";
+        return getItems(null, null, limit);
     }
 
     private List<PagineaContentItem> getItems(Integer page, Integer size, Integer limit) {

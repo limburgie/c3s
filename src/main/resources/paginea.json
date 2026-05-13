@@ -52,7 +52,7 @@
           {
             "name": "sort",
             "in": "query",
-            "description": "Sort expression in the form `key` or `key,asc` / `key,desc`. Defaults to lastModifiedAt DESC when omitted.",
+            "description": "Sort expression in the form `key` or `key,asc` / `key,desc`. Defaults to lastModifiedAt DESC when omitted. Pass the reserved keyword `random` (no direction) for random ordering; in that case `page` and `size` are not allowed and only `limit` applies.",
             "required": false,
             "schema": {
               "type": "string"
