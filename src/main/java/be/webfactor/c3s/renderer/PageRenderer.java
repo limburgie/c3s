@@ -8,13 +8,13 @@ import lombok.AllArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import be.webfactor.c3s.content.service.ContentService;
+import be.webfactor.c3s.contentrepository.ContentRepository;
 import be.webfactor.c3s.controller.PageController;
-import be.webfactor.c3s.master.domain.LocationThreadLocal;
-import be.webfactor.c3s.master.domain.Page;
-import be.webfactor.c3s.master.domain.Template;
-import be.webfactor.c3s.master.service.MasterService;
-import be.webfactor.c3s.master.templateparser.TemplateParser;
+import be.webfactor.c3s.siteassetstore.domain.LocationThreadLocal;
+import be.webfactor.c3s.siteassetstore.domain.Page;
+import be.webfactor.c3s.siteassetstore.domain.Template;
+import be.webfactor.c3s.siteassetstore.SiteAssetStore;
+import be.webfactor.c3s.templateparser.TemplateParser;
 
 @AllArgsConstructor
 public class PageRenderer {
@@ -27,9 +27,9 @@ public class PageRenderer {
 	private static final String I18N_TEMPLATE_VAR = "i18n";
 	private static final String SHOPPING_CART_VAR = "cart";
 
-	private final MasterService masterService;
+	private final SiteAssetStore siteAssetStore;
 	private final TemplateParser templateParser;
-	private final ContentService contentService;
+	private final ContentRepository contentRepository;
 
     public String render(Page page, String[] params) {
 		String result = doRender(page, params);
@@ -43,11 +43,11 @@ public class PageRenderer {
 	private String doRender(Page page, String[] params) {
 		Map<String, Object> context = new HashMap<>();
 
-		context.put(API_TEMPLATE_VAR, contentService == null ? null : contentService.getApi());
-		context.put(SITE_TEMPLATE_VAR, new SiteContext(masterService.getSiteName(), masterService.getPages(false), masterService.getLocales()));
-		context.put(REQUEST_TEMPLATE_VAR, new RequestContext(page, params, LocationThreadLocal.getLocaleContext().getLocale()));
+		context.put(API_TEMPLATE_VAR, contentRepository == null ? null : contentRepository.getApi());
+		context.put(SITE_TEMPLATE_VAR, new SiteContext(siteAssetStore.getSiteName(), siteAssetStore.getPages(false), siteAssetStore.getLocales()));
+		context.put(REQUEST_TEMPLATE_VAR, new RequestContext(page, params, LocationThreadLocal.getLocaleContext().locale()));
 		context.put(URI_TEMPLATE_VAR, new UriHelper());
-		context.put(I18N_TEMPLATE_VAR, new I18n(masterService.getResourceBundle()));
+		context.put(I18N_TEMPLATE_VAR, new I18n(siteAssetStore.getResourceBundle()));
 		context.put(SHOPPING_CART_VAR, ShoppingCartThreadLocal.getShoppingCart());
 
 		if (page.isTemplated()) {
@@ -56,12 +56,12 @@ public class PageRenderer {
 			return renderTemplate(page.getTemplate(), context);
 		}
 
-		return templateParser.parse(page.getName(), page.getContents(), context, masterService);
+		return templateParser.parse(page.getName(), page.getContents(), context, siteAssetStore);
 	}
 
 	private String renderTemplate(Template template, Map<String, Object> context) {
 		if (template.getContents() != null) {
-			return templateParser.parse(template.getName(), template.getContents(), context, masterService);
+			return templateParser.parse(template.getName(), template.getContents(), context, siteAssetStore);
 		}
 
 		addParsedInsertsToContext(template.getName(), template.getInserts(), context);
@@ -72,7 +72,7 @@ public class PageRenderer {
 	private void addParsedInsertsToContext(String templateName, Map<String, String> inserts, Map<String, Object> context) {
 		Map<String, String> parsedInserts = new HashMap<>();
 
-		inserts.forEach((key, value) -> parsedInserts.put(key, templateParser.parse(templateName, value, context, masterService)));
+		inserts.forEach((key, value) -> parsedInserts.put(key, templateParser.parse(templateName, value, context, siteAssetStore)));
 
 		if (!context.containsKey(INSERTS_TEMPLATE_VAR)) {
 			context.put(INSERTS_TEMPLATE_VAR, new HashMap<String, String>());

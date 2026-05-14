@@ -1,11 +1,7 @@
 package be.webfactor.c3s.controller.helper.asset;
 
-import lombok.Value;
 import org.springframework.http.MediaType;
 
-@Value
-public class Asset {
+public record Asset(byte[] data, MediaType contentType) {
 
-    byte[] data;
-    MediaType contentType;
 }

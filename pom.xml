@@ -51,8 +51,8 @@
 							<modelNamePrefix>Paginea</modelNamePrefix>
 							<modelNameSuffix>Dto</modelNameSuffix>
 							<configOptions>
-								<apiPackage>be.webfactor.c3s.content.service.paginea.api</apiPackage>
-								<modelPackage>be.webfactor.c3s.content.service.paginea.model</modelPackage>
+								<apiPackage>be.webfactor.c3s.contentrepository.paginea.api</apiPackage>
+								<modelPackage>be.webfactor.c3s.contentrepository.paginea.model</modelPackage>
 								<useJakartaEe>true</useJakartaEe>
 								<openApiNullable>false</openApiNullable>
 								<dateLibrary>java8-localdatetime</dateLibrary>
@@ -109,11 +109,6 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
 			<version>1.11.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.glowroot</groupId>
-			<artifactId>glowroot-agent-api</artifactId>
-			<version>0.13.6</version>
 		</dependency>
 		<dependency>
 			<groupId>io.bit3</groupId>

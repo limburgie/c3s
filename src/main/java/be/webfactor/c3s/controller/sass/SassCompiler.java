@@ -11,8 +11,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import be.webfactor.c3s.controller.PageController;
-import be.webfactor.c3s.master.service.MasterAssetNotFoundException;
-import be.webfactor.c3s.master.service.MasterService;
+import be.webfactor.c3s.siteassetstore.SiteAssetNotFoundException;
+import be.webfactor.c3s.siteassetstore.SiteAssetStore;
 import io.bit3.jsass.*;
 import io.bit3.jsass.Compiler;
 import io.bit3.jsass.importer.Import;
@@ -25,7 +25,7 @@ public class SassCompiler {
 	private final Compiler compiler = new Compiler();
 	private final Options options = new Options();
 
-	public SassCompiler(MasterService masterService, String originalRelativeDirectory) {
+	public SassCompiler(SiteAssetStore siteAssetStore, String originalRelativeDirectory) {
 		options.setOutputStyle(OutputStyle.COMPRESSED);
 		options.setImporters(Collections.singletonList((importUrl, previous) -> {
 			String relativeDir = getRelativeDirectory(originalRelativeDirectory, previous);
@@ -33,7 +33,7 @@ public class SassCompiler {
 			String absoluteUrl = toAbsoluteUrl(relativeDir, importUrl);
 			String absolutePartialUrl = toPartialUrl(absoluteUrl);
 
-			return Collections.singletonList(createImport(masterService, absoluteUrl, absolutePartialUrl));
+			return Collections.singletonList(createImport(siteAssetStore, absoluteUrl, absolutePartialUrl));
 		}));
 	}
 
@@ -47,12 +47,12 @@ public class SassCompiler {
 		return originalRelativeDirectory;
 	}
 
-	private Import createImport(MasterService masterService, String absoluteUrl, String absolutePartialUrl) {
+	private Import createImport(SiteAssetStore siteAssetStore, String absoluteUrl, String absolutePartialUrl) {
 		try {
-			return doCreateImport(masterService, absoluteUrl);
-		} catch (MasterAssetNotFoundException e) {
+			return doCreateImport(siteAssetStore, absoluteUrl);
+		} catch (SiteAssetNotFoundException e) {
 			try {
-				return doCreateImport(masterService, absolutePartialUrl);
+				return doCreateImport(siteAssetStore, absolutePartialUrl);
 			} catch (IOException ex) {
 				throw new RuntimeException(ex);
 			}
@@ -61,11 +61,11 @@ public class SassCompiler {
 		}
 	}
 
-	private Import doCreateImport(MasterService masterService, String absoluteUrl) throws IOException {
+	private Import doCreateImport(SiteAssetStore siteAssetStore, String absoluteUrl) throws IOException {
 		try {
 			URI importAssetPath = new URI(absoluteUrl);
 			String relativePath = StringUtils.removeStart(absoluteUrl, SYNTHETIC_SCHEME + "/");
-			String contents = masterService.readResource(relativePath);
+			String contents = siteAssetStore.readResource(relativePath);
 
 			return new Import(importAssetPath, importAssetPath, contents);
 		} catch (URISyntaxException e) {

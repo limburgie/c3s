@@ -1,7 +1,7 @@
 package be.webfactor.c3s.controller.sitemap;
 
-import be.webfactor.c3s.master.domain.Page;
-import be.webfactor.c3s.master.service.MasterService;
+import be.webfactor.c3s.siteassetstore.domain.Page;
+import be.webfactor.c3s.siteassetstore.SiteAssetStore;
 import cz.jiripinkas.jsitemapgenerator.WebPage;
 import cz.jiripinkas.jsitemapgenerator.generator.SitemapGenerator;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,13 +16,13 @@ import java.util.Locale;
 @Service
 public class SitemapBuilder {
 
-	public String generate(HttpServletRequest request, MasterService masterService) throws MalformedURLException {
-        return SitemapGenerator.of(getBaseUrl(request)).addPages(createWebPages(masterService)).toString();
+	public String generate(HttpServletRequest request, SiteAssetStore siteAssetStore) throws MalformedURLException {
+        return SitemapGenerator.of(getBaseUrl(request)).addPages(createWebPages(siteAssetStore)).toString();
 	}
 
-	private List<WebPage> createWebPages(MasterService masterService) {
-		List<Locale> locales = masterService.getLocales();
-		List<Page> pages = masterService.getPages(false).stream().skip(1).toList();
+	private List<WebPage> createWebPages(SiteAssetStore siteAssetStore) {
+		List<Locale> locales = siteAssetStore.getLocales();
+		List<Page> pages = siteAssetStore.getPages(false).stream().skip(1).toList();
 
 		List<WebPage> webPages = new ArrayList<>();
 

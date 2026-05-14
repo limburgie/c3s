@@ -1,0 +1,22 @@
+package be.webfactor.c3s.contentrepository.contentful;
+
+import com.google.gson.internal.LinkedTreeMap;
+
+import be.webfactor.c3s.contentrepository.domain.GeolocationField;
+
+public class ContentfulGeolocationField implements GeolocationField {
+
+	private LinkedTreeMap<String, Double> coordinates;
+
+	ContentfulGeolocationField(LinkedTreeMap<String, Double> coordinates) {
+		this.coordinates = coordinates;
+	}
+
+	public Double getLatitude() {
+		return coordinates.get("lat");
+	}
+
+	public Double getLongitude() {
+		return coordinates.get("lon");
+	}
+}

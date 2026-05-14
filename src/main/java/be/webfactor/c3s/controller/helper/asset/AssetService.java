@@ -2,8 +2,8 @@ package be.webfactor.c3s.controller.helper.asset;
 
 import be.webfactor.c3s.controller.PageController;
 import be.webfactor.c3s.controller.sass.SassCompiler;
-import be.webfactor.c3s.master.service.MasterAssetNotFoundException;
-import be.webfactor.c3s.master.service.MasterService;
+import be.webfactor.c3s.siteassetstore.SiteAssetNotFoundException;
+import be.webfactor.c3s.siteassetstore.SiteAssetStore;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.config.TikaConfig;
@@ -30,10 +30,10 @@ public class AssetService {
         }
     }
 
-    public Asset getAsset(HttpServletRequest request, MasterService masterService) throws IOException {
+    public Asset getAsset(HttpServletRequest request, SiteAssetStore siteAssetStore) throws IOException {
         String requestUri = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String assetPath = StringUtils.removeStart(requestUri, PageController.ASSETS_PREFIX);
-        byte[] data = getAssetData(masterService, assetPath);
+        byte[] data = getAssetData(siteAssetStore, assetPath);
 
         Metadata metadata = new Metadata();
         metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, assetPath);
@@ -42,17 +42,17 @@ public class AssetService {
         return new Asset(data, contentType);
     }
 
-    private byte[] getAssetData(MasterService masterService, String assetPath) {
+    private byte[] getAssetData(SiteAssetStore siteAssetStore, String assetPath) {
         try {
-            return masterService.readAsset(PageController.ASSETS_PREFIX + assetPath);
-        } catch (MasterAssetNotFoundException e) {
+            return siteAssetStore.readAsset(PageController.ASSETS_PREFIX + assetPath);
+        } catch (SiteAssetNotFoundException e) {
             if (assetPath.endsWith(".css")) {
                 String relativeDirectory = assetPath.substring(0, assetPath.lastIndexOf("/") + 1);
                 String sassAssetPath = assetPath.replace(".css", ".scss");
 
-                SassCompiler sassCompiler = new SassCompiler(masterService, relativeDirectory);
+                SassCompiler sassCompiler = new SassCompiler(siteAssetStore, relativeDirectory);
 
-                return sassCompiler.compile(masterService.readAsset(PageController.ASSETS_PREFIX + sassAssetPath));
+                return sassCompiler.compile(siteAssetStore.readAsset(PageController.ASSETS_PREFIX + sassAssetPath));
             } else {
                 throw e;
             }

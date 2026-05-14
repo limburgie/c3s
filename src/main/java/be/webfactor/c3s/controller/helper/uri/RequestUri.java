@@ -1,8 +1,8 @@
 package be.webfactor.c3s.controller.helper.uri;
 
-import be.webfactor.c3s.master.domain.LocaleContext;
-import be.webfactor.c3s.master.domain.Page;
-import be.webfactor.c3s.master.service.MasterService;
+import be.webfactor.c3s.siteassetstore.domain.LocaleContext;
+import be.webfactor.c3s.siteassetstore.domain.Page;
+import be.webfactor.c3s.siteassetstore.SiteAssetStore;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import org.springframework.web.servlet.HandlerMapping;
@@ -24,10 +24,10 @@ public class RequestUri {
     @Getter
     private final LocaleContext localeContext;
 
-    public RequestUri(HttpServletRequest request, MasterService masterService) {
+    public RequestUri(HttpServletRequest request, SiteAssetStore siteAssetStore) {
         path = ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).substring(1);
-        supportedLocales = masterService.getLocales();
-        indexPage = masterService.getIndexPage();
+        supportedLocales = siteAssetStore.getLocales();
+        indexPage = siteAssetStore.getIndexPage();
 
         initLocale();
 
