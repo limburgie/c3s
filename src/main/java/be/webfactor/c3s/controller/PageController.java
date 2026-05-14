@@ -2,7 +2,6 @@ package be.webfactor.c3s.controller;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -74,28 +74,26 @@ public class PageController {
 	@Autowired private AssetService assetService;
 
 	@RequestMapping("/" + FAVICON_ICO_FILENAME)
-	public ResponseEntity<byte[]> faviconIco(HttpServletRequest request) throws IOException {
+	public ResponseEntity<byte[]> faviconIco(HttpServletRequest request) {
 		return favicon(request, FAVICON_ICO_FILENAME, "image/x-icon");
 	}
 
 	@RequestMapping("/" + FAVICON_SVG_FILENAME)
-	public ResponseEntity<byte[]> faviconSvg(HttpServletRequest request) throws IOException {
+	public ResponseEntity<byte[]> faviconSvg(HttpServletRequest request) {
 		return favicon(request, FAVICON_SVG_FILENAME, "image/svg+xml");
 	}
 
-	private ResponseEntity<byte[]> favicon(HttpServletRequest request, String fileName, String mediaType) throws IOException {
-		String basePath = getMasterService(request).getBaseUrl();
-		String assetUrl = basePath + FAVICON_FOLDER + "/" + fileName;
+	private ResponseEntity<byte[]> favicon(HttpServletRequest request, String fileName, String mediaType) {
+		byte[] data = getMasterService(request).readAsset(FAVICON_FOLDER + "/" + fileName);
 		return ResponseEntity.ok()
 				.cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
 				.contentType(MediaType.parseMediaType(mediaType))
-				.body(IOUtils.toByteArray(new URL(assetUrl)));
+				.body(data);
 	}
 
 	@RequestMapping(ASSETS_PREFIX + "**")
 	public ResponseEntity<byte[]> asset(HttpServletRequest request) throws IOException {
-        String basePath = getMasterService(request).getBaseUrl();
-		Asset asset = assetService.getAsset(request, basePath);
+		Asset asset = assetService.getAsset(request, getMasterService(request));
 
 		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS)).contentType(asset.getContentType()).body(asset.getData());
 	}
@@ -150,7 +148,7 @@ public class PageController {
 			ContentItem contentItem = contentService.getApi().findById(contentItemId);
 
 			if (contentItem != null) {
-				response.setHeader("Location", contentItem.getEditUrl());
+				response.setHeader(HttpHeaders.LOCATION, contentItem.getEditUrl());
 				response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
 			}
 		}

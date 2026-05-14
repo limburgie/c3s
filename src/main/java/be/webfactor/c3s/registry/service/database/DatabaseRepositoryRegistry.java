@@ -17,7 +17,7 @@ public class DatabaseRepositoryRegistry implements RepositoryRegistry {
 
 	public MasterRepository findMasterRepository(String virtualHost) {
 		PersistedRepository repo = repository.findByVirtualHost(virtualHost);
-		RepositoryConnection connection = new RepositoryConnection(repo.getType(), repo.getConnectionId(), repo.getAccessToken());
+		RepositoryConnection connection = new RepositoryConnection(repo.getType(), repo.getConnectionId(), repo.getAccessToken(), repo.getSecretKey(), repo.getRegion());
 
 		return new MasterRepository(virtualHost, repo.getName(), connection);
 	}

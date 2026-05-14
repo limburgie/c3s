@@ -78,7 +78,7 @@ public class FormHandler {
 		context.put(I18N_TEMPLATE_VAR, new I18n(masterService.getResourceBundle()));
 		context.put(LANGUAGE_VAR, LocationThreadLocal.getLocaleContext().getLocale().getLanguage());
 
-		return templateParser.parse(templateName, templateContents, context, masterService.getBaseUrl());
+		return templateParser.parse(templateName, templateContents, context, masterService);
 	}
 
 	private void sendEmail(EmailAddress from, EmailAddress to, EmailAddress replyTo, String subject, String body) {

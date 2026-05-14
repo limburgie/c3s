@@ -1,11 +1,11 @@
-package be.webfactor.c3s.master.service.webserver.domain;
+package be.webfactor.c3s.master.service.filebased.domain;
 
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class WebserverSiteLocationSettings {
+public class SiteLocationSettings {
 
 	private List<String> locales;
 	private String timeZone;

@@ -1,9 +1,9 @@
-package be.webfactor.c3s.master.service.webserver.domain;
+package be.webfactor.c3s.master.service.filebased.domain;
 
 import lombok.Data;
 
 @Data
-public class WebserverSiteMailSettings {
+public class SiteMailSettings {
 
 	private String host;
 	private int port;

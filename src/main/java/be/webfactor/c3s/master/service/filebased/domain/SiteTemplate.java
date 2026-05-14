@@ -1,11 +1,11 @@
-package be.webfactor.c3s.master.service.webserver.domain;
+package be.webfactor.c3s.master.service.filebased.domain;
 
 import lombok.Data;
 
 import java.util.Map;
 
 @Data
-public class WebserverSiteTemplate {
+public class SiteTemplate {
 
 	private String name;
 	private String contents;

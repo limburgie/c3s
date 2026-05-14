@@ -68,7 +68,8 @@ public interface MasterService {
 	Page getErrorPage();
 
 	/**
-	 * Retrieves the URL to the asset, identified by the given (relative) asset path.
+	 * Retrieves the server-relative URL to the asset, identified by the given (relative) asset path.
+	 * The returned URL is served by the PageController asset endpoint.
 	 */
 	String getAssetUrl(String assetPath);
 
@@ -83,7 +84,7 @@ public interface MasterService {
 	RepositoryType getType();
 
 	/**
-	 * Returns the base URL from which all site resources are loaded.
+	 * Returns the base URL or URI from which all site resources are loaded.
 	 */
 	String getBaseUrl();
 
@@ -96,4 +97,14 @@ public interface MasterService {
 	 * Returns the supported locales for this service.
 	 */
 	List<Locale> getLocales();
+
+	/**
+	 * Returns the UTF-8 text content of a resource relative to the site's base path.
+	 */
+	String readResource(String relativePath);
+
+	/**
+	 * Returns the raw bytes of an asset relative to the site's base path.
+	 */
+	byte[] readAsset(String relativePath);
 }

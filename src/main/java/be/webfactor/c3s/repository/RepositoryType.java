@@ -2,5 +2,5 @@ package be.webfactor.c3s.repository;
 
 public enum RepositoryType {
 
-	PRISMIC, CONTENTFUL, GRAPHCMS, WEB_SERVER, PAGINEA, MOCK
+	PRISMIC, CONTENTFUL, GRAPHCMS, WEB_SERVER, S3, PAGINEA, MOCK
 }

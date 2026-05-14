@@ -27,8 +27,10 @@ public class PrismicRepositoryRegistry implements RepositoryRegistry {
 		RepositoryType type = RepositoryType.valueOf(repositoryDocument.getText("repository.type"));
 		String id = repositoryDocument.getText("repository.id");
 		String accessToken = repositoryDocument.getText("repository.access_token");
+		String secretKey = repositoryDocument.getText("repository.secret_key");
+		String region = repositoryDocument.getText("repository.region");
 
-		return new MasterRepository(virtualHost, name, new RepositoryConnection(type, id, accessToken));
+		return new MasterRepository(virtualHost, name, new RepositoryConnection(type, id, accessToken, secretKey, region));
 	}
 
 	public RepositoryRegistryType getType() {

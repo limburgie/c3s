@@ -56,12 +56,12 @@ public class PageRenderer {
 			return renderTemplate(page.getTemplate(), context);
 		}
 
-		return templateParser.parse(page.getName(), page.getContents(), context, masterService.getBaseUrl());
+		return templateParser.parse(page.getName(), page.getContents(), context, masterService);
 	}
 
 	private String renderTemplate(Template template, Map<String, Object> context) {
 		if (template.getContents() != null) {
-			return templateParser.parse(template.getName(), template.getContents(), context, masterService.getBaseUrl());
+			return templateParser.parse(template.getName(), template.getContents(), context, masterService);
 		}
 
 		addParsedInsertsToContext(template.getName(), template.getInserts(), context);
@@ -72,7 +72,7 @@ public class PageRenderer {
 	private void addParsedInsertsToContext(String templateName, Map<String, String> inserts, Map<String, Object> context) {
 		Map<String, String> parsedInserts = new HashMap<>();
 
-		inserts.forEach((key, value) -> parsedInserts.put(key, templateParser.parse(templateName, value, context, masterService.getBaseUrl())));
+		inserts.forEach((key, value) -> parsedInserts.put(key, templateParser.parse(templateName, value, context, masterService)));
 
 		if (!context.containsKey(INSERTS_TEMPLATE_VAR)) {
 			context.put(INSERTS_TEMPLATE_VAR, new HashMap<String, String>());

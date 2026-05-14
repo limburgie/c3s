@@ -1,42 +1,33 @@
 package be.webfactor.c3s.master.templateparser.freemarker;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 import be.webfactor.c3s.master.domain.TemplateEngine;
+import be.webfactor.c3s.master.service.MasterAssetNotFoundException;
+import be.webfactor.c3s.master.service.MasterService;
 import be.webfactor.c3s.master.templateparser.TemplateParser;
 import be.webfactor.c3s.master.templateparser.TemplateParserException;
-import freemarker.cache.URLTemplateLoader;
+import freemarker.cache.TemplateLoader;
 import freemarker.template.*;
 
 @Service
 public class FreemarkerTemplateParser implements TemplateParser {
 
-	public String parse(String templateName, String templateContents, Map<String, Object> context, String baseUrl) {
+	public String parse(String templateName, String templateContents, Map<String, Object> context, MasterService masterService) {
 		try {
 			Configuration configuration = new Configuration(Configuration.VERSION_2_3_30);
 			configuration.setDefaultEncoding(StandardCharsets.UTF_8.name());
 			configuration.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
 			configuration.setLocalizedLookup(false);
 
-			configuration.setTemplateLoader(new URLTemplateLoader() {
-				protected URL getURL(String s) {
-					try {
-						return new URI(baseUrl + "/" + s).toURL();
-					} catch (URISyntaxException | MalformedURLException e) {
-						return null;
-					}
-				}
-
-			});
+			configuration.setTemplateLoader(new MasterServiceTemplateLoader(masterService));
 
 			Template templateObj = new Template(templateName, templateContents, configuration);
 			StringWriter stringWriter = new StringWriter();
@@ -51,5 +42,34 @@ public class FreemarkerTemplateParser implements TemplateParser {
 
 	public TemplateEngine getTemplateEngine() {
 		return TemplateEngine.FREEMARKER;
+	}
+
+	private static final class MasterServiceTemplateLoader implements TemplateLoader {
+
+		private final MasterService masterService;
+
+		MasterServiceTemplateLoader(MasterService masterService) {
+			this.masterService = masterService;
+		}
+
+		public Object findTemplateSource(String name) {
+			try {
+				return masterService.readResource(name);
+			} catch (MasterAssetNotFoundException e) {
+				return null;
+			}
+		}
+
+		public long getLastModified(Object templateSource) {
+			return -1;
+		}
+
+		public Reader getReader(Object templateSource, String encoding) {
+			return new StringReader((String) templateSource);
+		}
+
+		public void closeTemplateSource(Object templateSource) {
+			// nothing to close
+		}
 	}
 }

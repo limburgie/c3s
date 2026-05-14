@@ -25,6 +25,10 @@ public class PersistedRepository {
 
 	private String accessToken;
 
+	private String secretKey;
+
+	private String region;
+
 	public Long getId() {
 		return id;
 	}
@@ -71,6 +75,22 @@ public class PersistedRepository {
 
 	public void setAccessToken(String accessToken) {
 		this.accessToken = accessToken;
+	}
+
+	public String getSecretKey() {
+		return secretKey;
+	}
+
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
 	}
 
 	public boolean equals(Object o) {

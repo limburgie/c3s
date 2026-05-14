@@ -1,4 +1,4 @@
-package be.webfactor.c3s.master.service.webserver.domain;
+package be.webfactor.c3s.master.service.filebased.domain;
 
 import lombok.Data;
 
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class WebserverSitePage {
+public class SitePage {
 
 	private String friendlyUrl;
 	private String name;
@@ -16,7 +16,7 @@ public class WebserverSitePage {
 	private String contents;
 	private String template;
 	private Map<String, String> inserts = new HashMap<>();
-	private List<WebserverSitePage> children = new ArrayList<>();
+	private List<SitePage> children = new ArrayList<>();
 
 	public boolean isTemplated() {
 		return template != null;

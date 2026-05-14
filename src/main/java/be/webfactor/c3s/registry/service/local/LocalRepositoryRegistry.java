@@ -17,6 +17,8 @@ public class LocalRepositoryRegistry implements RepositoryRegistry {
 	private static final String REPOSITORY_TYPE_PROP_FORMAT = "c3s.local.registry.%s.type";
 	private static final String REPOSITORY_ID_PROP_FORMAT = "c3s.local.registry.%s.id";
 	private static final String REPOSITORY_ACCESS_TOKEN_PROP_FORMAT = "c3s.local.registry.%s.access.token";
+	private static final String REPOSITORY_SECRET_KEY_PROP_FORMAT = "c3s.local.registry.%s.secret.key";
+	private static final String REPOSITORY_REGION_PROP_FORMAT = "c3s.local.registry.%s.region";
 
 	@Autowired private Environment env;
 
@@ -25,8 +27,10 @@ public class LocalRepositoryRegistry implements RepositoryRegistry {
 		RepositoryType type = RepositoryType.valueOf(getPropValue(REPOSITORY_TYPE_PROP_FORMAT, virtualHost));
 		String id = getPropValue(REPOSITORY_ID_PROP_FORMAT, virtualHost);
 		String accessToken = getPropValue(REPOSITORY_ACCESS_TOKEN_PROP_FORMAT, virtualHost);
+		String secretKey = getPropValue(REPOSITORY_SECRET_KEY_PROP_FORMAT, virtualHost);
+		String region = getPropValue(REPOSITORY_REGION_PROP_FORMAT, virtualHost);
 
-		return new MasterRepository(virtualHost, name, new RepositoryConnection(type, id, accessToken));
+		return new MasterRepository(virtualHost, name, new RepositoryConnection(type, id, accessToken, secretKey, region));
 	}
 
 	private String getPropValue(String format, String virtualHost) {

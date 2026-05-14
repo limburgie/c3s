@@ -2,8 +2,9 @@ package be.webfactor.c3s.controller.helper.asset;
 
 import be.webfactor.c3s.controller.PageController;
 import be.webfactor.c3s.controller.sass.SassCompiler;
+import be.webfactor.c3s.master.service.MasterAssetNotFoundException;
+import be.webfactor.c3s.master.service.MasterService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerMapping;
 
 import java.io.IOException;
-import java.net.URL;
 
 @Service
 public class AssetService {
@@ -30,11 +30,10 @@ public class AssetService {
         }
     }
 
-    public Asset getAsset(HttpServletRequest request, String basePath) throws IOException {
+    public Asset getAsset(HttpServletRequest request, MasterService masterService) throws IOException {
         String requestUri = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String assetPath = StringUtils.removeStart(requestUri, PageController.ASSETS_PREFIX);
-        String assetUrl = basePath + PageController.ASSETS_PREFIX + assetPath;
-        byte[] data = getAssetData(basePath, assetUrl, assetPath);
+        byte[] data = getAssetData(masterService, assetPath);
 
         Metadata metadata = new Metadata();
         metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, assetPath);
@@ -43,17 +42,17 @@ public class AssetService {
         return new Asset(data, contentType);
     }
 
-    private byte[] getAssetData(String basePath, String assetUrl, String assetPath) throws IOException {
+    private byte[] getAssetData(MasterService masterService, String assetPath) {
         try {
-            return IOUtils.toByteArray(new URL(assetUrl));
-        } catch(IOException e) {
+            return masterService.readAsset(PageController.ASSETS_PREFIX + assetPath);
+        } catch (MasterAssetNotFoundException e) {
             if (assetPath.endsWith(".css")) {
                 String relativeDirectory = assetPath.substring(0, assetPath.lastIndexOf("/") + 1);
                 String sassAssetPath = assetPath.replace(".css", ".scss");
 
-                SassCompiler sassCompiler = new SassCompiler(basePath, relativeDirectory);
+                SassCompiler sassCompiler = new SassCompiler(masterService, relativeDirectory);
 
-                return sassCompiler.compile(IOUtils.toByteArray(new URL(basePath + PageController.ASSETS_PREFIX + sassAssetPath)));
+                return sassCompiler.compile(masterService.readAsset(PageController.ASSETS_PREFIX + sassAssetPath));
             } else {
                 throw e;
             }
