@@ -1,5 +1,12 @@
 package be.webfactor.c3s.controller.sass;
 
+import be.webfactor.c3s.controller.PageController;
+import be.webfactor.c3s.siteassetstore.SiteAssetNotFoundException;
+import be.webfactor.c3s.siteassetstore.SiteAssetStore;
+import io.bit3.jsass.*;
+import io.bit3.jsass.importer.Import;
+import org.apache.commons.io.IOUtils;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
@@ -7,15 +14,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import be.webfactor.c3s.controller.PageController;
-import be.webfactor.c3s.siteassetstore.SiteAssetNotFoundException;
-import be.webfactor.c3s.siteassetstore.SiteAssetStore;
-import io.bit3.jsass.*;
-import io.bit3.jsass.Compiler;
-import io.bit3.jsass.importer.Import;
+import static org.apache.commons.lang3.Strings.CS;
 
 public class SassCompiler {
 
@@ -39,7 +38,7 @@ public class SassCompiler {
 
 	private String getRelativeDirectory(String originalRelativeDirectory, Import previous) {
 		String previousAbsoluteUri = previous.getAbsoluteUri().toString();
-		String previousUrl = StringUtils.removeStart(previousAbsoluteUri, SYNTHETIC_SCHEME + PageController.ASSETS_PREFIX);
+		String previousUrl = CS.removeStart(previousAbsoluteUri, SYNTHETIC_SCHEME + PageController.ASSETS_PREFIX);
 
 		if (!previousAbsoluteUri.equals("stdin") && !previousUrl.equals(previousAbsoluteUri)) {
 			return previousUrl.substring(0, previousUrl.lastIndexOf("/") + 1);
@@ -64,7 +63,7 @@ public class SassCompiler {
 	private Import doCreateImport(SiteAssetStore siteAssetStore, String absoluteUrl) throws IOException {
 		try {
 			URI importAssetPath = new URI(absoluteUrl);
-			String relativePath = StringUtils.removeStart(absoluteUrl, SYNTHETIC_SCHEME + "/");
+			String relativePath = CS.removeStart(absoluteUrl, SYNTHETIC_SCHEME + "/");
 			String contents = siteAssetStore.readResource(relativePath);
 
 			return new Import(importAssetPath, importAssetPath, contents);
