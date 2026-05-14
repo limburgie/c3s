@@ -1,6 +1,5 @@
 package be.webfactor.c3s.controller.sass;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
@@ -12,6 +11,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import be.webfactor.c3s.controller.PageController;
+import be.webfactor.c3s.siteassetstore.SiteAssetNotFoundException;
+import be.webfactor.c3s.siteassetstore.SiteAssetStore;
 import io.bit3.jsass.*;
 import io.bit3.jsass.Compiler;
 import io.bit3.jsass.importer.Import;
@@ -19,51 +20,39 @@ import io.bit3.jsass.importer.Import;
 public class SassCompiler {
 
 	private static final String ENCODING = StandardCharsets.UTF_8.toString();
+	private static final String SYNTHETIC_SCHEME = "c3s://site";
 
 	private final Compiler compiler = new Compiler();
 	private final Options options = new Options();
 
-	public SassCompiler(String basePath, String originalRelativeDirectory) {
+	public SassCompiler(SiteAssetStore siteAssetStore, String originalRelativeDirectory) {
 		options.setOutputStyle(OutputStyle.COMPRESSED);
 		options.setImporters(Collections.singletonList((importUrl, previous) -> {
-			String relativeDir = getRelativeDirectory(originalRelativeDirectory, basePath, previous);
+			String relativeDir = getRelativeDirectory(originalRelativeDirectory, previous);
 
-			String absoluteUrl = toAbsoluteUrl(basePath, relativeDir, importUrl);
+			String absoluteUrl = toAbsoluteUrl(relativeDir, importUrl);
 			String absolutePartialUrl = toPartialUrl(absoluteUrl);
 
-			return Collections.singletonList(createImport(absoluteUrl, absolutePartialUrl));
+			return Collections.singletonList(createImport(siteAssetStore, absoluteUrl, absolutePartialUrl));
 		}));
 	}
 
-	private String getRelativeDirectory(String originalRelativeDirectory, String basePath, Import previous) {
-		String previousAbsoluteUri = getPreviousAbsoluteUri(previous, basePath);
-		String previousUrl = StringUtils.removeStart(previousAbsoluteUri, basePath + PageController.ASSETS_PREFIX);
-		String relativeDir = originalRelativeDirectory;
+	private String getRelativeDirectory(String originalRelativeDirectory, Import previous) {
+		String previousAbsoluteUri = previous.getAbsoluteUri().toString();
+		String previousUrl = StringUtils.removeStart(previousAbsoluteUri, SYNTHETIC_SCHEME + PageController.ASSETS_PREFIX);
 
-		if (!previousUrl.equals("stdin")) {
-			relativeDir = previousUrl.substring(0, previousUrl.lastIndexOf("/") + 1);
+		if (!previousAbsoluteUri.equals("stdin") && !previousUrl.equals(previousAbsoluteUri)) {
+			return previousUrl.substring(0, previousUrl.lastIndexOf("/") + 1);
 		}
-		return relativeDir;
+		return originalRelativeDirectory;
 	}
 
-	private String getPreviousAbsoluteUri(Import previous, String basePath) {
-		String previousAbsoluteUri = previous.getAbsoluteUri().toString().replaceAll("file:/", "file:///");
-
-		if (!previousAbsoluteUri.equals("stdin")) {
-			if (basePath.startsWith("file") && !previousAbsoluteUri.startsWith("file")) {
-				return "file://" + previousAbsoluteUri;
-			}
-		}
-
-		return previousAbsoluteUri;
-	}
-
-	private Import createImport(String absoluteUrl, String absolutePartialUrl) {
+	private Import createImport(SiteAssetStore siteAssetStore, String absoluteUrl, String absolutePartialUrl) {
 		try {
-			return doCreateImport(absoluteUrl);
-		} catch(FileNotFoundException e) {
+			return doCreateImport(siteAssetStore, absoluteUrl);
+		} catch (SiteAssetNotFoundException e) {
 			try {
-				return doCreateImport(absolutePartialUrl);
+				return doCreateImport(siteAssetStore, absolutePartialUrl);
 			} catch (IOException ex) {
 				throw new RuntimeException(ex);
 			}
@@ -72,10 +61,11 @@ public class SassCompiler {
 		}
 	}
 
-	private Import doCreateImport(String url) throws IOException {
+	private Import doCreateImport(SiteAssetStore siteAssetStore, String absoluteUrl) throws IOException {
 		try {
-			URI importAssetPath = new URI(url);
-			String contents = IOUtils.toString(importAssetPath, StandardCharsets.UTF_8);
+			URI importAssetPath = new URI(absoluteUrl);
+			String relativePath = StringUtils.removeStart(absoluteUrl, SYNTHETIC_SCHEME + "/");
+			String contents = siteAssetStore.readResource(relativePath);
 
 			return new Import(importAssetPath, importAssetPath, contents);
 		} catch (URISyntaxException e) {
@@ -83,7 +73,7 @@ public class SassCompiler {
 		}
 	}
 
-	private String toAbsoluteUrl(String basePath, String relativeDirectory, String url) {
+	private String toAbsoluteUrl(String relativeDirectory, String url) {
 		if (!url.endsWith(".scss") && !url.endsWith(".css")) {
 			url += ".scss";
 		}
@@ -91,9 +81,9 @@ public class SassCompiler {
 		if (url.startsWith("http")) {
 			return url;
 		} else if (url.startsWith("/")) {
-			return basePath + url;
+			return SYNTHETIC_SCHEME + url;
 		} else {
-			return basePath + PageController.ASSETS_PREFIX + relativeDirectory + url;
+			return SYNTHETIC_SCHEME + PageController.ASSETS_PREFIX + relativeDirectory + url;
 		}
 	}
 

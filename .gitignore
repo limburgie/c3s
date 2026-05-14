@@ -1,4 +1,4 @@
 .idea
 target
 *.iml
-application-peter.properties
+src/main/resources/application-peter.yaml

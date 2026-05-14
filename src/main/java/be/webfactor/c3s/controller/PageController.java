@@ -1,56 +1,58 @@
 package be.webfactor.c3s.controller;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
+import be.webfactor.c3s.contentrepository.ContentRepository;
+import be.webfactor.c3s.contentrepository.ContentRepositoryConnection;
+import be.webfactor.c3s.contentrepository.ContentRepositoryFactory;
+import be.webfactor.c3s.contentrepository.domain.ContentItem;
 import be.webfactor.c3s.controller.exception.PageNotFoundException;
-import be.webfactor.c3s.controller.helper.apm.ApmTrackerService;
 import be.webfactor.c3s.controller.helper.asset.Asset;
 import be.webfactor.c3s.controller.helper.asset.AssetService;
 import be.webfactor.c3s.controller.helper.uri.RequestUri;
 import be.webfactor.c3s.controller.helper.uri.RequestUriThreadLocal;
 import be.webfactor.c3s.controller.sitemap.SitemapBuilder;
-import be.webfactor.c3s.master.domain.LocaleContext;
-import be.webfactor.c3s.master.domain.LocationThreadLocal;
-import be.webfactor.c3s.shopping.ShoppingCart;
-import be.webfactor.c3s.shopping.ShoppingCartService;
 import be.webfactor.c3s.form.FormHandler;
 import be.webfactor.c3s.form.FormHandlerFactory;
 import be.webfactor.c3s.form.FormParams;
-import be.webfactor.c3s.master.domain.Form;
+import be.webfactor.c3s.renderer.PageRenderer;
+import be.webfactor.c3s.renderer.PageRendererFactory;
+import be.webfactor.c3s.shopping.ShoppingCart;
+import be.webfactor.c3s.shopping.ShoppingCartService;
+import be.webfactor.c3s.siteassetstore.SiteAssetStore;
+import be.webfactor.c3s.siteassetstore.SiteAssetStoreFactory;
+import be.webfactor.c3s.siteassetstore.domain.Form;
+import be.webfactor.c3s.siteassetstore.domain.LocaleContext;
+import be.webfactor.c3s.siteassetstore.domain.LocationThreadLocal;
+import be.webfactor.c3s.siteconnectionregistry.domain.SiteConnection;
+import be.webfactor.c3s.siteconnectionregistry.SiteConnectionRegistryFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
 
-import be.webfactor.c3s.content.service.ContentService;
-import be.webfactor.c3s.content.service.ContentServiceFactory;
-import be.webfactor.c3s.content.service.domain.ContentItem;
-import be.webfactor.c3s.registry.domain.MasterRepository;
-import be.webfactor.c3s.renderer.PageRenderer;
-import be.webfactor.c3s.renderer.PageRendererFactory;
-import be.webfactor.c3s.master.service.MasterService;
-import be.webfactor.c3s.master.service.MasterServiceFactory;
-import be.webfactor.c3s.registry.service.RepositoryRegistryFactory;
-import be.webfactor.c3s.repository.RepositoryConnection;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
-@RestController
+@Slf4j
 @Order(2)
+@RestController
+@RequiredArgsConstructor
 public class PageController {
 
 	public static final String ASSETS_PREFIX = "/assets/";
@@ -63,58 +65,57 @@ public class PageController {
 	public static final String FAVICON_ICO_FILENAME = "favicon.ico";
 	public static final String FAVICON_SVG_FILENAME = "favicon.svg";
 
-	@Autowired private RepositoryRegistryFactory repositoryRegistryFactory;
-	@Autowired private MasterServiceFactory masterServiceFactory;
-	@Autowired private PageRendererFactory pageRendererFactory;
-	@Autowired private FormHandlerFactory formHandlerFactory;
-	@Autowired private ContentServiceFactory contentServiceFactory;
-	@Autowired private SitemapBuilder sitemapBuilder;
-	@Autowired private ApmTrackerService apmTrackerService;
-	@Autowired private ShoppingCartService shoppingCartService;
-	@Autowired private AssetService assetService;
+	private final SiteConnectionRegistryFactory siteConnectionRegistryFactory;
+	private final SiteAssetStoreFactory siteAssetStoreFactory;
+	private final PageRendererFactory pageRendererFactory;
+	private final FormHandlerFactory formHandlerFactory;
+	private final ContentRepositoryFactory contentRepositoryFactory;
+	private final SitemapBuilder sitemapBuilder;
+	private final ShoppingCartService shoppingCartService;
+	private final AssetService assetService;
 
-	@RequestMapping("/" + FAVICON_ICO_FILENAME)
-	public ResponseEntity<byte[]> faviconIco(HttpServletRequest request) throws IOException {
+	@GetMapping("/" + FAVICON_ICO_FILENAME)
+	public ResponseEntity<byte[]> faviconIco(HttpServletRequest request) {
 		return favicon(request, FAVICON_ICO_FILENAME, "image/x-icon");
 	}
 
-	@RequestMapping("/" + FAVICON_SVG_FILENAME)
-	public ResponseEntity<byte[]> faviconSvg(HttpServletRequest request) throws IOException {
+	@GetMapping("/" + FAVICON_SVG_FILENAME)
+	public ResponseEntity<byte[]> faviconSvg(HttpServletRequest request) {
 		return favicon(request, FAVICON_SVG_FILENAME, "image/svg+xml");
 	}
 
-	private ResponseEntity<byte[]> favicon(HttpServletRequest request, String fileName, String mediaType) throws IOException {
-		String basePath = getMasterService(request).getBaseUrl();
-		String assetUrl = basePath + FAVICON_FOLDER + "/" + fileName;
+	private ResponseEntity<byte[]> favicon(HttpServletRequest request, String fileName, String mediaType) {
+		byte[] data = getSiteAssetStore(request).readAsset(FAVICON_FOLDER + "/" + fileName);
 		return ResponseEntity.ok()
 				.cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
 				.contentType(MediaType.parseMediaType(mediaType))
-				.body(IOUtils.toByteArray(new URL(assetUrl)));
+				.body(data);
 	}
 
-	@RequestMapping(ASSETS_PREFIX + "**")
+	@GetMapping(ASSETS_PREFIX + "**")
 	public ResponseEntity<byte[]> asset(HttpServletRequest request) throws IOException {
-        String basePath = getMasterService(request).getBaseUrl();
-		Asset asset = assetService.getAsset(request, basePath);
+		Asset asset = assetService.getAsset(request, getSiteAssetStore(request));
 
-		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS)).contentType(asset.getContentType()).body(asset.getData());
+		return ResponseEntity.ok()
+				.cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
+				.contentType(asset.contentType())
+				.body(asset.data());
 	}
 
-	@RequestMapping(value = SUBMIT_URI, method = RequestMethod.POST)
+	@PostMapping(value = SUBMIT_URI)
 	public void submitForm(HttpServletRequest request, HttpServletResponse response, @CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded) {
-		apmTrackerService.setTransactionName(request);
 		shoppingCartService.initializeShoppingCart(shoppingCartEncoded);
 
-		MasterService masterService = getMasterService(request);
+		SiteAssetStore siteAssetStore = getSiteAssetStore(request);
 
 		String locale = request.getParameter("locale");
 		if (locale != null) {
-			masterService.getLocales().stream().filter(l -> l.toString().equals(locale)).findFirst()
+			siteAssetStore.getLocales().stream().filter(l -> l.toString().equals(locale)).findFirst()
 					.ifPresent(l -> LocationThreadLocal.setLocaleContext(new LocaleContext(l)));
 		}
 
-		FormHandler formHandler = formHandlerFactory.forMasterService(masterService);
-		Form form = masterService.getForm(request.getParameter("form"));
+		FormHandler formHandler = formHandlerFactory.forSiteAssetStore(siteAssetStore);
+		Form form = siteAssetStore.getForm(request.getParameter("form"));
 
 		formHandler.handleForm(form, new FormParams(request));
 
@@ -123,55 +124,64 @@ public class PageController {
 		response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 	}
 
-	@RequestMapping(EDIT_URL_JS_PATH)
+	@GetMapping(EDIT_URL_JS_PATH)
 	public ResponseEntity<byte[]> editUrlJavascript() throws IOException {
-		byte[] content = IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream(EDIT_URL_JS_FILENAME));
+		InputStream jsResource = getClass().getClassLoader().getResourceAsStream(EDIT_URL_JS_FILENAME);
 
-		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).contentType(MediaType.valueOf("application/javascript")).body(content);
+		if (jsResource == null) {
+			return ResponseEntity.notFound().build();
+		}
+
+        return ResponseEntity.ok()
+				.cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS))
+				.contentType(MediaType.valueOf("application/javascript"))
+				.body(IOUtils.toByteArray(jsResource));
 	}
 
-	@RequestMapping(value = SITEMAP_PATH, produces = MediaType.TEXT_XML_VALUE)
+	@GetMapping(value = SITEMAP_PATH, produces = MediaType.TEXT_XML_VALUE)
 	public ResponseEntity<String> sitemap(HttpServletRequest request) throws MalformedURLException {
-		MasterService masterService = getMasterService(request);
-		String sitemapXml = sitemapBuilder.generate(request, masterService);
+		SiteAssetStore siteAssetStore = getSiteAssetStore(request);
+		String sitemapXml = sitemapBuilder.generate(request, siteAssetStore);
 
-		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).contentType(MediaType.TEXT_XML).body(sitemapXml);
+		return ResponseEntity.ok()
+				.cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS))
+				.contentType(MediaType.TEXT_XML)
+				.body(sitemapXml);
 	}
 
-	@RequestMapping(C3S_PREFIX + "**")
+	@GetMapping(C3S_PREFIX + "**")
 	public void editUrl(HttpServletRequest request, HttpServletResponse response) {
 		String requestUri = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 		String contentItemId = StringUtils.removeStart(requestUri, C3S_PREFIX);
 
-		RepositoryConnection repoConnection = getMasterService(request).getRepositoryConnection();
-		ContentService contentService = repoConnection == null ? null : contentServiceFactory.forRepositoryConnection(repoConnection);
+		ContentRepositoryConnection repoConnection = getSiteAssetStore(request).getContentRepositoryConnection();
+		ContentRepository contentRepository = repoConnection == null ? null : contentRepositoryFactory.forConnection(repoConnection);
 
-		if (contentService != null) {
-			ContentItem contentItem = contentService.getApi().findById(contentItemId);
+		if (contentRepository != null) {
+			ContentItem contentItem = contentRepository.getApi().findById(contentItemId);
 
 			if (contentItem != null) {
-				response.setHeader("Location", contentItem.getEditUrl());
+				response.setHeader(HttpHeaders.LOCATION, contentItem.getEditUrl());
 				response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
 			}
 		}
 	}
 
-	@RequestMapping("/**")
+	@GetMapping("/**")
 	public String friendlyUrl(HttpServletRequest request, HttpServletResponse response, @CookieValue(value = ShoppingCart.COOKIE_NAME, required = false) String shoppingCartEncoded) {
-		apmTrackerService.setTransactionName(request);
 		shoppingCartService.initializeShoppingCart(shoppingCartEncoded);
 
-		MasterService masterService = getMasterService(request);
-		RequestUri requestUri = new RequestUri(request, masterService);
+		SiteAssetStore siteAssetStore = getSiteAssetStore(request);
+		RequestUri requestUri = new RequestUri(request, siteAssetStore);
 
 		LocaleContext localeContext = requestUri.getLocaleContext();
 
 		if (isLocale(requestUri.getFriendlyUrl())) {
-			return errorPage(masterService, null, response, HttpServletResponse.SC_NOT_FOUND);
+			return errorPage(siteAssetStore, null, response, HttpServletResponse.SC_NOT_FOUND);
 		}
 
-		if (!localeContext.isUriLocalePrefixed() && masterService.getLocales().size() > 1) {
-			String language = getBestMatchingLanguage(request, masterService.getLocales());
+		if (!localeContext.uriLocalePrefixed() && siteAssetStore.getLocales().size() > 1) {
+			String language = getBestMatchingLanguage(request, siteAssetStore.getLocales());
 			response.setHeader("Location", "/" + language + "/" + requestUri.getRedirectUrl());
 			response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 			return null;
@@ -179,7 +189,7 @@ public class PageController {
 
 		RequestUriThreadLocal.setCurrentUri(requestUri.getPathWithoutLocalePrefix());
 		LocationThreadLocal.setLocaleContext(localeContext);
-		return friendlyUrl(requestUri.getFriendlyUrl(), requestUri.getParams(), masterService, response);
+		return friendlyUrl(requestUri.getFriendlyUrl(), requestUri.getParams(), siteAssetStore, response);
 	}
 
 	private boolean isLocale(String friendlyUrl) {
@@ -194,29 +204,29 @@ public class PageController {
 				.findFirst().orElse(siteLocales.get(0)).getLanguage();
 	}
 
-	private MasterService getMasterService(HttpServletRequest request) {
-		MasterRepository repository = repositoryRegistryFactory.getRegistry().findMasterRepository(request.getServerName());
+	private SiteAssetStore getSiteAssetStore(HttpServletRequest request) {
+		SiteConnection repository = siteConnectionRegistryFactory.getRegistry().getConnectionForHost(request.getServerName());
 
-		return masterServiceFactory.forRepositoryConnection(repository.getConnection());
+		return siteAssetStoreFactory.forConnection(repository.connection());
 	}
 
-	private String friendlyUrl(String friendlyUrl, String[] params, MasterService masterService, HttpServletResponse response) {
-		PageRenderer pageRenderer = pageRendererFactory.forMasterService(masterService);
+	private String friendlyUrl(String friendlyUrl, String[] params, SiteAssetStore siteAssetStore, HttpServletResponse response) {
+		PageRenderer pageRenderer = pageRendererFactory.forSiteAssetStore(siteAssetStore);
 
 		try {
-			return pageRenderer.render(masterService.getPage(friendlyUrl), params);
+			return pageRenderer.render(siteAssetStore.getPage(friendlyUrl), params);
 		} catch (PageNotFoundException e) {
-			return errorPage(masterService, e, response, HttpServletResponse.SC_NOT_FOUND);
+			return errorPage(siteAssetStore, e, response, HttpServletResponse.SC_NOT_FOUND);
 		} catch (Throwable e) {
-			return errorPage(masterService, e, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			return errorPage(siteAssetStore, e, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	private String errorPage(MasterService masterService, Throwable exception, HttpServletResponse response, int status) {
+	private String errorPage(SiteAssetStore siteAssetStore, Throwable exception, HttpServletResponse response, int status) {
+		String errorParam = exception == null ? "Page not found" : ExceptionUtils.getStackTrace(exception);
 		response.setStatus(status);
 		try {
-			return pageRendererFactory.forMasterService(masterService).render(
-					masterService.getErrorPage(), exception == null ? new String[] { "Page not found" } : new String[] { ExceptionUtils.getStackTrace(exception) });
+			return pageRendererFactory.forSiteAssetStore(siteAssetStore).render(siteAssetStore.getErrorPage(), new String[] { errorParam });
 		} catch (Throwable t) {
 			LogFactory.getLog(PageController.class).error(t);
 			return null;

@@ -51,8 +51,8 @@
 							<modelNamePrefix>Paginea</modelNamePrefix>
 							<modelNameSuffix>Dto</modelNameSuffix>
 							<configOptions>
-								<apiPackage>be.webfactor.c3s.content.service.paginea.api</apiPackage>
-								<modelPackage>be.webfactor.c3s.content.service.paginea.model</modelPackage>
+								<apiPackage>be.webfactor.c3s.contentrepository.paginea.api</apiPackage>
+								<modelPackage>be.webfactor.c3s.contentrepository.paginea.model</modelPackage>
 								<useJakartaEe>true</useJakartaEe>
 								<openApiNullable>false</openApiNullable>
 								<dateLibrary>java8-localdatetime</dateLibrary>
@@ -111,11 +111,6 @@
 			<version>1.11.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.glowroot</groupId>
-			<artifactId>glowroot-agent-api</artifactId>
-			<version>0.13.6</version>
-		</dependency>
-		<dependency>
 			<groupId>io.bit3</groupId>
 			<artifactId>jsass</artifactId>
 			<version>5.11.0</version>
@@ -168,6 +163,20 @@
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>8.0.33</version>
+		</dependency>
+
+		<!-- AWS S3 -->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<version>2.44.0</version>
+		</dependency>
+
+		<!-- Caching -->
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+			<version>3.1.8</version>
 		</dependency>
 	</dependencies>
 </project>

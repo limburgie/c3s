@@ -1,19 +1,19 @@
 package be.webfactor.c3s.renderer;
 
 import be.webfactor.c3s.controller.helper.uri.RequestUriThreadLocal;
-import be.webfactor.c3s.master.domain.LocationThreadLocal;
-import be.webfactor.c3s.master.domain.Page;
+import be.webfactor.c3s.siteassetstore.domain.LocationThreadLocal;
+import be.webfactor.c3s.siteassetstore.domain.Page;
 
 public class UriHelper {
 
     public String ofIndex() {
-        return ofIndex(LocationThreadLocal.getLocaleContext().getLocale().getLanguage());
+        return ofIndex(LocationThreadLocal.getLocaleContext().locale().getLanguage());
     }
 
     public String ofIndex(String language) {
         StringBuilder sb = new StringBuilder("/");
 
-        if (be.webfactor.c3s.master.domain.LocationThreadLocal.getLocaleContext().isUriLocalePrefixed()) {
+        if (be.webfactor.c3s.siteassetstore.domain.LocationThreadLocal.getLocaleContext().uriLocalePrefixed()) {
             sb.append(language);
         }
 
@@ -29,7 +29,7 @@ public class UriHelper {
     }
 
     public String of(Page page) {
-        return of(page, LocationThreadLocal.getLocaleContext().getLocale().getLanguage());
+        return of(page, LocationThreadLocal.getLocaleContext().locale().getLanguage());
     }
 
     public String of(Page page, String language) {
@@ -37,13 +37,13 @@ public class UriHelper {
     }
 
     public String of(String friendlyUrl) {
-        return of(friendlyUrl, LocationThreadLocal.getLocaleContext().getLocale().getLanguage());
+        return of(friendlyUrl, LocationThreadLocal.getLocaleContext().locale().getLanguage());
     }
 
     private String of(String friendlyUrl, String language) {
         StringBuilder sb = new StringBuilder("/");
 
-        if (LocationThreadLocal.getLocaleContext().isUriLocalePrefixed()) {
+        if (LocationThreadLocal.getLocaleContext().uriLocalePrefixed()) {
             sb.append(language).append("/");
         }
 
