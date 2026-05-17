@@ -3,7 +3,8 @@ package be.webfactor.c3s.siteassetstore.filebased;
 import be.webfactor.c3s.siteassetstore.SiteAssetNotFoundException;
 import be.webfactor.c3s.siteassetstore.SiteAssetStore;
 import be.webfactor.c3s.siteassetstore.SiteAssetStoreConnection;
-import be.webfactor.c3s.siteassetstore.cache.SiteAssetStoreFileCache;
+import be.webfactor.c3s.siteassetstore.cache.CaffeineSiteAssetStoreCache;
+import be.webfactor.c3s.siteassetstore.cache.SiteAssetStoreCache;
 import be.webfactor.c3s.siteassetstore.domain.*;
 import be.webfactor.c3s.siteassetstore.filebased.domain.*;
 import be.webfactor.c3s.contentrepository.ContentRepositoryConnection;
@@ -27,7 +28,7 @@ public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore 
 	private static final String CONFIG_FILE = "c3s.json";
 	private static final String I18N_BASE_NAME = "i18n";
 
-	@Autowired private SiteAssetStoreFileCache cache;
+	@Autowired private SiteAssetStoreCache cache;
 
 	private String basePath;
 	private SiteConfiguration config;

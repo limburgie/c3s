@@ -1,22 +1,20 @@
 package be.webfactor.c3s.siteassetstore.cache;
 
-import java.util.function.Supplier;
-
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-@Component
-public class SiteAssetStoreFileCache {
+import java.util.function.Supplier;
 
-	@Getter
-    @Value("${c3s.assetstore.cache.enabled:true}")
+@Component
+public class CaffeineSiteAssetStoreCache implements SiteAssetStoreCache {
+
+    @Value("${c3s.siteassetstore.cache.enabled:true}")
 	private boolean enabled;
 
-	@Value("${c3s.assetstore.cache.max-entries:10000}")
+	@Value("${c3s.siteassetstore.cache.max-entries:10000}")
 	private long maxEntries;
 
 	private Cache<CacheKey, byte[]> bytesCache;
@@ -28,6 +26,7 @@ public class SiteAssetStoreFileCache {
 		stringCache = Caffeine.newBuilder().maximumSize(maxEntries).build();
 	}
 
+	@Override
     public String getOrLoadString(String basePath, String relativePath, Supplier<String> loader) {
 		if (!enabled) {
 			return loader.get();
@@ -35,6 +34,7 @@ public class SiteAssetStoreFileCache {
 		return stringCache.get(new CacheKey(basePath, relativePath), k -> loader.get());
 	}
 
+	@Override
 	public byte[] getOrLoadBytes(String basePath, String relativePath, Supplier<byte[]> loader) {
 		if (!enabled) {
 			return loader.get();
@@ -42,20 +42,10 @@ public class SiteAssetStoreFileCache {
 		return bytesCache.get(new CacheKey(basePath, relativePath), k -> loader.get());
 	}
 
+	@Override
 	public void invalidate(String basePath) {
 		bytesCache.asMap().keySet().removeIf(k -> k.basePath().equals(basePath));
 		stringCache.asMap().keySet().removeIf(k -> k.basePath().equals(basePath));
-	}
-
-	public void invalidate(String basePath, String relativePath) {
-		CacheKey key = new CacheKey(basePath, relativePath);
-		bytesCache.invalidate(key);
-		stringCache.invalidate(key);
-	}
-
-	public void invalidateAll() {
-		bytesCache.invalidateAll();
-		stringCache.invalidateAll();
 	}
 
 	private record CacheKey(String basePath, String relativePath) {}
