@@ -1,24 +1,26 @@
 package be.webfactor.c3s.siteassetstore.s3;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public record S3Location(String endpointHost, String region, String bucket, String keyPrefix) {
 
-	private static final Pattern AWS_HOST = Pattern.compile("^s3\\.([a-z0-9-]+)\\.amazonaws\\.com$");
-	private static final Pattern DO_HOST = Pattern.compile("^([a-z0-9-]+)\\.digitaloceanspaces\\.com$");
-	private static final String EXPECTED = "Expected: s3://{s3.<region>.amazonaws.com|<region>.digitaloceanspaces.com}/<bucket>/<key-prefix>/";
+	private static final List<S3LocationParser> PARSERS = List.of(
+			new AwsS3LocationParser(),
+			new DigitalOceanS3LocationParser()
+	);
 
 	public static S3Location parse(String uri) {
 		if (uri == null || !uri.startsWith("s3://")) {
-			throw new IllegalArgumentException("S3 repository id must start with s3:// (was: " + uri + "). " + EXPECTED);
+			throw new IllegalArgumentException("S3 repository id must start with s3:// (was: " + uri + "). " + expected());
 		}
 
 		String rest = uri.substring("s3://".length());
 		int firstSlash = rest.indexOf('/');
 
 		if (firstSlash < 0) {
-			throw new IllegalArgumentException("S3 repository id is missing a bucket: " + uri + ". " + EXPECTED);
+			throw new IllegalArgumentException("S3 repository id is missing a bucket: " + uri + ". " + expected());
 		}
 
 		String host = rest.substring(0, firstSlash);
@@ -28,30 +30,27 @@ public record S3Location(String endpointHost, String region, String bucket, Stri
 		String prefix = secondSlash < 0 ? "" : afterHost.substring(secondSlash + 1);
 
 		if (host.isBlank()) {
-			throw new IllegalArgumentException("S3 endpoint host is empty in: " + uri + ". " + EXPECTED);
+			throw new IllegalArgumentException("S3 endpoint host is empty in: " + uri + ". " + expected());
 		}
 		if (bucket.isBlank()) {
-			throw new IllegalArgumentException("S3 bucket is empty in: " + uri + ". " + EXPECTED);
+			throw new IllegalArgumentException("S3 bucket is empty in: " + uri + ". " + expected());
 		}
-
-		String region = extractRegion(host, uri);
 
 		if (!prefix.isEmpty() && !prefix.endsWith("/")) {
 			prefix = prefix + "/";
 		}
 
-		return new S3Location(host, region, bucket, prefix);
+		String keyPrefix = prefix;
+		return PARSERS.stream()
+				.map(parser -> parser.tryParse(host, bucket, keyPrefix))
+				.flatMap(Optional::stream)
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException(
+						"S3 endpoint host '" + host + "' is not a recognized regional URL in: " + uri + ". " + expected()));
 	}
 
-	private static String extractRegion(String host, String uri) {
-		Matcher aws = AWS_HOST.matcher(host);
-		if (aws.matches()) {
-			return aws.group(1);
-		}
-		Matcher digitalOcean = DO_HOST.matcher(host);
-		if (digitalOcean.matches()) {
-			return digitalOcean.group(1);
-		}
-		throw new IllegalArgumentException("S3 endpoint host '" + host + "' is not a recognized regional URL in: " + uri + ". " + EXPECTED);
+	private static String expected() {
+		String hosts = PARSERS.stream().map(S3LocationParser::description).collect(Collectors.joining("|"));
+		return "Expected: s3://{" + hosts + "}/<bucket>/<key-prefix>/";
 	}
 }

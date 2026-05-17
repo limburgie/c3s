@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import be.webfactor.c3s.siteassetstore.cache.SiteAssetStoreCache;
 import be.webfactor.c3s.siteconnectionregistry.SiteConnectionRegistryFactory;
 import be.webfactor.c3s.siteconnectionregistry.domain.SiteConnection;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -27,14 +28,15 @@ public class CacheInvalidationController {
 	@Value("${c3s.siteassetstore.cache.webhook.secret:}")
 	private String siteAssetStoreCacheSecret;
 
-	@PostMapping("/cache/siteassetstore/{virtualHost}/invalidate")
+	@PostMapping("/cache/siteassetstore/invalidate")
 	public ResponseEntity<Void> invalidateSiteAssetStoreCache(
 			@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-            @PathVariable String virtualHost) {
+			HttpServletRequest request) {
 		if (!isAuthorized(authorization)) {
 			return ResponseEntity.status(401).build();
 		}
 
+		String virtualHost = request.getServerName();
 		String repositoryId = resolveRepositoryId(virtualHost);
 		if (repositoryId == null) {
 			return ResponseEntity.notFound().build();
