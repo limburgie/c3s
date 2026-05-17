@@ -25,8 +25,7 @@ public class LocalSiteConnectionRegistry implements SiteConnectionRegistry {
 						SiteAssetStoreType.valueOf(getPropValue(virtualHost, "type")),
 						getPropValue(virtualHost, "url"),
 						getPropValue(virtualHost, "principal"),
-						getPropValue(virtualHost, "secret"),
-						getPropValue(virtualHost, "location")
+						getPropValue(virtualHost, "secret")
 				)
 		);
 	}

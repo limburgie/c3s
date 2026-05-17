@@ -16,7 +16,7 @@ public class DatabaseSiteConnectionRegistry implements SiteConnectionRegistry {
 
 	public SiteConnection getConnectionForHost(String virtualHost) {
 		DatabaseSiteConnection repo = repository.findByVirtualHost(virtualHost);
-		SiteAssetStoreConnection connection = new SiteAssetStoreConnection(repo.getType(), repo.getUrl(), repo.getPrincipal(), repo.getSecret(), repo.getLocation());
+		SiteAssetStoreConnection connection = new SiteAssetStoreConnection(repo.getType(), repo.getUrl(), repo.getPrincipal(), repo.getSecret());
 
 		return new SiteConnection(virtualHost, repo.getName(), connection);
 	}
