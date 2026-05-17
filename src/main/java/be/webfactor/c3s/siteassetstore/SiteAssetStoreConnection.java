@@ -9,9 +9,8 @@ public class SiteAssetStoreConnection {
 	String repositoryId;
 	String accessToken;
 	String secretKey;
-	String region;
 
 	public static SiteAssetStoreConnection of(SiteAssetStoreType type, String repositoryId) {
-		return new SiteAssetStoreConnection(type, repositoryId, null, null, null);
+		return new SiteAssetStoreConnection(type, repositoryId, null, null);
 	}
 }

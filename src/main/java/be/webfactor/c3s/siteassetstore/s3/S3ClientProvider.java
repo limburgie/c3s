@@ -2,6 +2,7 @@ package be.webfactor.c3s.siteassetstore.s3;
 
 import be.webfactor.c3s.siteassetstore.SiteAssetStoreConnection;
 
+import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,12 +20,8 @@ public class S3ClientProvider implements DisposableBean {
 
 	private final Map<ClientKey, S3Client> clients = new ConcurrentHashMap<>();
 
-	public S3Client get(SiteAssetStoreConnection connection) {
-		if (connection.getRegion() == null || connection.getRegion().isBlank()) {
-			throw new IllegalStateException("S3 repository requires a region; configure the region property for the site (received null/blank)");
-		}
-
-		ClientKey key = new ClientKey(connection.getAccessToken(), connection.getSecretKey(), connection.getRegion());
+	public S3Client get(SiteAssetStoreConnection connection, S3Location location) {
+		ClientKey key = new ClientKey(location.endpointHost(), connection.getAccessToken(), connection.getSecretKey(), location.region());
 		return clients.computeIfAbsent(key, this::build);
 	}
 
@@ -35,6 +32,11 @@ public class S3ClientProvider implements DisposableBean {
 			builder.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(key.accessKey(), key.secretKey())));
 		}
 
+		if (!key.endpointHost().endsWith("amazonaws.com")) {
+			builder.endpointOverride(URI.create("https://" + key.endpointHost()));
+			builder.forcePathStyle(true);
+		}
+
 		return builder.build();
 	}
 
@@ -43,5 +45,5 @@ public class S3ClientProvider implements DisposableBean {
 		clients.clear();
 	}
 
-	private record ClientKey(String accessKey, String secretKey, String region) {}
+	private record ClientKey(String endpointHost, String accessKey, String secretKey, String region) {}
 }

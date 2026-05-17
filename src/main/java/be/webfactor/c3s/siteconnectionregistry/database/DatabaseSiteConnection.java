@@ -29,6 +29,4 @@ public class DatabaseSiteConnection {
 	private String principal;
 
 	private String secret;
-
-	private String location;
 }

@@ -7,11 +7,25 @@ c3s:
         secret: test123
   siteconnectionregistry:
     type: DATABASE
-    # Example if type is LOCAL
+    # Web server example
     test.inrdiary.com:
       name: INR Diary
       type: WEB_SERVER
       url: file:///Users/petermesotten/WebFactor/Projects/INRDiary/inr-diary-website
+    # DO S3 example
+    dos3.chalibou.be:
+      name: Chalibou
+      type: S3
+      url: s3://ams3.digitaloceanspaces.com/c3s/chalibou-website/
+      principal: DO801YH9LBZTTZNC6QPF
+      secret: tPXKvqsYDyCwhDqXzw2b+sZw2c80lBc3k4k3TT/Qqlo
+    # AWS S3 example
+    awss3.chalibou.be:
+      name: Chalibou
+      type: S3
+      url: s3://s3.eu-west-1.amazonaws.com/c3s/chalibou-website/
+      principal: DO801YH9LBZTTZNC6QPF
+      secret: tPXKvqsYDyCwhDqXzw2b+sZw2c80lBc3k4k3TT/Qqlo
   recaptcha:
     key: 6LeUn2spAAAAADu8nEkb2XZiRSzgvoojciWW0Jt4
 
