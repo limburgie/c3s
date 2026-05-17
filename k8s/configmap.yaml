@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: c3s-config
+  namespace: c3s
+data:
+  SPRING_PROFILES_ACTIVE: "k8s"
+  ASSET_STORE_CACHE_ENABLED: "true"
+  ASSET_STORE_CACHE_MAX_ENTRIES: "1000"
+  LOGGING_LEVEL_ROOT: "INFO"

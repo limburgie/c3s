@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: c3s
+  namespace: c3s
+spec:
+  selector:
+    app: c3s
+  ports:
+    - port: 80
+      targetPort: 8080

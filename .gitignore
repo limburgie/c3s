@@ -1,4 +1,5 @@
 .idea
 target
 *.iml
-src/main/resources/application-peter.yaml
+application-peter.yaml
+generate-secrets.sh

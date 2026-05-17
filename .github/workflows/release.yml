@@ -1,0 +1,61 @@
+name: Release (build + deploy)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  REGISTRY: registry.digitalocean.com/web-factor-container-registry
+  IMAGE_NAME: c3s
+  CLUSTER_NAME: web-factor-k8s
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.extract.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract tag name
+        id: extract
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Log in to DO Container Registry
+        run: doctl registry login --expiry-seconds 1200
+
+      - name: Build and push image
+        run: |
+          docker build -t $REGISTRY/$IMAGE_NAME:${{ steps.extract.outputs.tag }} .
+          docker push $REGISTRY/$IMAGE_NAME:${{ steps.extract.outputs.tag }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Save kubeconfig
+        run: doctl kubernetes cluster kubeconfig save $CLUSTER_NAME
+
+      - name: Deploy
+        run: |
+          kubectl set image deployment/c3s \
+            c3s=$REGISTRY/$IMAGE_NAME:${{ needs.build.outputs.tag }} \
+            -n c3s
+          kubectl annotate deployment/c3s -n c3s \
+            kubernetes.io/change-cause="Auto-deploy ${{ needs.build.outputs.tag }} from tag push by ${{ github.actor }}" --overwrite
+          kubectl rollout status deployment/c3s -n c3s --timeout=5m
