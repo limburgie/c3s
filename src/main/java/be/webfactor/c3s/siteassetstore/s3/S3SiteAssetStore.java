@@ -38,7 +38,7 @@ public class S3SiteAssetStore extends AbstractFileBasedSiteAssetStore {
 		S3Location location = S3Location.parse(connection.getRepositoryId());
 		this.bucket = location.bucket();
 		this.keyPrefix = location.keyPrefix();
-		this.s3 = clientProvider.get(connection);
+		this.s3 = clientProvider.get(connection, location);
 		super.initialize(connection);
 	}
 
