@@ -1,0 +1,66 @@
+name: Deploy tag to DOKS
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Image tag to deploy (must exist in DOCR, e.g., v1.2.3)'
+        required: true
+        type: string
+      reason:
+        description: 'Why are you deploying? (e.g., "release", "rollback after bug X")'
+        required: true
+        type: string
+
+env:
+  REGISTRY: registry.digitalocean.com/web-factor-container-registry
+  IMAGE_NAME: c3s
+  CLUSTER_NAME: web-factor-k8s
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Verify image exists in DOCR
+        run: |
+          doctl registry repository list-tags $IMAGE_NAME --format Tag --no-header \
+            | grep -Fxq "${{ inputs.tag }}" \
+            || (echo "Tag ${{ inputs.tag }} not found in registry. Has the build workflow run for this tag?" && exit 1)
+
+      - name: Save kubeconfig
+        run: doctl kubernetes cluster kubeconfig save $CLUSTER_NAME
+
+      - name: Show current state
+        run: |
+          echo "=== Current deployment ==="
+          kubectl get deployment c3s -n c3s \
+            -o jsonpath='{.spec.template.spec.containers[0].image}'
+          echo ""
+          echo "=== Recent rollout history ==="
+          kubectl rollout history deployment/c3s -n c3s
+
+      - name: Deploy
+        run: |
+          kubectl set image deployment/c3s \
+            c3s=$REGISTRY/$IMAGE_NAME:${{ inputs.tag }} \
+            -n c3s
+          kubectl annotate deployment/c3s -n c3s \
+            kubernetes.io/change-cause="Deploy ${{ inputs.tag }} by ${{ github.actor }}: ${{ inputs.reason }}" --overwrite
+          kubectl rollout status deployment/c3s -n c3s --timeout=5m
+
+      - name: Confirm new state
+        if: always()
+        run: |
+          kubectl get deployment c3s -n c3s \
+            -o jsonpath='{.spec.template.spec.containers[0].image}'
+          echo ""
+          kubectl rollout history deployment/c3s -n c3s

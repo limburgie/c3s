@@ -1,27 +1,27 @@
 package be.webfactor.c3s.renderer;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import be.webfactor.c3s.contentrepository.ContentRepository;
+import be.webfactor.c3s.contentrepository.ContentRepositoryConnection;
+import be.webfactor.c3s.contentrepository.ContentRepositoryFactory;
+import be.webfactor.c3s.siteassetstore.SiteAssetStore;
+import be.webfactor.c3s.templateparser.TemplateParser;
+import be.webfactor.c3s.templateparser.TemplateParserFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import be.webfactor.c3s.content.service.ContentService;
-import be.webfactor.c3s.content.service.ContentServiceFactory;
-import be.webfactor.c3s.master.service.MasterService;
-import be.webfactor.c3s.master.templateparser.TemplateParser;
-import be.webfactor.c3s.master.templateparser.TemplateParserFactory;
-import be.webfactor.c3s.repository.RepositoryConnection;
-
 @Service
+@RequiredArgsConstructor
 public class PageRendererFactory {
 
-	@Autowired private TemplateParserFactory templateParserFactory;
-	@Autowired private ContentServiceFactory contentServiceFactory;
+	private final TemplateParserFactory templateParserFactory;
+	private final ContentRepositoryFactory contentRepositoryFactory;
 
-	public PageRenderer forMasterService(MasterService masterService) {
-		TemplateParser templateParser = templateParserFactory.forTemplateEngine(masterService.getTemplateEngine());
+	public PageRenderer forSiteAssetStore(SiteAssetStore siteAssetStore) {
+		TemplateParser templateParser = templateParserFactory.forTemplateEngine(siteAssetStore.getTemplateEngine());
 
-		RepositoryConnection repoConnection = masterService.getRepositoryConnection();
-		ContentService contentService = repoConnection == null ? null : contentServiceFactory.forRepositoryConnection(repoConnection);
+		ContentRepositoryConnection repoConnection = siteAssetStore.getContentRepositoryConnection();
+		ContentRepository contentRepository = repoConnection == null ? null : contentRepositoryFactory.forConnection(repoConnection);
 
-		return new PageRenderer(masterService, templateParser, contentService);
+		return new PageRenderer(siteAssetStore, templateParser, contentRepository);
 	}
 }

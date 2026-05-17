@@ -1,0 +1,6 @@
+c3s:
+  siteconnectionregistry:
+    type: DATABASE
+
+spring:
+  jpa.hibernate.ddl-auto: update

@@ -1,0 +1,21 @@
+package be.webfactor.c3s.contentrepository.contentful;
+
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
+
+import be.webfactor.c3s.contentrepository.domain.RichTextField;
+
+public class ContentfulRichTextField extends RichTextField {
+
+	private String markdownContent;
+	private Parser parser = Parser.builder().build();
+	private HtmlRenderer htmlRenderer = HtmlRenderer.builder().build();
+
+	ContentfulRichTextField(String markdownContent) {
+		this.markdownContent = markdownContent;
+	}
+
+	public String getHtml() {
+		return htmlRenderer.render(parser.parse(markdownContent));
+	}
+}

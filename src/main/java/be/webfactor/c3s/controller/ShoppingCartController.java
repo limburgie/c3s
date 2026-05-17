@@ -3,11 +3,11 @@ package be.webfactor.c3s.controller;
 import be.webfactor.c3s.form.FormHandler;
 import be.webfactor.c3s.form.FormHandlerFactory;
 import be.webfactor.c3s.form.FormParams;
-import be.webfactor.c3s.master.domain.Form;
-import be.webfactor.c3s.master.service.MasterService;
-import be.webfactor.c3s.master.service.MasterServiceFactory;
-import be.webfactor.c3s.registry.domain.MasterRepository;
-import be.webfactor.c3s.registry.service.RepositoryRegistryFactory;
+import be.webfactor.c3s.siteassetstore.domain.Form;
+import be.webfactor.c3s.siteassetstore.SiteAssetStore;
+import be.webfactor.c3s.siteassetstore.SiteAssetStoreFactory;
+import be.webfactor.c3s.siteconnectionregistry.domain.SiteConnection;
+import be.webfactor.c3s.siteconnectionregistry.SiteConnectionRegistryFactory;
 import be.webfactor.c3s.shopping.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,8 +27,8 @@ public class ShoppingCartController {
 	private static final String OPTION_PREFIX = "option_";
 
 	@Autowired private ShoppingCartSerializer shoppingCartSerializer;
-	@Autowired private RepositoryRegistryFactory repositoryRegistryFactory;
-	@Autowired private MasterServiceFactory masterServiceFactory;
+	@Autowired private SiteConnectionRegistryFactory siteConnectionRegistryFactory;
+	@Autowired private SiteAssetStoreFactory siteAssetStoreFactory;
 	@Autowired private FormHandlerFactory formHandlerFactory;
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -99,9 +99,9 @@ public class ShoppingCartController {
 		ShoppingCart shoppingCart = shoppingCartSerializer.deserialize(shoppingCartEncoded);
 		ShoppingCartThreadLocal.setShoppingCart(shoppingCart);
 
-		MasterService masterService = getMasterService(request);
-		FormHandler formHandler = formHandlerFactory.forMasterService(masterService);
-		Form form = masterService.getForm(request.getParameter("form"));
+		SiteAssetStore siteAssetStore = getSiteAssetStore(request);
+		FormHandler formHandler = formHandlerFactory.forSiteAssetStore(siteAssetStore);
+		Form form = siteAssetStore.getForm(request.getParameter("form"));
 
 		FormParams formParams = new FormParams(request);
 		formParams.put("name", shoppingCart.getPersonalDetails().getName());
@@ -113,10 +113,10 @@ public class ShoppingCartController {
 		setCookieAndRedirect(shoppingCart, request, response);
 	}
 
-	private MasterService getMasterService(HttpServletRequest request) {
-		MasterRepository repository = repositoryRegistryFactory.getRegistry().findMasterRepository(request.getServerName());
+	private SiteAssetStore getSiteAssetStore(HttpServletRequest request) {
+		SiteConnection repository = siteConnectionRegistryFactory.getRegistry().getConnectionForHost(request.getServerName());
 
-		return masterServiceFactory.forRepositoryConnection(repository.getConnection());
+		return siteAssetStoreFactory.forConnection(repository.connection());
 	}
 
 	private ProductConfiguration parseProductConfig(HttpServletRequest request) {

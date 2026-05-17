@@ -1,0 +1,24 @@
+c3s:
+  siteassetstore:
+    cache:
+      enabled: true
+      max-entries: 10000
+      webhook:
+        secret: test123
+  siteconnectionregistry:
+    type: DATABASE
+    # Example if type is LOCAL
+    test.inrdiary.com:
+      name: INR Diary
+      type: WEB_SERVER
+      url: file:///Users/petermesotten/WebFactor/Projects/INRDiary/inr-diary-website
+  recaptcha:
+    key: 6LeUn2spAAAAADu8nEkb2XZiRSzgvoojciWW0Jt4
+
+spring:
+  jpa.hibernate.ddl-auto: update
+  datasource:
+    url: jdbc:mysql://localhost/c3s
+    username: c3s
+    password: c3s
+    driver-class-name: com.mysql.cj.jdbc.Driver

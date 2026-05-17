@@ -1,29 +1,30 @@
 package be.webfactor.c3s.form;
 
-import be.webfactor.c3s.content.service.ContentService;
-import be.webfactor.c3s.content.service.ContentServiceFactory;
-import be.webfactor.c3s.form.captcha.RecaptchaChecker;
-import be.webfactor.c3s.master.service.MasterService;
-import be.webfactor.c3s.master.templateparser.TemplateParser;
-import be.webfactor.c3s.master.templateparser.TemplateParserFactory;
-import be.webfactor.c3s.repository.RepositoryConnection;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import be.webfactor.c3s.siteassetstore.SiteAssetStore;
+import be.webfactor.c3s.templateparser.TemplateParser;
+import be.webfactor.c3s.templateparser.TemplateParserFactory;
+import be.webfactor.c3s.contentrepository.ContentRepository;
+import be.webfactor.c3s.contentrepository.ContentRepositoryConnection;
+import be.webfactor.c3s.contentrepository.ContentRepositoryFactory;
+import be.webfactor.c3s.form.captcha.RecaptchaChecker;
+
 @Service
+@RequiredArgsConstructor
 public class FormHandlerFactory {
 
-	@Autowired private TemplateParserFactory templateParserFactory;
-	@Autowired private ContentServiceFactory contentServiceFactory;
-	@Autowired private RecaptchaChecker recaptchaChecker;
+	private final TemplateParserFactory templateParserFactory;
+	private final ContentRepositoryFactory contentRepositoryFactory;
+	private final RecaptchaChecker recaptchaChecker;
 
-	public FormHandler forMasterService(MasterService masterService) {
-		TemplateParser templateParser = templateParserFactory.forTemplateEngine(masterService.getTemplateEngine());
+	public FormHandler forSiteAssetStore(SiteAssetStore siteAssetStore) {
+		TemplateParser templateParser = templateParserFactory.forTemplateEngine(siteAssetStore.getTemplateEngine());
 
-		RepositoryConnection repoConnection = masterService.getRepositoryConnection();
-		ContentService contentService = repoConnection == null ? null : contentServiceFactory.forRepositoryConnection(repoConnection);
+		ContentRepositoryConnection repoConnection = siteAssetStore.getContentRepositoryConnection();
+		ContentRepository contentRepository = repoConnection == null ? null : contentRepositoryFactory.forConnection(repoConnection);
 
-		return new FormHandler(masterService, contentService, templateParser, recaptchaChecker);
+		return new FormHandler(siteAssetStore, contentRepository, templateParser, recaptchaChecker);
 	}
 }
-
