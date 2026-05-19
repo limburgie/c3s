@@ -48,6 +48,7 @@ public class CacheInvalidationController {
 	}
 
 	private boolean isAuthorized(String authorization) {
+		log.info("Received authorization header: '{}', trying to match to invalidate key '{}'", authorization, siteAssetStoreCacheSecret);
 		if (StringUtils.isBlank(siteAssetStoreCacheSecret) || authorization == null || !authorization.startsWith(BEARER_PREFIX)) {
 			return false;
 		}
