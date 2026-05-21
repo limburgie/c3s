@@ -6,9 +6,6 @@ import be.webfactor.c3s.siteassetstore.SiteAssetStore;
 import be.webfactor.c3s.siteassetstore.SiteAssetStoreConnection;
 import be.webfactor.c3s.siteassetstore.cache.SiteAssetStoreCache;
 import be.webfactor.c3s.siteassetstore.domain.*;
-import be.webfactor.c3s.siteassetstore.domain.mail.FlexmailMailSettings;
-import be.webfactor.c3s.siteassetstore.domain.mail.MailSettings;
-import be.webfactor.c3s.siteassetstore.domain.mail.SmtpMailSettings;
 import be.webfactor.c3s.siteassetstore.filebased.domain.*;
 import be.webfactor.c3s.contentrepository.ContentRepositoryConnection;
 import be.webfactor.c3s.contentrepository.ContentRepositoryType;
@@ -82,10 +79,9 @@ public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore 
 				? MailSenderType.SMTP
 				: MailSenderType.valueOf(mailSettings.getType().toUpperCase());
 
-		return switch (type) {
-			case SMTP -> new SmtpMailSettings(mailSettings.getHost(), mailSettings.getPort(), mailSettings.getUsername(), mailSettings.getPassword());
-			case FLEXMAIL -> new FlexmailMailSettings(mailSettings.getUsername(), mailSettings.getPassword(), mailSettings.getFromAddress());
-		};
+		String fromAddress = StringUtils.defaultIfBlank(mailSettings.getFromAddress(), mailSettings.getUsername());
+
+		return new MailSettings(type, mailSettings.getHost(), mailSettings.getPort(), mailSettings.getUsername(), mailSettings.getPassword(), fromAddress);
 	}
 
 	public Page getPage(String friendlyUrl) {
@@ -101,7 +97,7 @@ public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore 
 			throw new PageNotFoundException();
 		}
 
-		return pages.get(0);
+		return pages.getFirst();
 	}
 
 	public Page getIndexPage() {
@@ -208,7 +204,7 @@ public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore 
 			return null;
 		}
 
-		return fromSiteForm(config.getForms().get(0));
+		return fromSiteForm(config.getForms().getFirst());
 	}
 
 	private Form fromSiteForm(SiteForm siteForm) {

@@ -3,8 +3,7 @@ package be.webfactor.c3s.form.sender.smtp;
 import be.webfactor.c3s.form.sender.EmailMessage;
 import be.webfactor.c3s.form.sender.MailSender;
 import be.webfactor.c3s.form.sender.MailSenderType;
-import be.webfactor.c3s.siteassetstore.domain.mail.MailSettings;
-import be.webfactor.c3s.siteassetstore.domain.mail.SmtpMailSettings;
+import be.webfactor.c3s.siteassetstore.domain.MailSettings;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -18,8 +17,6 @@ public class SmtpMailSender implements MailSender {
 
 	@Override
 	public void send(MailSettings settings, EmailMessage message) {
-		SmtpMailSettings smtp = (SmtpMailSettings) settings;
-
 		MimeMessagePreparator preparator = mimeMessage -> {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.name());
 
@@ -34,7 +31,7 @@ public class SmtpMailSender implements MailSender {
 			helper.setText(message.body(), true);
 		};
 
-		buildJavaMailSender(smtp).send(preparator);
+		buildJavaMailSender(settings).send(preparator);
 	}
 
 	@Override
@@ -42,7 +39,7 @@ public class SmtpMailSender implements MailSender {
 		return MailSenderType.SMTP;
 	}
 
-	private JavaMailSenderImpl buildJavaMailSender(SmtpMailSettings settings) {
+	private JavaMailSenderImpl buildJavaMailSender(MailSettings settings) {
 		JavaMailSenderImpl sender = new JavaMailSenderImpl();
 
 		Properties props = new Properties();

@@ -3,8 +3,7 @@ package be.webfactor.c3s.form.sender.flexmail;
 import be.webfactor.c3s.form.sender.EmailMessage;
 import be.webfactor.c3s.form.sender.MailSender;
 import be.webfactor.c3s.form.sender.MailSenderType;
-import be.webfactor.c3s.siteassetstore.domain.mail.FlexmailMailSettings;
-import be.webfactor.c3s.siteassetstore.domain.mail.MailSettings;
+import be.webfactor.c3s.siteassetstore.domain.MailSettings;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -22,15 +21,13 @@ public class FlexmailMailSender implements MailSender {
 
 	@Override
 	public void send(MailSettings settings, EmailMessage message) {
-		FlexmailMailSettings flexmail = (FlexmailMailSettings) settings;
-
-		FlexmailAddress sender = new FlexmailAddress(flexmail.fromAddress(), message.from().name());
+		FlexmailAddress sender = new FlexmailAddress(settings.fromAddress(), message.from().name());
 		FlexmailAddress receiver = new FlexmailAddress(message.to().address(), message.to().name());
 		FlexmailAddress replyTo = message.replyTo() == null ? null : new FlexmailAddress(message.replyTo().address(), message.replyTo().name());
 
         restClient.post()
 				.uri(FLEXMAIL_API_URL)
-				.header(HttpHeaders.AUTHORIZATION, basicAuth(flexmail.username(), flexmail.password()))
+				.header(HttpHeaders.AUTHORIZATION, basicAuth(settings.username(), settings.password()))
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(new FlexmailSendEmailRequest(sender, receiver, replyTo, message.subject(), message.body()))
 				.retrieve()
