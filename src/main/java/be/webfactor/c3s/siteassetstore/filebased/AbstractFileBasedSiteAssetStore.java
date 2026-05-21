@@ -1,11 +1,14 @@
 package be.webfactor.c3s.siteassetstore.filebased;
 
+import be.webfactor.c3s.form.sender.MailSenderType;
 import be.webfactor.c3s.siteassetstore.SiteAssetNotFoundException;
 import be.webfactor.c3s.siteassetstore.SiteAssetStore;
 import be.webfactor.c3s.siteassetstore.SiteAssetStoreConnection;
-import be.webfactor.c3s.siteassetstore.cache.CaffeineSiteAssetStoreCache;
 import be.webfactor.c3s.siteassetstore.cache.SiteAssetStoreCache;
 import be.webfactor.c3s.siteassetstore.domain.*;
+import be.webfactor.c3s.siteassetstore.domain.mail.FlexmailMailSettings;
+import be.webfactor.c3s.siteassetstore.domain.mail.MailSettings;
+import be.webfactor.c3s.siteassetstore.domain.mail.SmtpMailSettings;
 import be.webfactor.c3s.siteassetstore.filebased.domain.*;
 import be.webfactor.c3s.contentrepository.ContentRepositoryConnection;
 import be.webfactor.c3s.contentrepository.ContentRepositoryType;
@@ -14,6 +17,7 @@ import be.webfactor.c3s.controller.exception.PageNotFoundException;
 import be.webfactor.c3s.templateparser.TemplateEngine;
 import com.google.gson.Gson;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
@@ -68,13 +72,20 @@ public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore 
 	}
 
 	public MailSettings getMailSettings() {
-		SiteMailSettings s = config.getMailSettings();
+		SiteMailSettings mailSettings = config.getMailSettings();
 
-		if (s == null) {
+		if (mailSettings == null) {
 			return null;
 		}
 
-		return new MailSettings(s.getHost(), s.getPort(), s.getUsername(), s.getPassword());
+		MailSenderType type = StringUtils.isBlank(mailSettings.getType())
+				? MailSenderType.SMTP
+				: MailSenderType.valueOf(mailSettings.getType().toUpperCase());
+
+		return switch (type) {
+			case SMTP -> new SmtpMailSettings(mailSettings.getHost(), mailSettings.getPort(), mailSettings.getUsername(), mailSettings.getPassword());
+			case FLEXMAIL -> new FlexmailMailSettings(mailSettings.getUsername(), mailSettings.getPassword(), mailSettings.getFromAddress());
+		};
 	}
 
 	public Page getPage(String friendlyUrl) {

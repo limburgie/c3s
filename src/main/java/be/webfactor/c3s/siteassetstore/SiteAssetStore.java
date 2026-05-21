@@ -1,7 +1,7 @@
 package be.webfactor.c3s.siteassetstore;
 
 import be.webfactor.c3s.siteassetstore.domain.Form;
-import be.webfactor.c3s.siteassetstore.domain.MailSettings;
+import be.webfactor.c3s.siteassetstore.domain.mail.MailSettings;
 import be.webfactor.c3s.siteassetstore.domain.Page;
 import be.webfactor.c3s.templateparser.TemplateEngine;
 import be.webfactor.c3s.contentrepository.ContentRepositoryConnection;
