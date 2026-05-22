@@ -1,4 +1,5 @@
 .idea
+.junie
 target
 *.iml
 application-peter.yaml
