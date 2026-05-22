@@ -24,12 +24,13 @@ public class FlexmailMailSender implements MailSender {
 		FlexmailAddress sender = new FlexmailAddress(settings.fromAddress(), message.from().name());
 		FlexmailAddress receiver = new FlexmailAddress(message.to().address(), message.to().name());
 		FlexmailAddress replyTo = message.replyTo() == null ? null : new FlexmailAddress(message.replyTo().address(), message.replyTo().name());
+		FlexmailSendEmailRequest body = new FlexmailSendEmailRequest(sender, receiver, replyTo, message.subject(), message.body());
 
-        restClient.post()
+		restClient.post()
 				.uri(FLEXMAIL_API_URL)
 				.header(HttpHeaders.AUTHORIZATION, basicAuth(settings.username(), settings.password()))
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(new FlexmailSendEmailRequest(sender, receiver, replyTo, message.subject(), message.body()))
+				.body(body)
 				.retrieve()
 				.toBodilessEntity();
 	}
