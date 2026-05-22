@@ -2,20 +2,16 @@ package be.webfactor.c3s.form;
 
 import be.webfactor.c3s.contentrepository.ContentRepository;
 import be.webfactor.c3s.form.captcha.RecaptchaChecker;
+import be.webfactor.c3s.form.sender.EmailMessage;
+import be.webfactor.c3s.form.sender.MailSender;
 import be.webfactor.c3s.siteassetstore.domain.EmailAddress;
 import be.webfactor.c3s.siteassetstore.domain.Form;
 import be.webfactor.c3s.siteassetstore.domain.LocationThreadLocal;
-import be.webfactor.c3s.siteassetstore.domain.MailSettings;
 import be.webfactor.c3s.siteassetstore.SiteAssetStore;
 import be.webfactor.c3s.templateparser.TemplateParser;
 import be.webfactor.c3s.renderer.I18n;
 import be.webfactor.c3s.shopping.ShoppingCartThreadLocal;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.mail.javamail.MimeMessagePreparator;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class FormHandler {
@@ -30,17 +26,19 @@ public class FormHandler {
 	private final TemplateParser templateParser;
 	private final ContentRepository contentRepository;
 	private final RecaptchaChecker recaptchaChecker;
+	private final MailSender mailSender;
 
-	FormHandler(SiteAssetStore siteAssetStore, ContentRepository contentRepository, TemplateParser templateParser, RecaptchaChecker recaptchaChecker) {
+	FormHandler(SiteAssetStore siteAssetStore, ContentRepository contentRepository, TemplateParser templateParser, RecaptchaChecker recaptchaChecker, MailSender mailSender) {
 		this.siteAssetStore = siteAssetStore;
 		this.contentRepository = contentRepository;
 		this.templateParser = templateParser;
 		this.recaptchaChecker = recaptchaChecker;
+		this.mailSender = mailSender;
 	}
 
 	public void handleForm(Form form, FormParams formParams) {
         if (recaptchaChecker.validate(formParams)) {
-			EmailAddress managerEmailAddress = new EmailAddress(siteAssetStore.getSiteName(), siteAssetStore.getMailSettings().username());
+			EmailAddress managerEmailAddress = new EmailAddress(siteAssetStore.getSiteName(), siteAssetStore.getMailSettings().fromAddress());
 			EmailAddress visitorEmailAddress = new EmailAddress(formParams.getValue("name"), formParams.getValue("email"));
 
 			sendVisitorEmail(managerEmailAddress, visitorEmailAddress, form, formParams);
@@ -82,38 +80,6 @@ public class FormHandler {
 	}
 
 	private void sendEmail(EmailAddress from, EmailAddress to, EmailAddress replyTo, String subject, String body) {
-		MimeMessagePreparator mailMessage = mimeMessage -> {
-			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.name());
-
-			message.setFrom(from.address(), from.name());
-			message.addTo(to.address(), to.name());
-
-			if (replyTo != null) {
-				message.setReplyTo(replyTo.address(), replyTo.name());
-			}
-
-			message.setSubject(subject);
-			message.setText(body, true);
-		};
-
-		createJavaMailSender(siteAssetStore.getMailSettings()).send(mailMessage);
-	}
-
-	private JavaMailSender createJavaMailSender(MailSettings mailSettings) {
-		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-
-		Properties mailProperties = new Properties();
-		mailProperties.put("mail.smtp.auth", true);
-		mailProperties.put("mail.smtp.starttls.enable", true);
-		mailProperties.put("mail.smtp.starttls.required", true);
-
-		mailSender.setJavaMailProperties(mailProperties);
-		mailSender.setHost(mailSettings.host());
-		mailSender.setPort(mailSettings.port());
-		mailSender.setProtocol("smtp");
-		mailSender.setUsername(mailSettings.username());
-		mailSender.setPassword(mailSettings.password());
-
-		return mailSender;
+		mailSender.send(siteAssetStore.getMailSettings(), new EmailMessage(from, to, replyTo, subject, body));
 	}
 }

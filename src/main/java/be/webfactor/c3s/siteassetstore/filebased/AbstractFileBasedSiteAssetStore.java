@@ -1,9 +1,9 @@
 package be.webfactor.c3s.siteassetstore.filebased;
 
+import be.webfactor.c3s.form.sender.MailSenderType;
 import be.webfactor.c3s.siteassetstore.SiteAssetNotFoundException;
 import be.webfactor.c3s.siteassetstore.SiteAssetStore;
 import be.webfactor.c3s.siteassetstore.SiteAssetStoreConnection;
-import be.webfactor.c3s.siteassetstore.cache.CaffeineSiteAssetStoreCache;
 import be.webfactor.c3s.siteassetstore.cache.SiteAssetStoreCache;
 import be.webfactor.c3s.siteassetstore.domain.*;
 import be.webfactor.c3s.siteassetstore.filebased.domain.*;
@@ -14,6 +14,7 @@ import be.webfactor.c3s.controller.exception.PageNotFoundException;
 import be.webfactor.c3s.templateparser.TemplateEngine;
 import com.google.gson.Gson;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
@@ -68,13 +69,19 @@ public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore 
 	}
 
 	public MailSettings getMailSettings() {
-		SiteMailSettings s = config.getMailSettings();
+		SiteMailSettings mailSettings = config.getMailSettings();
 
-		if (s == null) {
+		if (mailSettings == null) {
 			return null;
 		}
 
-		return new MailSettings(s.getHost(), s.getPort(), s.getUsername(), s.getPassword());
+		MailSenderType type = StringUtils.isBlank(mailSettings.getType())
+				? MailSenderType.SMTP
+				: MailSenderType.valueOf(mailSettings.getType().toUpperCase());
+
+		String fromAddress = StringUtils.defaultIfBlank(mailSettings.getFromAddress(), mailSettings.getUsername());
+
+		return new MailSettings(type, mailSettings.getHost(), mailSettings.getPort(), mailSettings.getUsername(), mailSettings.getPassword(), fromAddress);
 	}
 
 	public Page getPage(String friendlyUrl) {
@@ -90,7 +97,7 @@ public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore 
 			throw new PageNotFoundException();
 		}
 
-		return pages.get(0);
+		return pages.getFirst();
 	}
 
 	public Page getIndexPage() {
@@ -197,7 +204,7 @@ public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore 
 			return null;
 		}
 
-		return fromSiteForm(config.getForms().get(0));
+		return fromSiteForm(config.getForms().getFirst());
 	}
 
 	private Form fromSiteForm(SiteForm siteForm) {
