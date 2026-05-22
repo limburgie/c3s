@@ -6,6 +6,8 @@ import be.webfactor.c3s.form.sender.MailSenderType;
 import be.webfactor.c3s.siteassetstore.domain.MailSettings;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -17,7 +19,9 @@ public class FlexmailMailSender implements MailSender {
 
 	private static final String FLEXMAIL_API_URL = "https://email-api.flexmail.eu/messages";
 
-	private final RestClient restClient = RestClient.create();
+	private final RestClient restClient = RestClient.builder()
+			.requestFactory(new BufferingClientHttpRequestFactory(new JdkClientHttpRequestFactory()))
+			.build();
 
 	@Override
 	public void send(MailSettings settings, EmailMessage message) {
