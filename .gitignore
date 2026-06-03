@@ -2,5 +2,5 @@
 .junie
 target
 *.iml
-application-peter.yaml
+application-peter.yml
 generate-secrets.sh
