@@ -14,7 +14,12 @@ import be.webfactor.c3s.shopping.ShoppingCartThreadLocal;
 
 import java.util.*;
 
-public class FormHandler {
+public record FormHandler(
+		SiteAssetStore siteAssetStore,
+		ContentRepository contentRepository,
+		TemplateParser templateParser,
+		RecaptchaChecker recaptchaChecker,
+		MailSender mailSender) {
 
 	private static final String API_TEMPLATE_VAR = "api";
 	private static final String FORM_PARAMS_VAR = "params";
@@ -22,22 +27,8 @@ public class FormHandler {
 	private static final String I18N_TEMPLATE_VAR = "i18n";
 	private static final String LANGUAGE_VAR = "language";
 
-	private final SiteAssetStore siteAssetStore;
-	private final TemplateParser templateParser;
-	private final ContentRepository contentRepository;
-	private final RecaptchaChecker recaptchaChecker;
-	private final MailSender mailSender;
-
-	FormHandler(SiteAssetStore siteAssetStore, ContentRepository contentRepository, TemplateParser templateParser, RecaptchaChecker recaptchaChecker, MailSender mailSender) {
-		this.siteAssetStore = siteAssetStore;
-		this.contentRepository = contentRepository;
-		this.templateParser = templateParser;
-		this.recaptchaChecker = recaptchaChecker;
-		this.mailSender = mailSender;
-	}
-
 	public void handleForm(Form form, FormParams formParams) {
-        if (recaptchaChecker.validate(formParams)) {
+		if (recaptchaChecker.validate(formParams)) {
 			EmailAddress managerEmailAddress = new EmailAddress(siteAssetStore.getSiteName(), siteAssetStore.getMailSettings().fromAddress());
 			EmailAddress visitorEmailAddress = new EmailAddress(formParams.getValue("name"), formParams.getValue("email"));
 

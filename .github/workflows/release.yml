@@ -1,30 +1,71 @@
-name: Release (build + deploy)
+name: Release & Deploy
+
+# Manually cut a release. Enter the version (x.y.z); this workflow sets it in pom.xml,
+# commits to develop, tags it, builds + pushes the Docker image, merges the release into
+# master (so master carries the released code + version), and deploys to K8S.
+# It always operates on develop regardless of the branch picked in the Run workflow dropdown
+# (GitHub defaults that dropdown to the repo default branch — see below). Everything is bare
+# x.y.z: pom version, git tag, and image tag all match (no v prefix).
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New release version (x.y.z)'
+        required: true
+        type: string
 
 env:
   REGISTRY: registry.digitalocean.com/web-factor-container-registry
   IMAGE_NAME: c3s
   CLUSTER_NAME: web-factor-k8s
 
+permissions:
+  contents: write
+
 concurrency:
   group: deploy-production
   cancel-in-progress: false
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.extract.outputs.tag }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out develop
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
 
-      - name: Extract tag name
-        id: extract
-        run: echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+      - name: Validate input and tag availability
+        run: |
+          VERSION=$(echo "${{ inputs.version }}" | xargs)   # trim whitespace
+          echo "Requested version: '$VERSION'"
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Version '$VERSION' is not a bare semantic version (expected e.g. 3.0.6)." && exit 1
+          fi
+          if git rev-parse -q --verify "refs/tags/$VERSION" >/dev/null; then
+            echo "Tag '$VERSION' already exists. Pick a new version." && exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Set project version
+        run: mvn -B versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+
+      - name: Commit and tag (local)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pom.xml
+          git commit -m "Release $VERSION"
+          git tag -a "$VERSION" -m "Release $VERSION"
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
@@ -36,17 +77,24 @@ jobs:
 
       - name: Build and push image
         run: |
-          docker build -t $REGISTRY/$IMAGE_NAME:${{ steps.extract.outputs.tag }} .
-          docker push $REGISTRY/$IMAGE_NAME:${{ steps.extract.outputs.tag }}
+          docker build -t $REGISTRY/$IMAGE_NAME:$VERSION .
+          docker push $REGISTRY/$IMAGE_NAME:$VERSION
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      # Publish the commit + tag only after the image is in the registry, so a failed build
+      # never leaves an orphan tag/version on develop.
+      - name: Push commit and tag
+        run: |
+          git push origin develop
+          git push origin "$VERSION"
+
+      # Bring the released code + version into master (gitflow). master ends up with develop's
+      # HEAD via a merge commit; the tag stays on the release commit (now in master's history).
+      - name: Merge release into master
+        run: |
+          git fetch origin master
+          git checkout -B master FETCH_HEAD
+          git merge --no-ff develop -m "Merge release $VERSION into master"
+          git push origin master
 
       - name: Save kubeconfig
         run: doctl kubernetes cluster kubeconfig save $CLUSTER_NAME
@@ -54,8 +102,8 @@ jobs:
       - name: Deploy
         run: |
           kubectl set image deployment/c3s \
-            c3s=$REGISTRY/$IMAGE_NAME:${{ needs.build.outputs.tag }} \
+            c3s=$REGISTRY/$IMAGE_NAME:$VERSION \
             -n c3s
           kubectl annotate deployment/c3s -n c3s \
-            kubernetes.io/change-cause="Auto-deploy ${{ needs.build.outputs.tag }} from tag push by ${{ github.actor }}" --overwrite
+            kubernetes.io/change-cause="Release $VERSION by ${{ github.actor }}" --overwrite
           kubectl rollout status deployment/c3s -n c3s --timeout=5m
