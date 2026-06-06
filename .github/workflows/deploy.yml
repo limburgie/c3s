@@ -1,14 +1,10 @@
-name: Deploy tag to DOKS
+name: Deploy
 
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Image tag to deploy (must exist in DOCR, e.g., v1.2.3)'
-        required: true
-        type: string
-      reason:
-        description: 'Why are you deploying? (e.g., "release", "rollback after bug X")'
+        description: 'Tag to deploy (x.y.z)'
         required: true
         type: string
 
@@ -32,9 +28,16 @@ jobs:
 
       - name: Verify image exists in DOCR
         run: |
-          doctl registry repository list-tags $IMAGE_NAME --format Tag --no-header \
-            | grep -Fxq "${{ inputs.tag }}" \
-            || (echo "Tag ${{ inputs.tag }} not found in registry. Has the build workflow run for this tag?" && exit 1)
+          TAG=$(echo "${{ inputs.tag }}" | xargs)   # trim leading/trailing whitespace
+          TAGS=$(doctl registry repository list-tags "$IMAGE_NAME" --format Tag --no-header)
+          echo "=== Tags available in $IMAGE_NAME ==="
+          echo "$TAGS"
+          echo "=== Looking for: '$TAG' ==="
+          # --format/--no-header are silently ignored by some doctl versions, so the
+          # output may still be the full multi-column table with a header. Match on the
+          # first column only; the header row's first field ('Tag') won't match a real tag.
+          echo "$TAGS" | tr -d '\r' | awk '{print $1}' | grep -Fxq "$TAG" \
+            || (echo "Tag '$TAG' not found in registry. Has the build workflow run for this tag?" && exit 1)
 
       - name: Save kubeconfig
         run: doctl kubernetes cluster kubeconfig save $CLUSTER_NAME
@@ -54,7 +57,7 @@ jobs:
             c3s=$REGISTRY/$IMAGE_NAME:${{ inputs.tag }} \
             -n c3s
           kubectl annotate deployment/c3s -n c3s \
-            kubernetes.io/change-cause="Deploy ${{ inputs.tag }} by ${{ github.actor }}: ${{ inputs.reason }}" --overwrite
+            kubernetes.io/change-cause="Deploy ${{ inputs.tag }} by ${{ github.actor }}" --overwrite
           kubectl rollout status deployment/c3s -n c3s --timeout=5m
 
       - name: Confirm new state

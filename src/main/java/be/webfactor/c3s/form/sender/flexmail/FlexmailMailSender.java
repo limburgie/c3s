@@ -25,6 +25,9 @@ public class FlexmailMailSender implements MailSender {
 
 	@Override
 	public void send(MailSettings settings, EmailMessage message) {
+		String accountId = settings.username();
+		String accessToken = settings.password();
+
 		FlexmailAddress sender = new FlexmailAddress(settings.fromAddress(), message.from().name());
 		FlexmailAddress receiver = new FlexmailAddress(message.to().address(), message.to().name());
 		FlexmailAddress replyTo = message.replyTo() == null ? null : new FlexmailAddress(message.replyTo().address(), message.replyTo().name());
@@ -32,7 +35,7 @@ public class FlexmailMailSender implements MailSender {
 
 		restClient.post()
 				.uri(FLEXMAIL_API_URL)
-				.header(HttpHeaders.AUTHORIZATION, basicAuth(settings.username(), settings.password()))
+				.header(HttpHeaders.AUTHORIZATION, basicAuth(accountId, accessToken))
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(body)
 				.retrieve()

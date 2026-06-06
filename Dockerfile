@@ -18,6 +18,12 @@ EXPOSE 8080
 ENV SPRING_PROFILES_ACTIVE=k8s
 
 # JVM flags tuned for containers
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75 -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom"
+ENV JAVA_OPTS="-Xmx256m \
+    -XX:+UseG1GC \
+    -XX:+UseStringDeduplication \
+    -XX:MaxMetaspaceSize=256m \
+    -XX:ReservedCodeCacheSize=128m \
+    -XX:MaxDirectMemorySize=128m \
+    -XX:+ExitOnOutOfMemoryError"
 
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]
