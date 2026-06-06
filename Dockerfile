@@ -18,7 +18,8 @@ EXPOSE 8080
 ENV SPRING_PROFILES_ACTIVE=k8s
 
 # JVM flags tuned for containers
-ENV JAVA_OPTS="-Xmx256m \
+ENV JAVA_OPTS="-XX:InitialRAMPercentage=60.0 \
+    -XX:MaxRAMPercentage=60.0 \
     -XX:+UseG1GC \
     -XX:+UseStringDeduplication \
     -XX:MaxMetaspaceSize=256m \
