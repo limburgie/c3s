@@ -1,5 +1,5 @@
 name: Release & Deploy
-run-name: Release ${{ inputs.tag }}
+run-name: Release ${{ inputs.version }}
 
 # Manually cut a release. Enter the version (x.y.z); this workflow sets it in pom.xml,
 # commits to develop, tags it, builds + pushes the Docker image, merges the release into
