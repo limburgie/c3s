@@ -3,8 +3,10 @@ package be.webfactor.c3s.contentrepository.paginea;
 import be.webfactor.c3s.contentrepository.domain.ContentItem;
 import be.webfactor.c3s.contentrepository.domain.QueryBuilder;
 import be.webfactor.c3s.contentrepository.paginea.api.ContentItemsApi;
+import be.webfactor.c3s.siteassetstore.domain.LocationThreadLocal;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,27 +43,31 @@ public class PagineaQueryBuilder implements QueryBuilder {
 
     @Override
     public QueryBuilder withDateInPast(String field) {
-        return with(field, "<=today");
+        return with(field, "<=" + today());
     }
 
     @Override
     public QueryBuilder withDateBeforeToday(String field) {
-        return with(field, "<today");
+        return with(field, "<" + today());
     }
 
     @Override
     public QueryBuilder withDateInFuture(String field) {
-        return with(field, ">=today");
+        return with(field, ">=" + today());
     }
 
     @Override
     public QueryBuilder withDateAfterToday(String field) {
-        return with(field, ">today");
+        return with(field, ">" + today());
     }
 
     @Override
     public QueryBuilder withDateToday(String field) {
-        return with(field, "today");
+        return with(field, today());
+    }
+
+    private String today() {
+        return LocalDate.now(LocationThreadLocal.getTimeZone()).toString();
     }
 
     @Override
