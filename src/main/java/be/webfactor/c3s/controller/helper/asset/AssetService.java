@@ -37,7 +37,11 @@ public class AssetService {
 
         Metadata metadata = new Metadata();
         metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, assetPath);
-        MediaType contentType = MediaType.valueOf(TIKA_CONFIG.getDetector().detect(TikaInputStream.get(data), metadata).toString());
+
+        MediaType contentType;
+        try (TikaInputStream tikaInputStream = TikaInputStream.get(data)) {
+            contentType = MediaType.valueOf(TIKA_CONFIG.getDetector().detect(tikaInputStream, metadata).toString());
+        }
 
         return new Asset(data, contentType);
     }

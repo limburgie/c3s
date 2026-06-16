@@ -17,14 +17,13 @@ EXPOSE 8080
 
 ENV SPRING_PROFILES_ACTIVE=k8s
 
-# JVM flags tuned for containers
-ENV JAVA_OPTS="-XX:InitialRAMPercentage=60.0 \
-    -XX:MaxRAMPercentage=60.0 \
+ENV JAVA_OPTS="-XX:InitialRAMPercentage=50.0 \
+    -XX:MaxRAMPercentage=50.0 \
     -XX:+UseG1GC \
     -XX:+UseStringDeduplication \
-    -XX:MaxMetaspaceSize=256m \
-    -XX:ReservedCodeCacheSize=128m \
-    -XX:MaxDirectMemorySize=128m \
+    -XX:MaxMetaspaceSize=192m \
+    -XX:ReservedCodeCacheSize=96m \
+    -XX:MaxDirectMemorySize=64m \
     -XX:+ExitOnOutOfMemoryError"
 
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]
