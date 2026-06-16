@@ -126,16 +126,16 @@ public class PageController {
 
 	@GetMapping(EDIT_URL_JS_PATH)
 	public ResponseEntity<byte[]> editUrlJavascript() throws IOException {
-		InputStream jsResource = getClass().getClassLoader().getResourceAsStream(EDIT_URL_JS_FILENAME);
+		try (InputStream jsResource = getClass().getClassLoader().getResourceAsStream(EDIT_URL_JS_FILENAME)) {
+			if (jsResource == null) {
+				return ResponseEntity.notFound().build();
+			}
 
-		if (jsResource == null) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.ok()
+					.cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS))
+					.contentType(MediaType.valueOf("application/javascript"))
+					.body(IOUtils.toByteArray(jsResource));
 		}
-
-        return ResponseEntity.ok()
-				.cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS))
-				.contentType(MediaType.valueOf("application/javascript"))
-				.body(IOUtils.toByteArray(jsResource));
 	}
 
 	@GetMapping(value = SITEMAP_PATH, produces = MediaType.TEXT_XML_VALUE)

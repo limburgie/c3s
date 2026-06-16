@@ -4,7 +4,7 @@ metadata:
   name: c3s
   namespace: c3s
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:

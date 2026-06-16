@@ -65,35 +65,41 @@ public class RecaptchaChecker {
     }
 
     private RecaptchaResult verify(String captcha) {
+        HttpsURLConnection con = null;
         try {
-            BufferedReader in = createBufferedReader(captcha);
-            String inputLine;
-            StringBuilder response = new StringBuilder();
+            con = openConnection(captcha);
 
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
+            StringBuilder response = new StringBuilder();
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
             }
-            in.close();
 
             return gson.fromJson(response.toString(), RecaptchaResult.class);
         } catch (IOException e) {
             throw new RecaptchaException(e);
+        } finally {
+            if (con != null) {
+                con.disconnect();
+            }
         }
     }
 
     @NotNull
-    private BufferedReader createBufferedReader(String captcha) throws IOException {
+    private HttpsURLConnection openConnection(String captcha) throws IOException {
         URL obj = new URL(RECAPTCHA_SERVICE_URL);
 
         HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
         con.setDoOutput(true);
-        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        wr.writeBytes("secret=" + recaptchaSecretKey + "&response=" + captcha);
-        wr.flush();
-        wr.close();
+        try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
+            wr.writeBytes("secret=" + recaptchaSecretKey + "&response=" + captcha);
+            wr.flush();
+        }
 
-        return new BufferedReader(new InputStreamReader(con.getInputStream()));
+        return con;
     }
 }

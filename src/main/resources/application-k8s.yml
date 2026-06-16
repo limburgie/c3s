@@ -8,6 +8,13 @@ c3s:
   recaptcha:
     key: ${RECAPTCHA_KEY}
 
+server:
+  tomcat:
+    threads:
+      # Cap worker threads (Tomcat default 200): each reserves ~1 MiB of native stack, so 200 threads
+      # can claim ~200 MiB of RSS. 100 is ample for 12 low-traffic sites and halves the worst case.
+      max: 100
+
 spring:
   datasource:
     url: ${DB_URL}
