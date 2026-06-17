@@ -3,105 +3,99 @@ package be.webfactor.c3s.controller.sass;
 import be.webfactor.c3s.controller.PageController;
 import be.webfactor.c3s.siteassetstore.SiteAssetNotFoundException;
 import be.webfactor.c3s.siteassetstore.SiteAssetStore;
-import io.bit3.jsass.*;
-import io.bit3.jsass.importer.Import;
-import org.apache.commons.io.IOUtils;
+import com.sass_lang.embedded_protocol.InboundMessage.ImportResponse.ImportSuccess;
+import com.sass_lang.embedded_protocol.OutputStyle;
+import com.sass_lang.embedded_protocol.Syntax;
+import de.larsgrefer.sass.embedded.SassCompilationFailedException;
+import de.larsgrefer.sass.embedded.SassCompilerFactory;
+import de.larsgrefer.sass.embedded.importer.CustomImporter;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.util.List;
 
-import static org.apache.commons.lang3.Strings.CS;
-
+@Service
 public class SassCompiler {
 
-	private static final String ENCODING = StandardCharsets.UTF_8.toString();
-	private static final String SYNTHETIC_SCHEME = "c3s://site";
+	private static final String SCHEME = "c3s:";
 
-	private final Compiler compiler = new Compiler();
-	private final Options options = new Options();
+	public byte[] compile(SiteAssetStore siteAssetStore, String originalRelativeDirectory, byte[] scss) {
+		String source = new String(scss, StandardCharsets.UTF_8);
 
-	public SassCompiler(SiteAssetStore siteAssetStore, String originalRelativeDirectory) {
-		options.setOutputStyle(OutputStyle.COMPRESSED);
-		options.setImporters(Collections.singletonList((importUrl, previous) -> {
-			String relativeDir = getRelativeDirectory(originalRelativeDirectory, previous);
+		try (de.larsgrefer.sass.embedded.SassCompiler compiler = SassCompilerFactory.bundled()) {
+			compiler.registerImporter(new SiteAssetStoreImporter(siteAssetStore, originalRelativeDirectory));
 
-			String absoluteUrl = toAbsoluteUrl(relativeDir, importUrl);
-			String absolutePartialUrl = toPartialUrl(absoluteUrl);
-
-			return Collections.singletonList(createImport(siteAssetStore, absoluteUrl, absolutePartialUrl));
-		}));
-	}
-
-	private String getRelativeDirectory(String originalRelativeDirectory, Import previous) {
-		String previousAbsoluteUri = previous.getAbsoluteUri().toString();
-		String previousUrl = CS.removeStart(previousAbsoluteUri, SYNTHETIC_SCHEME + PageController.ASSETS_PREFIX);
-
-		if (!previousAbsoluteUri.equals("stdin") && !previousUrl.equals(previousAbsoluteUri)) {
-			return previousUrl.substring(0, previousUrl.lastIndexOf("/") + 1);
-		}
-		return originalRelativeDirectory;
-	}
-
-	private Import createImport(SiteAssetStore siteAssetStore, String absoluteUrl, String absolutePartialUrl) {
-		try {
-			return doCreateImport(siteAssetStore, absoluteUrl);
-		} catch (SiteAssetNotFoundException e) {
-			try {
-				return doCreateImport(siteAssetStore, absolutePartialUrl);
-			} catch (IOException ex) {
-				throw new RuntimeException(ex);
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private Import doCreateImport(SiteAssetStore siteAssetStore, String absoluteUrl) throws IOException {
-		try {
-			URI importAssetPath = new URI(absoluteUrl);
-			String relativePath = CS.removeStart(absoluteUrl, SYNTHETIC_SCHEME + "/");
-			String contents = siteAssetStore.readResource(relativePath);
-
-			return new Import(importAssetPath, importAssetPath, contents);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private String toAbsoluteUrl(String relativeDirectory, String url) {
-		if (!url.endsWith(".scss") && !url.endsWith(".css")) {
-			url += ".scss";
-		}
-
-		if (url.startsWith("http")) {
-			return url;
-		} else if (url.startsWith("/")) {
-			return SYNTHETIC_SCHEME + url;
-		} else {
-			return SYNTHETIC_SCHEME + PageController.ASSETS_PREFIX + relativeDirectory + url;
-		}
-	}
-
-	private String toPartialUrl(String url) {
-		int lastSlashPos = url.lastIndexOf('/');
-		String firstPart = url.substring(0, lastSlashPos + 1);
-		String lastPart = url.substring(lastSlashPos + 1);
-
-		return firstPart + "_" + lastPart;
-	}
-
-	public synchronized byte[] compile(byte[] content) {
-		try {
-			String stringContent = IOUtils.toString(content, ENCODING);
-			Output output = compiler.compileString(stringContent, options);
-
-			return IOUtils.toByteArray(new StringReader(output.getCss()), ENCODING);
-		} catch (IOException | CompilationException e) {
+			return compiler.compileString(source, Syntax.SCSS, OutputStyle.COMPRESSED)
+					.getCss().getBytes(StandardCharsets.UTF_8);
+		} catch (SassCompilationFailedException | IOException e) {
 			throw new SassCompilationException(e);
+		}
+	}
+
+	private static class SiteAssetStoreImporter extends CustomImporter {
+
+		private final SiteAssetStore siteAssetStore;
+		private final String baseDir;
+
+		SiteAssetStoreImporter(SiteAssetStore siteAssetStore, String originalRelativeDirectory) {
+			this.siteAssetStore = siteAssetStore;
+			this.baseDir = stripLeadingSlash(PageController.ASSETS_PREFIX + originalRelativeDirectory);
+		}
+
+		@Override
+		public String canonicalize(String url, boolean fromImport) {
+			String sitePath = toSitePath(url);
+
+			for (String candidate : List.of(sitePath, partialOf(sitePath))) {
+				if (exists(candidate)) {
+					return SCHEME + "/" + candidate;
+				}
+			}
+
+			return null;
+		}
+
+		@Override
+		public ImportSuccess handleImport(String url) {
+			String contents = siteAssetStore.readResource(stripScheme(url));
+
+			return ImportSuccess.newBuilder().setContents(contents).setSyntax(Syntax.SCSS).build();
+		}
+
+		private String toSitePath(String url) {
+			if (url.startsWith(SCHEME)) {
+				return ensureScss(stripScheme(url));
+			}
+
+			String withScss = ensureScss(url);
+			return withScss.startsWith("/") ? stripLeadingSlash(withScss) : baseDir + withScss;
+		}
+
+		private boolean exists(String sitePath) {
+			try {
+				siteAssetStore.readResource(sitePath);
+				return true;
+			} catch (SiteAssetNotFoundException e) {
+				return false;
+			}
+		}
+
+		private static String ensureScss(String url) {
+			return url.endsWith(".scss") || url.endsWith(".css") ? url : url + ".scss";
+		}
+
+		private static String partialOf(String path) {
+			int lastSlash = path.lastIndexOf('/');
+			return path.substring(0, lastSlash + 1) + "_" + path.substring(lastSlash + 1);
+		}
+
+		private static String stripScheme(String url) {
+			return stripLeadingSlash(url.substring(SCHEME.length()));
+		}
+
+		private static String stripLeadingSlash(String path) {
+			return path.startsWith("/") ? path.substring(1) : path;
 		}
 	}
 }

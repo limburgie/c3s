@@ -9,6 +9,7 @@ import be.webfactor.c3s.contentrepository.ContentRepositoryConnection;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.function.Supplier;
 
 /**
  * The site asset store is an abstraction for a backend that stores the page structure, themes and assets of a website.
@@ -100,4 +101,12 @@ public interface SiteAssetStore {
 	 * Returns the raw bytes of an asset relative to the site's base path.
 	 */
 	byte[] readAsset(String relativePath);
+
+	/**
+	 * Returns the bytes for the given asset path, computing them via {@code loader} on a cache miss
+	 * and caching the result under the same (site, path) key used by {@link #readAsset(String)}.
+	 * Used to cache <em>derived</em> assets such as compiled SASS output, so the (expensive, native)
+	 * compilation runs at most once per (site, path) until the site's cache is invalidated.
+	 */
+	byte[] getOrLoadAsset(String relativePath, Supplier<byte[]> loader);
 }
