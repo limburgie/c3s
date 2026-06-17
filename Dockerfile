@@ -1,4 +1,4 @@
-# Stage 1: Build the JAR (needs actual Ubuntu image for jsass, rollback if jsass is replaced)
+# Stage 1: Build the JAR
 FROM maven:3-eclipse-temurin-25 AS builder
 WORKDIR /build
 COPY pom.xml ./

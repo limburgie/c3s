@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore {
@@ -299,6 +300,10 @@ public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore 
 	public final byte[] readAsset(String relativePath) {
 		String normalized = normalize(relativePath);
 		return cache.getOrLoadBytes(basePath, normalized, () -> doReadAssetBytes(normalized));
+	}
+
+	public final byte[] getOrLoadAsset(String relativePath, Supplier<byte[]> loader) {
+		return cache.getOrLoadBytes(basePath, normalize(relativePath), loader);
 	}
 
 	protected abstract String doReadResource(String relativePath);

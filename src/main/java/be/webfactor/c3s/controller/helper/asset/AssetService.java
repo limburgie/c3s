@@ -5,6 +5,7 @@ import be.webfactor.c3s.controller.sass.SassCompiler;
 import be.webfactor.c3s.siteassetstore.SiteAssetNotFoundException;
 import be.webfactor.c3s.siteassetstore.SiteAssetStore;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
@@ -18,9 +19,12 @@ import org.springframework.web.servlet.HandlerMapping;
 import java.io.IOException;
 
 @Service
+@RequiredArgsConstructor
 public class AssetService {
 
     private static final TikaConfig TIKA_CONFIG;
+
+    private final SassCompiler sassCompiler;
 
     static {
         try {
@@ -51,15 +55,22 @@ public class AssetService {
             return siteAssetStore.readAsset(PageController.ASSETS_PREFIX + assetPath);
         } catch (SiteAssetNotFoundException e) {
             if (assetPath.endsWith(".css")) {
-                String relativeDirectory = assetPath.substring(0, assetPath.lastIndexOf("/") + 1);
-                String sassAssetPath = assetPath.replace(".css", ".scss");
-
-                SassCompiler sassCompiler = new SassCompiler(siteAssetStore, relativeDirectory);
-
-                return sassCompiler.compile(siteAssetStore.readAsset(PageController.ASSETS_PREFIX + sassAssetPath));
+                return siteAssetStore.getOrLoadAsset(
+                        PageController.ASSETS_PREFIX + assetPath,
+                        () -> compileScss(siteAssetStore, assetPath)
+                );
             } else {
                 throw e;
             }
         }
+    }
+
+    private byte[] compileScss(SiteAssetStore siteAssetStore, String assetPath) {
+        String relativeDirectory = assetPath.substring(0, assetPath.lastIndexOf("/") + 1);
+        String sassAssetPath = assetPath.replace(".css", ".scss");
+
+        byte[] scss = siteAssetStore.readAsset(PageController.ASSETS_PREFIX + sassAssetPath);
+
+        return sassCompiler.compile(siteAssetStore, relativeDirectory, scss);
     }
 }
