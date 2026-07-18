@@ -4,6 +4,8 @@ import be.webfactor.c3s.contentrepository.domain.ImageField;
 import be.webfactor.c3s.contentrepository.paginea.model.PagineaImageFieldDto;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 public class PagineaImageField implements ImageField {
 
@@ -21,6 +23,6 @@ public class PagineaImageField implements ImageField {
 
 	@Override
 	public String getAlt() {
-		return imageFieldDto.getAlt();
+		return Optional.ofNullable(imageFieldDto.getAlt()).orElse("");
 	}
 }
