@@ -86,6 +86,10 @@ public class ContentfulContentItem implements ContentItem {
 		return referencedEntry == null ? null : new ContentfulContentItem(referencedEntry);
 	}
 
+	public MixedContentField getMixedContent(String fieldName) {
+		throw new UnsupportedOperationException();
+	}
+
 	public List<FieldContainer> getGroup(String fieldName) {
 		throw new UnsupportedOperationException();
 	}

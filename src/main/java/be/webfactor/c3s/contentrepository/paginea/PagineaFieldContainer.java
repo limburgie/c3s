@@ -50,7 +50,7 @@ public class PagineaFieldContainer implements FieldContainer {
 
     @Override
     public GeolocationField getGeolocation(String fieldName) {
-        throw new UnsupportedOperationException();
+        return getFieldAs(fieldName, PagineaGeolocationFieldDto.class).map(PagineaGeolocationField::new).orElse(null);
     }
 
     @Override
@@ -66,6 +66,11 @@ public class PagineaFieldContainer implements FieldContainer {
     @Override
     public ContentItem getReference(String fieldName) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MixedContentField getMixedContent(String fieldName) {
+        return getFieldAs(fieldName, PagineaMixedContentFieldDto.class).map(PagineaMixedContentField::new).orElse(null);
     }
 
     protected <T extends PagineaFieldDto> Optional<T> getFieldAs(String fieldName, Class<T> fieldClass) {

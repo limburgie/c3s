@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:9090",
+      "url": "https://www.paginea.eu",
       "description": "Generated server url"
     }
   ],
@@ -18,7 +18,7 @@
           "Content Items"
         ],
         "summary": "Get content items of the given type, with optional filtering, sorting and pagination",
-        "description": "Filter values use exact match against the field's text representation. Comparison follows the database collation (the default MySQL collation is case-insensitive). DATE fields additionally accept the operator prefixes `<`, `<=`, `>`, `>=`, `=` combined with the keyword `today` (e.g. `publishDate:<=today`, `publishDate:>today`); bare `today` and explicit `yyyy-MM-dd` values are also supported. Composite field types (REPEATABLE_GROUP, MIXED_CONTENT) and unknown field keys yield a 400 response.",
+        "description": "Filter values use exact match against the field's text representation. Comparison follows the database collation (the default MySQL collation is case-insensitive). DATE fields additionally accept the operator prefixes `<`, `<=`, `>`, `>=`, `=` combined with a `yyyy-MM-dd` value (e.g. `publishDate:<=2026-06-14`, `publishDate:>2026-01-01`); a bare `yyyy-MM-dd` value is also supported. Composite field types (REPEATABLE_GROUP, MIXED_CONTENT) and unknown field keys yield a 400 response.",
         "operationId": "getContentItems",
         "parameters": [
           {
@@ -40,7 +40,7 @@
           {
             "name": "filter",
             "in": "query",
-            "description": "Repeated filter entries in the form `key:value`. Multiple filters are AND'ed. Inner colons in values must be URL-encoded as %3A. For DATE fields, `value` may be `yyyy-MM-dd`, `today`, or an operator prefix (`<`, `<=`, `>`, `>=`, `=`) followed by `today` — e.g. `publishDate:<=today`.",
+            "description": "Repeated filter entries in the form `key:value`. Multiple filters are AND'ed. Inner colons in values must be URL-encoded as %3A. For DATE fields, `value` may be `yyyy-MM-dd` or an operator prefix (`<`, `<=`, `>`, `>=`, `=`) followed by a `yyyy-MM-dd` value — e.g. `publishDate:<=2026-06-14`.",
             "required": false,
             "schema": {
               "type": "array",
@@ -133,7 +133,7 @@
           {
             "name": "filter",
             "in": "query",
-            "description": "Repeated filter entries in the form `key:value`. Multiple filters are AND'ed. Inner colons in values must be URL-encoded as %3A. For DATE fields, `value` may be `yyyy-MM-dd`, `today`, or an operator prefix (`<`, `<=`, `>`, `>=`, `=`) followed by `today` — e.g. `publishDate:<=today`.",
+            "description": "Repeated filter entries in the form `key:value`. Multiple filters are AND'ed. Inner colons in values must be URL-encoded as %3A. For DATE fields, `value` may be `yyyy-MM-dd` or an operator prefix (`<`, `<=`, `>`, `>=`, `=`) followed by a `yyyy-MM-dd` value — e.g. `publishDate:<=2026-06-14`.",
             "required": false,
             "schema": {
               "type": "array",
@@ -287,7 +287,9 @@
             "date": "#/components/schemas/DateField",
             "boolean": "#/components/schemas/BooleanField",
             "group": "#/components/schemas/GroupField",
-            "mixed-content": "#/components/schemas/MixedContentField"
+            "mixed-content": "#/components/schemas/MixedContentField",
+            "reference": "#/components/schemas/ReferenceField",
+            "geolocation": "#/components/schemas/GeolocationField"
           }
         },
         "properties": {
@@ -309,6 +311,32 @@
           "textValue",
           "type"
         ]
+      },
+      "GeolocationField": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Field"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number",
+                "format": "double",
+                "description": "Latitude in decimal degrees"
+              },
+              "longitude": {
+                "type": "number",
+                "format": "double",
+                "description": "Longitude in decimal degrees"
+              }
+            }
+          }
+        ],
+        "required": [
+          "textValue"
+        ],
+        "x-discriminator-value": "geolocation"
       },
       "GroupField": {
         "allOf": [
@@ -410,35 +438,7 @@
                 "type": "array",
                 "description": "Items contained in this mixed content field",
                 "items": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/BooleanField"
-                    },
-                    {
-                      "$ref": "#/components/schemas/DateField"
-                    },
-                    {
-                      "$ref": "#/components/schemas/GroupField"
-                    },
-                    {
-                      "$ref": "#/components/schemas/ImageField"
-                    },
-                    {
-                      "$ref": "#/components/schemas/MediaLinkField"
-                    },
-                    {
-                      "$ref": "#/components/schemas/MixedContentField"
-                    },
-                    {
-                      "$ref": "#/components/schemas/NumberField"
-                    },
-                    {
-                      "$ref": "#/components/schemas/RichTextField"
-                    },
-                    {
-                      "$ref": "#/components/schemas/TextField"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/Field"
                 }
               }
             }
@@ -470,6 +470,30 @@
           "textValue"
         ],
         "x-discriminator-value": "number"
+      },
+      "ReferenceField": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Field"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Safe ID of the referenced content item"
+              },
+              "contentTypeKey": {
+                "type": "string",
+                "description": "Key of the referenced content item's content type"
+              }
+            }
+          }
+        ],
+        "required": [
+          "textValue"
+        ],
+        "x-discriminator-value": "reference"
       },
       "RichTextField": {
         "allOf": [

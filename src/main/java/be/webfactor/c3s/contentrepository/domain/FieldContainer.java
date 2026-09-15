@@ -58,4 +58,9 @@ public interface FieldContainer {
 	 * Returns the content item referenced by the given field name in this content item.
 	 */
 	ContentItem getReference(String fieldName);
+
+	/**
+	 * Returns the mixed content field in this content item with the given field name.
+	 */
+	MixedContentField getMixedContent(String fieldName);
 }
