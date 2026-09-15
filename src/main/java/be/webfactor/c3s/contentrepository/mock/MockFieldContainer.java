@@ -55,4 +55,8 @@ public class MockFieldContainer implements FieldContainer {
 	public ContentItem getReference(String fieldName) {
 		return new MockContentItem(type + "." + fieldName);
 	}
+
+	public MixedContentField getMixedContent(String fieldName) {
+		throw new UnsupportedOperationException();
+	}
 }

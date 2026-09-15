@@ -11,7 +11,13 @@
       "Bash(mvn clean *)",
       "Bash(./mvnw compile *)",
       "Bash(mvn -v)",
-      "Bash(mvn dependency:tree -pl .)"
+      "Bash(mvn dependency:tree -pl .)",
+      "Read(//private/tmp/sass-bundled-inspect/**)",
+      "Bash(unzip -o ~/.m2/repository/de/larsgrefer/sass/sass-embedded-bundled/4.2.0/sass-embedded-bundled-4.2.0.jar \"de/larsgrefer/sass/embedded/bundled/dart-sass-macos-arm64.tar.gz\")",
+      "Bash(tar tzf *)",
+      "Bash(tar tzvf *)",
+      "Read(//private/tmp/sass-src-inspect/**)",
+      "Bash(unzip -o ~/.m2/repository/de/larsgrefer/sass/sass-embedded-host/4.2.0/sass-embedded-host-4.2.0-sources.jar \"de/larsgrefer/sass/embedded/util/IOUtils.java\")"
     ]
   }
 }
