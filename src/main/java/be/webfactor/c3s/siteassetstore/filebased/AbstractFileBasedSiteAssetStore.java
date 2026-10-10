@@ -9,7 +9,7 @@ import be.webfactor.c3s.siteassetstore.domain.*;
 import be.webfactor.c3s.siteassetstore.filebased.domain.*;
 import be.webfactor.c3s.contentrepository.ContentRepositoryConnection;
 import be.webfactor.c3s.contentrepository.ContentRepositoryType;
-import be.webfactor.c3s.controller.PageController;
+import be.webfactor.c3s.controller.AssetController;
 import be.webfactor.c3s.controller.exception.PageNotFoundException;
 import be.webfactor.c3s.templateparser.TemplateEngine;
 import com.google.gson.Gson;
@@ -182,10 +182,6 @@ public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore 
 		}
 
 		return readInserts;
-	}
-
-	public String getAssetUrl(String assetPath) {
-		return PageController.ASSETS_PREFIX + assetPath;
 	}
 
 	public Form getForm(String name) {

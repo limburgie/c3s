@@ -1,6 +1,6 @@
 package be.webfactor.c3s.controller.sass;
 
-import be.webfactor.c3s.controller.PageController;
+import be.webfactor.c3s.controller.AssetController;
 import be.webfactor.c3s.siteassetstore.SiteAssetNotFoundException;
 import be.webfactor.c3s.siteassetstore.SiteAssetStore;
 import com.sass_lang.embedded_protocol.InboundMessage.ImportResponse.ImportSuccess;
@@ -32,7 +32,7 @@ public class SassCompiler {
 
 	public synchronized byte[] compile(SiteAssetStore siteAssetStore, String originalRelativeDirectory, byte[] scss) {
 		String source = new String(scss, StandardCharsets.UTF_8);
-		String baseDir = stripLeadingSlash(PageController.ASSETS_PREFIX + originalRelativeDirectory);
+		String baseDir = stripLeadingSlash(AssetController.ASSETS_PREFIX + originalRelativeDirectory);
 
 		CONTEXT.set(new CompileContext(siteAssetStore, baseDir));
 		try {
