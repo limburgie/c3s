@@ -5,8 +5,11 @@ import be.webfactor.c3s.contentrepository.paginea.model.*;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class PagineaFieldContainer implements FieldContainer {
@@ -69,8 +72,12 @@ public class PagineaFieldContainer implements FieldContainer {
     }
 
     @Override
-    public MixedContentField getMixedContent(String fieldName) {
-        return getFieldAs(fieldName, PagineaMixedContentFieldDto.class).map(PagineaMixedContentField::new).orElse(null);
+    public List<MixedContentItem> getMixedContent(String fieldName) {
+        return getFieldAs(fieldName, PagineaMixedContentFieldDto.class)
+                .map(mixedContent -> mixedContent.getItems().stream()
+                        .map(item -> (MixedContentItem) new PagineaMixedContentItem(item))
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
     }
 
     protected <T extends PagineaFieldDto> Optional<T> getFieldAs(String fieldName, Class<T> fieldClass) {

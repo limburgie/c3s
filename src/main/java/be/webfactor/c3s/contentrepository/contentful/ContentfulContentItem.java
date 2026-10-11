@@ -86,7 +86,7 @@ public class ContentfulContentItem implements ContentItem {
 		return referencedEntry == null ? null : new ContentfulContentItem(referencedEntry);
 	}
 
-	public MixedContentField getMixedContent(String fieldName) {
+	public List<MixedContentItem> getMixedContent(String fieldName) {
 		throw new UnsupportedOperationException();
 	}
 

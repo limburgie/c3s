@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,7 +24,7 @@ class PagineaMixedContentFieldTest {
 	// Same mapper the generated resttemplate ApiClient relies on (RestTemplate's default converter).
 	private final ObjectMapper mapper = Jackson2ObjectMapperBuilder.json().build();
 
-	private PagineaMixedContentField mixedContent;
+	private List<MixedContentItem> items;
 
 	@BeforeEach
 	void setUp() throws Exception {
@@ -42,13 +43,11 @@ class PagineaMixedContentFieldTest {
 			""";
 
 		PagineaMixedContentFieldDto dto = mapper.readValue(json, PagineaMixedContentFieldDto.class);
-		mixedContent = new PagineaMixedContentField(dto);
+		items = new PagineaFieldContainer(Map.of("body", dto)).getMixedContent("body");
 	}
 
 	@Test
 	void exposesItemsInOrderWithTheirKeyAndType() {
-		List<MixedContentItem> items = mixedContent.getItems();
-
 		assertEquals(
 				List.of("image", "thumbnail", "intro", "caption", "price"),
 				items.stream().map(MixedContentItem::getKey).toList());
@@ -59,8 +58,6 @@ class PagineaMixedContentFieldTest {
 
 	@Test
 	void sameTypeItemsEachExposeTheirOwnValue() {
-		List<MixedContentItem> items = mixedContent.getItems();
-
 		MixedContentItem image = items.get(0);
 		MixedContentItem thumbnail = items.get(1);
 
@@ -70,8 +67,6 @@ class PagineaMixedContentFieldTest {
 
 	@Test
 	void readsEachValueThroughItsTypedGetter() {
-		List<MixedContentItem> items = mixedContent.getItems();
-
 		assertEquals("<p>Hello</p>", items.get(2).getRichText().getHtml());
 		assertEquals("Just text", items.get(3).getText());
 		assertNotNull(items.get(4).getNumber());
@@ -79,9 +74,14 @@ class PagineaMixedContentFieldTest {
 
 	@Test
 	void nonMatchingTypeReturnsNull() {
-		MixedContentItem image = mixedContent.getItems().get(0);
+		MixedContentItem image = items.get(0);
 
 		assertNull(image.getRichText());   // this item is an image, not rich text
 		assertNull(image.getNumber());
+	}
+
+	@Test
+	void missingFieldReturnsEmptyList() {
+		assertTrue(new PagineaFieldContainer(Map.of()).getMixedContent("body").isEmpty());
 	}
 }

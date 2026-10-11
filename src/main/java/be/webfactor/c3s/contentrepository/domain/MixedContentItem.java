@@ -1,7 +1,7 @@
 package be.webfactor.c3s.contentrepository.domain;
 
 /**
- * A single item inside a {@link MixedContentField}. Each item is one keyed field: templates branch on
+ * A single item inside a mixed content field (see {@link FieldContainer#getMixedContent(String)}). Each item is one keyed field: templates branch on
  * {@link #getKey()} to decide how to render it, then read the value through the matching typed getter,
  * e.g. {@code <#if item.key == "image">${item.image.finalUrl}</#if>}.
  * <p>

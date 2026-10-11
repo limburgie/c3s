@@ -2,6 +2,8 @@ package be.webfactor.c3s.contentrepository.mock;
 
 import com.google.gson.JsonObject;
 
+import java.util.List;
+
 import be.webfactor.c3s.contentrepository.domain.*;
 
 public class MockFieldContainer implements FieldContainer {
@@ -56,7 +58,7 @@ public class MockFieldContainer implements FieldContainer {
 		return new MockContentItem(type + "." + fieldName);
 	}
 
-	public MixedContentField getMixedContent(String fieldName) {
+	public List<MixedContentItem> getMixedContent(String fieldName) {
 		throw new UnsupportedOperationException();
 	}
 }

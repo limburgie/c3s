@@ -5,6 +5,7 @@ import be.webfactor.c3s.contentrepository.paginea.model.PagineaContentItemDto;
 import be.webfactor.c3s.contentrepository.paginea.model.PagineaGroupFieldDto;
 import com.google.gson.JsonObject;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,7 +24,7 @@ public class PagineaContentItem extends PagineaFieldContainer implements Content
                 .map(group -> group.getFields().stream()
                         .map(field -> (FieldContainer) new PagineaFieldContainer(field))
                         .collect(Collectors.toList()))
-                .orElse(null);
+                .orElse(Collections.emptyList());
     }
 
     @Override
