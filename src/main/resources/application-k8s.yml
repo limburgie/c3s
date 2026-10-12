@@ -1,10 +1,16 @@
 c3s:
-  siteassetstore:
+  assets:
     cache:
-      enabled: ${ASSET_STORE_CACHE_ENABLED:true}
-      max-entries: ${ASSET_STORE_CACHE_MAX_ENTRIES:1000}
+      enabled: ${ASSETS_CACHE_ENABLED:true}
+      max-entries: ${ASSETS_CACHE_MAX_ENTRIES:5000}
       webhook:
-        secret: ${ASSET_STORE_CACHE_WEBHOOK_SECRET}
+        secret: ${ASSETS_CACHE_WEBHOOK_SECRET}
+  pages:
+    cache:
+      enabled: ${PAGES_CACHE_ENABLED:true}
+      max-entries: ${PAGES_CACHE_MAX_ENTRIES:1000}
+      webhook:
+        secret: ${PAGES_CACHE_WEBHOOK_SECRET}
   recaptcha:
     key: ${RECAPTCHA_KEY}
 

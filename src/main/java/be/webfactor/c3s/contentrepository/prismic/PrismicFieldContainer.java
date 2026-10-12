@@ -2,6 +2,8 @@ package be.webfactor.c3s.contentrepository.prismic;
 
 import com.google.gson.JsonObject;
 
+import java.util.List;
+
 import be.webfactor.c3s.contentrepository.domain.*;
 import io.prismic.Api;
 import io.prismic.Fragment;
@@ -81,7 +83,7 @@ public class PrismicFieldContainer implements FieldContainer {
 		return link == null ? null : new PrismicContentItem(api.getByID(link.getId()), api);
 	}
 
-	public MixedContentField getMixedContent(String fieldName) {
+	public List<MixedContentItem> getMixedContent(String fieldName) {
 		throw new UnsupportedOperationException();
 	}
 }

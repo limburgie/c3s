@@ -1,6 +1,6 @@
 package be.webfactor.c3s.controller.helper.asset;
 
-import be.webfactor.c3s.controller.PageController;
+import be.webfactor.c3s.controller.AssetController;
 import be.webfactor.c3s.controller.sass.SassCompiler;
 import be.webfactor.c3s.siteassetstore.SiteAssetNotFoundException;
 import be.webfactor.c3s.siteassetstore.SiteAssetStore;
@@ -36,7 +36,7 @@ public class AssetService {
 
     public Asset getAsset(HttpServletRequest request, SiteAssetStore siteAssetStore) throws IOException {
         String requestUri = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        String assetPath = StringUtils.removeStart(requestUri, PageController.ASSETS_PREFIX);
+        String assetPath = StringUtils.removeStart(requestUri, AssetController.ASSETS_PREFIX);
         byte[] data = getAssetData(siteAssetStore, assetPath);
 
         Metadata metadata = new Metadata();
@@ -52,11 +52,11 @@ public class AssetService {
 
     private byte[] getAssetData(SiteAssetStore siteAssetStore, String assetPath) {
         try {
-            return siteAssetStore.readAsset(PageController.ASSETS_PREFIX + assetPath);
+            return siteAssetStore.readAsset(AssetController.ASSETS_PREFIX + assetPath);
         } catch (SiteAssetNotFoundException e) {
             if (assetPath.endsWith(".css")) {
                 return siteAssetStore.getOrLoadAsset(
-                        PageController.ASSETS_PREFIX + assetPath,
+                        AssetController.ASSETS_PREFIX + assetPath,
                         () -> compileScss(siteAssetStore, assetPath)
                 );
             } else {
@@ -69,7 +69,7 @@ public class AssetService {
         String relativeDirectory = assetPath.substring(0, assetPath.lastIndexOf("/") + 1);
         String sassAssetPath = assetPath.replace(".css", ".scss");
 
-        byte[] scss = siteAssetStore.readAsset(PageController.ASSETS_PREFIX + sassAssetPath);
+        byte[] scss = siteAssetStore.readAsset(AssetController.ASSETS_PREFIX + sassAssetPath);
 
         return sassCompiler.compile(siteAssetStore, relativeDirectory, scss);
     }

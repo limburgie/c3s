@@ -2,6 +2,8 @@ package be.webfactor.c3s.contentrepository.domain;
 
 import com.google.gson.JsonObject;
 
+import java.util.List;
+
 public interface FieldContainer {
 
 	/**
@@ -62,5 +64,5 @@ public interface FieldContainer {
 	/**
 	 * Returns the mixed content field in this content item with the given field name.
 	 */
-	MixedContentField getMixedContent(String fieldName);
+	List<MixedContentItem> getMixedContent(String fieldName);
 }
