@@ -8,13 +8,16 @@ import be.webfactor.c3s.controller.exception.PageNotFoundException;
 import be.webfactor.c3s.controller.helper.site.SiteAssetStoreResolver;
 import be.webfactor.c3s.controller.helper.uri.RequestUri;
 import be.webfactor.c3s.controller.helper.uri.RequestUriThreadLocal;
-import be.webfactor.c3s.renderer.PageRenderer;
 import be.webfactor.c3s.renderer.PageRendererFactory;
+import be.webfactor.c3s.renderer.cache.PageCache;
+import be.webfactor.c3s.renderer.cache.PageCacheKey;
 import be.webfactor.c3s.shopping.ShoppingCart;
 import be.webfactor.c3s.shopping.ShoppingCartService;
+import be.webfactor.c3s.shopping.ShoppingCartThreadLocal;
 import be.webfactor.c3s.siteassetstore.SiteAssetStore;
 import be.webfactor.c3s.siteassetstore.domain.LocaleContext;
 import be.webfactor.c3s.siteassetstore.domain.LocationThreadLocal;
+import be.webfactor.c3s.siteassetstore.domain.Page;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +41,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 @Slf4j
 @Order(2)
@@ -53,6 +57,7 @@ public class PageController {
 	private final PageRendererFactory pageRendererFactory;
 	private final ContentRepositoryFactory contentRepositoryFactory;
 	private final ShoppingCartService shoppingCartService;
+	private final PageCache pageCache;
 
 	@GetMapping(EDIT_URL_JS_PATH)
 	public ResponseEntity<byte[]> editUrlJavascript() throws IOException {
@@ -108,7 +113,8 @@ public class PageController {
 
 		RequestUriThreadLocal.setCurrentUri(requestUri.getPathWithoutLocalePrefix());
 		LocationThreadLocal.setLocaleContext(localeContext);
-		return friendlyUrl(requestUri.getFriendlyUrl(), requestUri.getParams(), siteAssetStore, response);
+		PageCacheKey cacheKey = new PageCacheKey(siteAssetStore.getBaseUrl(), localeContext, requestUri.getPathWithoutLocalePrefix());
+		return friendlyUrl(requestUri.getFriendlyUrl(), requestUri.getParams(), cacheKey, siteAssetStore, response);
 	}
 
 	private boolean isLocale(String friendlyUrl) {
@@ -123,11 +129,18 @@ public class PageController {
 				.findFirst().orElse(siteLocales.get(0)).getLanguage();
 	}
 
-	private String friendlyUrl(String friendlyUrl, String[] params, SiteAssetStore siteAssetStore, HttpServletResponse response) {
-		PageRenderer pageRenderer = pageRendererFactory.forSiteAssetStore(siteAssetStore);
-
+	private String friendlyUrl(String friendlyUrl, String[] params, PageCacheKey cacheKey, SiteAssetStore siteAssetStore, HttpServletResponse response) {
 		try {
-			return pageRenderer.render(siteAssetStore.getPage(friendlyUrl), params);
+			Page page = siteAssetStore.getPage(friendlyUrl);
+			Supplier<String> renderer = () -> pageRendererFactory.forSiteAssetStore(siteAssetStore).render(page, params);
+
+			// Pages showing a visitor's shopping cart are personal and must neither be served from nor stored in the cache.
+			if (!ShoppingCartThreadLocal.getShoppingCart().isEmpty()) {
+				return renderer.get();
+			}
+
+			// Rendering errors propagate out of the cache without being cached, so only successful (200) renders are cached.
+			return pageCache.getOrRender(cacheKey, page.getCacheTtl(), renderer);
 		} catch (PageNotFoundException e) {
 			return errorPage(siteAssetStore, e, response, HttpServletResponse.SC_NOT_FOUND);
 		} catch (Throwable e) {

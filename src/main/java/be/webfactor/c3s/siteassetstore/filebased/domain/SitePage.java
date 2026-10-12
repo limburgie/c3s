@@ -15,6 +15,7 @@ public class SitePage {
 	private boolean hidden;
 	private String contents;
 	private String template;
+	private Long cacheTtl;
 	private Map<String, String> inserts = new HashMap<>();
 	private List<SitePage> children = new ArrayList<>();
 

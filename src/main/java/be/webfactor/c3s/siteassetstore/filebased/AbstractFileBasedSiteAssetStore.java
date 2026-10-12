@@ -4,12 +4,11 @@ import be.webfactor.c3s.form.sender.MailSenderType;
 import be.webfactor.c3s.siteassetstore.SiteAssetNotFoundException;
 import be.webfactor.c3s.siteassetstore.SiteAssetStore;
 import be.webfactor.c3s.siteassetstore.SiteAssetStoreConnection;
-import be.webfactor.c3s.siteassetstore.cache.SiteAssetStoreCache;
+import be.webfactor.c3s.siteassetstore.cache.AssetCache;
 import be.webfactor.c3s.siteassetstore.domain.*;
 import be.webfactor.c3s.siteassetstore.filebased.domain.*;
 import be.webfactor.c3s.contentrepository.ContentRepositoryConnection;
 import be.webfactor.c3s.contentrepository.ContentRepositoryType;
-import be.webfactor.c3s.controller.AssetController;
 import be.webfactor.c3s.controller.exception.PageNotFoundException;
 import be.webfactor.c3s.templateparser.TemplateEngine;
 import com.google.gson.Gson;
@@ -30,7 +29,7 @@ public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore 
 	private static final String CONFIG_FILE = "c3s.json";
 	private static final String I18N_BASE_NAME = "i18n";
 
-	@Autowired private SiteAssetStoreCache cache;
+	@Autowired private AssetCache cache;
 
 	private String basePath;
 	private SiteConfiguration config;
@@ -135,7 +134,8 @@ public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore 
 					.friendlyUrl(friendlyUrl)
 					.name(name)
 					.hidden(hidden)
-					.indexPage(friendlyUrl.equals(config.getIndexPage()));
+					.indexPage(friendlyUrl.equals(config.getIndexPage()))
+					.cacheTtl(sitePage.getCacheTtl());
 
 			if (!withContents) {
 				List<Page> children = sitePage.getChildren().stream().filter(page -> !page.isHidden()).map(pageMapper(false)).collect(Collectors.toList());

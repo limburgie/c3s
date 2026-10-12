@@ -2,7 +2,7 @@ package be.webfactor.c3s.siteassetstore.cache;
 
 import java.util.function.Supplier;
 
-public interface SiteAssetStoreCache {
+public interface AssetCache {
 
     String getOrLoadString(String basePath, String relativePath, Supplier<String> loader);
 

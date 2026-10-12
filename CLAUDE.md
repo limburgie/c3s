@@ -59,8 +59,24 @@ Special routes handled before the catch-all:
 - `SeoController`: `/favicon.{ico,svg}`, `/sitemap.xml` and `/robots.txt` (the site's own `robots.txt` from its asset 
   store root if present, otherwise a default pointing to the sitemap).
 - `PageController`: `/c3s/{contentItemId}` (redirect to CMS edit URL).
+- `CachePurgeController`: `POST /cache/assets/purge` and `POST /cache/pages/purge` (webhooks, see Caching).
 
 Every controller resolves the requested site's asset store through `SiteAssetStoreResolver` (by virtual host).
+
+### Caching
+
+Two in-memory Caffeine caches, local to the pod (C3S runs as a single replica, so purges reach every cache):
+- `AssetCache`: raw site assets (`c3s.json`, templates, static files, compiled SASS), keyed by repository id + path. 
+  Properties `c3s.assets.cache.{enabled,max-entries,webhook.secret}`.
+- `PageCache`: final rendered HTML of `PageController` page renders, keyed by `PageCacheKey` (repository id, locale 
+  context, path without locale prefix; the query string is ignored). Only successful renders are cached, and requests 
+  with a non-empty shopping cart bypass the cache. Entries live until purged, unless the page sets `cacheTtl` (seconds) 
+  in `c3s.json`; `0` disables caching for that page. Properties `c3s.pages.cache.{enabled,max-entries,webhook.secret}`.
+
+Both are purged per site through `CachePurgeController`, which resolves the site from the request's virtual host and 
+requires `Authorization: Bearer <secret>` with the cache's own secret. Purging assets also purges pages (pages are 
+derived from assets); purging pages leaves assets intact. Site deploy workflows call the asset purge; the CMS calls the 
+page purge on content edits. Both caches are disabled in the developer profile so template edits show immediately.
 
 ### Request-scoped state via ThreadLocals
 

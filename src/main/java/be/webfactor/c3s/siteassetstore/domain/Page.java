@@ -20,6 +20,7 @@ public class Page {
 	private Map<String, String> inserts;
 	private List<Page> children;
 	private boolean indexPage;
+	private Long cacheTtl;
 
 	public boolean isTemplated() {
 		return template != null;
