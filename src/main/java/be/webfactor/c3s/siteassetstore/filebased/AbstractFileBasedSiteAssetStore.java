@@ -135,7 +135,8 @@ public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore 
 					.name(name)
 					.hidden(hidden)
 					.indexPage(friendlyUrl.equals(config.getIndexPage()))
-					.cacheTtl(sitePage.getCacheTtl());
+					.cacheTtl(sitePage.getCacheTtl())
+					.sitemap(toSitemapSettings(sitePage.getSitemap()));
 
 			if (!withContents) {
 				List<Page> children = sitePage.getChildren().stream().filter(page -> !page.isHidden()).map(pageMapper(false)).collect(Collectors.toList());
@@ -152,6 +153,19 @@ public abstract class AbstractFileBasedSiteAssetStore implements SiteAssetStore 
 
 			return pageBuilder.build();
 		};
+	}
+
+	private SitemapSettings toSitemapSettings(SiteSitemapSettings sitemap) {
+		if (sitemap == null) {
+			return null;
+		}
+
+		List<SiteSitemapFilter> siteFilters = sitemap.getFilters() == null ? List.of() : sitemap.getFilters();
+		List<SitemapFilter> filters = siteFilters.stream()
+				.map(filter -> new SitemapFilter(filter.getType(), filter.getField(), filter.getValue()))
+				.toList();
+
+		return new SitemapSettings(sitemap.getContentType(), sitemap.getParamField(), filters);
 	}
 
 	private Template getTemplate(String name) {

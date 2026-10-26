@@ -57,7 +57,8 @@ Special routes handled before the catch-all:
 - `AssetController`: `/assets/**` (static assets, SASS compiled on the fly).
 - `FormController`: `/submit` (form POST).
 - `SeoController`: `/favicon.{ico,svg}`, `/sitemap.xml` and `/robots.txt` (the site's own `robots.txt` from its asset 
-  store root if present, otherwise a default pointing to the sitemap).
+  store root if present, otherwise a default pointing to the sitemap). Pages with a `sitemap` block in `c3s.json` also
+  list their content-driven detail pages, so the sitemap queries the content repository once per locale.
 - `PageController`: `/c3s/{contentItemId}` (redirect to CMS edit URL).
 - `CachePurgeController`: `POST /cache/assets/purge` and `POST /cache/pages/purge` (webhooks, see Caching).
 
@@ -72,6 +73,8 @@ Two in-memory Caffeine caches, local to the pod (C3S runs as a single replica, s
   context, path without locale prefix; the query string is ignored). Only successful renders are cached, and requests 
   with a non-empty shopping cart bypass the cache. Entries live until purged, unless the page sets `cacheTtl` (seconds) 
   in `c3s.json`; `0` disables caching for that page. Properties `c3s.pages.cache.{enabled,max-entries,webhook.secret}`.
+  `/sitemap.xml` is cached here too, keyed by its absolute URL (several hosts can serve one site), with a 1-day TTL 
+  for date-filtered content; a sitemap whose content queries failed is served but not cached.
 
 Both are purged per site through `CachePurgeController`, which resolves the site from the request's virtual host and 
 requires `Authorization: Bearer <secret>` with the cache's own secret. Purging assets also purges pages (pages are 

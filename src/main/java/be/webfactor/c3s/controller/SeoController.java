@@ -1,9 +1,13 @@
 package be.webfactor.c3s.controller;
 
 import be.webfactor.c3s.controller.helper.site.SiteAssetStoreResolver;
+import be.webfactor.c3s.controller.sitemap.Sitemap;
 import be.webfactor.c3s.controller.sitemap.SitemapBuilder;
+import be.webfactor.c3s.renderer.cache.PageCache;
+import be.webfactor.c3s.renderer.cache.PageCacheKey;
 import be.webfactor.c3s.siteassetstore.SiteAssetNotFoundException;
 import be.webfactor.c3s.siteassetstore.SiteAssetStore;
+import be.webfactor.c3s.siteassetstore.domain.LocaleContext;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.CacheControl;
@@ -12,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
@@ -28,9 +33,15 @@ public class SeoController {
 	private static final String FAVICON_FOLDER = AssetController.ASSETS_PREFIX + "img/favicon";
 	private static final String FAVICON_ICO_FILENAME = "favicon.ico";
 	private static final String FAVICON_SVG_FILENAME = "favicon.svg";
+	/**
+	 * Purges cover content edits and site deploys, the TTL covers content that becomes visible over time, such as
+	 * items with a date filter.
+	 */
+	private static final long SITEMAP_CACHE_TTL_SECONDS = TimeUnit.DAYS.toSeconds(1);
 
 	private final SiteAssetStoreResolver siteAssetStoreResolver;
 	private final SitemapBuilder sitemapBuilder;
+	private final PageCache pageCache;
 
 	@GetMapping("/" + FAVICON_ICO_FILENAME)
 	public ResponseEntity<byte[]> faviconIco(HttpServletRequest request) {
@@ -50,10 +61,23 @@ public class SeoController {
 				.body(data);
 	}
 
+	/**
+	 * Serves the sitemap from the page cache, so it is purged together with the site's pages. An incomplete sitemap
+	 * (content repository failure) is served but not cached.
+	 */
 	@GetMapping(value = SITEMAP_PATH, produces = MediaType.TEXT_XML_VALUE)
 	public ResponseEntity<String> sitemap(HttpServletRequest request) throws MalformedURLException {
 		SiteAssetStore siteAssetStore = siteAssetStoreResolver.forRequest(request);
-		String sitemapXml = sitemapBuilder.generate(request, siteAssetStore);
+		PageCacheKey cacheKey = new PageCacheKey(siteAssetStore.getBaseUrl(), new LocaleContext(), sitemapBuilder.getSitemapUrl(request));
+
+		String sitemapXml = pageCache.getOrRenderConditionally(cacheKey, SITEMAP_CACHE_TTL_SECONDS, () -> {
+			try {
+				Sitemap sitemap = sitemapBuilder.generate(request, siteAssetStore);
+				return new PageCache.Rendered(sitemap.xml(), sitemap.complete());
+			} catch (MalformedURLException e) {
+				throw new UncheckedIOException(e);
+			}
+		});
 
 		return ResponseEntity.ok()
 				.cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS))

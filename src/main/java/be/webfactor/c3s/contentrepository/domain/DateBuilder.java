@@ -1,7 +1,11 @@
 package be.webfactor.c3s.contentrepository.domain;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
 
@@ -42,6 +46,23 @@ public class DateBuilder {
 		this.timeZone = ZoneId.of(timeZone);
 
 		return this;
+	}
+
+	/**
+	 * Returns this date as an instant, or null if there is no date. A date without offset is interpreted in the
+	 * configured time zone, and a date without time at the start of that day.
+	 */
+	public Instant toInstant() {
+		if (temporalAccessor == null) {
+			return null;
+		}
+		if (temporalAccessor.isSupported(ChronoField.INSTANT_SECONDS)) {
+			return Instant.from(temporalAccessor);
+		}
+		if (temporalAccessor.isSupported(ChronoField.NANO_OF_DAY)) {
+			return LocalDateTime.from(temporalAccessor).atZone(timeZone).toInstant();
+		}
+		return LocalDate.from(temporalAccessor).atStartOfDay(timeZone).toInstant();
 	}
 
 	/**

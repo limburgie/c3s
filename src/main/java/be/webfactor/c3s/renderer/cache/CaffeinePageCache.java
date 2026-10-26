@@ -45,9 +45,9 @@ public class CaffeinePageCache implements PageCache {
 	}
 
 	@Override
-	public String getOrRender(PageCacheKey key, Long ttlSeconds, Supplier<String> renderer) {
+	public String getOrRenderConditionally(PageCacheKey key, Long ttlSeconds, Supplier<Rendered> renderer) {
 		if (!enabled || (ttlSeconds != null && ttlSeconds <= 0)) {
-			return renderer.get();
+			return renderer.get().html();
 		}
 
 		// No cache.get(key, loader): rendering is slow and would block other keys in the same hash bin.
@@ -57,9 +57,11 @@ public class CaffeinePageCache implements PageCache {
 			return cached.html();
 		}
 
-		String html = renderer.get();
-		cache.put(key, new CachedPage(html, ttlSeconds == null ? ChronoUnit.FOREVER.getDuration() : Duration.ofSeconds(ttlSeconds)));
-		return html;
+		Rendered rendered = renderer.get();
+		if (rendered.cacheable()) {
+			cache.put(key, new CachedPage(rendered.html(), ttlSeconds == null ? ChronoUnit.FOREVER.getDuration() : Duration.ofSeconds(ttlSeconds)));
+		}
+		return rendered.html();
 	}
 
 	@Override

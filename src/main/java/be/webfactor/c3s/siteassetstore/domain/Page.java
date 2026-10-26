@@ -21,6 +21,7 @@ public class Page {
 	private List<Page> children;
 	private boolean indexPage;
 	private Long cacheTtl;
+	private SitemapSettings sitemap;
 
 	public boolean isTemplated() {
 		return template != null;
