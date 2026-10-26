@@ -16,6 +16,7 @@ public class SitePage {
 	private String contents;
 	private String template;
 	private Long cacheTtl;
+	private SiteSitemapSettings sitemap;
 	private Map<String, String> inserts = new HashMap<>();
 	private List<SitePage> children = new ArrayList<>();
 

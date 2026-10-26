@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Verifies that rendered pages are cached per key until their TTL expires or their site is purged, that a TTL of 0
- * disables caching and that failed renders are never cached.
+ * disables caching and that failed or uncacheable renders are never cached.
  */
 class CaffeinePageCacheTest {
 
@@ -98,6 +98,16 @@ class CaffeinePageCacheTest {
 
 		assertThrows(IllegalStateException.class, () -> cache.getOrRender(key, null, () -> { throw new IllegalStateException(); }));
 
+		assertEquals("html1", render(key, null));
+	}
+
+	@Test
+	void doesNotCacheUncacheableRenders() {
+		PageCacheKey key = key("site", NL, "sitemap");
+
+		assertEquals("partial", cache.getOrRenderConditionally(key, null, () -> new PageCache.Rendered("partial", false)));
+
+		assertEquals("html1", render(key, null));
 		assertEquals("html1", render(key, null));
 	}
 
