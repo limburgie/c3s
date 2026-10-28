@@ -8,15 +8,18 @@ import com.sass_lang.embedded_protocol.OutputStyle;
 import com.sass_lang.embedded_protocol.Syntax;
 import de.larsgrefer.sass.embedded.SassCompilationFailedException;
 import de.larsgrefer.sass.embedded.SassCompilerFactory;
+import de.larsgrefer.sass.embedded.connection.BundledPackageProvider;
 import de.larsgrefer.sass.embedded.importer.CustomImporter;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.List;
 
 @Slf4j
@@ -82,11 +85,27 @@ public class SassCompiler {
 
 	private de.larsgrefer.sass.embedded.SassCompiler compiler() throws IOException {
 		if (compiler == null) {
-			de.larsgrefer.sass.embedded.SassCompiler created = SassCompilerFactory.bundled();
+			de.larsgrefer.sass.embedded.SassCompiler created = createBundledCompiler();
 			created.registerImporter(new SiteAssetStoreImporter());
 			compiler = created;
 		}
 		return compiler;
+	}
+
+	/**
+	 * The bundled dart-sass is extracted once into {@code java.io.tmpdir} and reused across runs. OS temp cleaners
+	 * (e.g. macOS's purge of files in $TMPDIR unused for 3 days) can delete part of it, and the library never
+	 * re-extracts a non-empty directory, so wipe the extraction and let it extract afresh.
+	 */
+	private static de.larsgrefer.sass.embedded.SassCompiler createBundledCompiler() throws IOException {
+		try {
+			return SassCompilerFactory.bundled();
+		} catch (IllegalStateException e) {
+			Path extractionDir = Path.of(System.getProperty("java.io.tmpdir"), BundledPackageProvider.class.getName());
+			log.warn("Bundled dart-sass in {} is incomplete; re-extracting it", extractionDir, e);
+			FileSystemUtils.deleteRecursively(extractionDir);
+			return SassCompilerFactory.bundled();
+		}
 	}
 
 	private void disposeCompiler() {
